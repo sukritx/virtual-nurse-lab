@@ -4,6 +4,7 @@ import axios from 'axios';
 const Upload = () => {
     const [selectedFile, setSelectedFile] = useState(null);
     const [feedback, setFeedback] = useState('');
+    const [transcription, setTranscription] = useState('');
     const [loading, setLoading] = useState(false);
 
     const onFileChange = event => {
@@ -22,6 +23,7 @@ const Upload = () => {
                 }
             });
             setFeedback(response.data.feedback);
+            setTranscription(response.data.transcription);
             setLoading(false);
         } catch (error) {
             console.error('Error uploading file:', error);
@@ -44,11 +46,19 @@ const Upload = () => {
                 <button onClick={onFileUpload} className="bg-purple-600 text-white w-full py-3 rounded hover:bg-purple-700 transition duration-200">
                     อัพโหลด
                 </button>
-                {loading && <div className="loading-indicator mt-4 text-purple-600">รอประมวลผลประมาณ 30วิ...</div>}
-                {feedback && <div className="mt-6 p-4 bg-green-100 text-green-700 rounded">
-                    <h3 className="text-lg font-bold">Feedback:</h3>
-                    <p>{feedback}</p>
-                </div>}
+                {loading && <div className="loading-indicator mt-4 text-purple-600">รอประมวลผลประมาณ 1-2นาที...</div>}
+                {feedback && (
+                    <div className="mt-6 p-4 bg-green-100 text-green-700 rounded">
+                        <h3 className="text-lg font-bold">Feedback:</h3>
+                        <p>{feedback}</p>
+                    </div>
+                )}
+                {transcription && (
+                    <div className="mt-6 p-4 bg-blue-100 text-blue-700 rounded">
+                        <h3 className="text-lg font-bold">Transcription:</h3>
+                        <p>{transcription}</p>
+                    </div>
+                )}
             </div>
             <style jsx>{`
                 .loading-indicator {

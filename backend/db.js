@@ -38,7 +38,11 @@ const userSchema = new mongoose.Schema({
     isAdmin: {
         type: Boolean,
         default: false
-    }
+    },
+    isProfessor: {
+        type: Boolean,
+        default: false
+    },
 });
 
 const universitySchema = new mongoose.Schema({

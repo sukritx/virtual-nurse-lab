@@ -8,6 +8,7 @@ import { AuthProvider } from './context/AuthContext';
 import { PrivateRoute } from './components/PrivateRoute';
 import Upload from './components/Upload';
 import Library from './pages/Library';
+import BlogContent from './pages/BlogContent';
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
           } />
           <Route path="/upload" element={<Upload />} />
           <Route path="/library" element={<Library />} />
+          <Route path="/library/:id" element={<BlogContent />} />
         </Routes>
       </AuthProvider>
     </BrowserRouter>

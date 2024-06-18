@@ -64,13 +64,13 @@ router.post('/upload', (req, res) => {
             await compressVideo(filePath, compressedFilePath);
 
             // Process the compressed video file
-            const feedback = await processFile(compressedFilePath);
+            const { transcription, feedback } = await processFile(compressedFilePath);
 
-            // Delete the uploaded and compressed files after processing
+            // Delete the uploaded  video after processing
             fs.unlinkSync(filePath);
 
-            // Return the feedback
-            res.json({ feedback });
+            // Return the feedback and transcription
+            res.json({ feedback, transcription });
         } catch (error) {
             console.error(error);
             res.status(500).json({ msg: 'Error processing the file' });
@@ -116,7 +116,7 @@ async function processFile(filePath) {
     // Compare transcription with answer key using GPT-4 API
     const feedback = await processTranscription(transcription.text);
     console.log(feedback);
-    return feedback;
+    return { transcription: transcription.text, feedback };
 }
 
 async function transcribeAudio(audioPath) {
