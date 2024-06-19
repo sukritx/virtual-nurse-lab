@@ -37,12 +37,13 @@ const upload = multer({
 function checkFileType(file, cb) {
     const filetypes = /mp4|mp3|mov/;
     const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-    const mimetype = filetypes.test(file.mimetype);
+    const mimetypes = /video\/mp4|audio\/mp3|video\/quicktime/;
+    const mimetype = mimetypes.test(file.mimetype);
 
     if (mimetype && extname) {
         return cb(null, true);
     } else {
-        cb('Error: MP4, MOV, or MP3 Files Only!');
+        cb(new Error('Error: MP4, MOV, or MP3 Files Only!'));
     }
 }
 
@@ -50,7 +51,7 @@ function checkFileType(file, cb) {
 router.post('/upload', (req, res) => {
     upload(req, res, async (err) => {
         if (err) {
-            return res.status(400).json({ msg: err });
+            return res.status(400).json({ msg: err.message });
         } 
         if (!req.file) {
             return res.status(400).json({ msg: 'No file selected!' });
@@ -63,11 +64,11 @@ router.post('/upload', (req, res) => {
             const compressedFilePath = `./public/uploads/compressed-${req.file.filename}`;
             await compressVideo(filePath, compressedFilePath);
 
+            // Delete the original uploaded video
+            fs.unlinkSync(filePath);
+
             // Process the compressed video file
             const { transcription, feedback } = await processFile(compressedFilePath);
-
-            // Delete the uploaded  video after processing
-            fs.unlinkSync(filePath);
 
             // Return the feedback and transcription
             res.json({ feedback, transcription });
