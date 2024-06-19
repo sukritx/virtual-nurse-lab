@@ -72,5 +72,6 @@ const adminAuth = (req, res, next) => {
 
 module.exports = {
     authMiddleware,
-    professorAuth
+    professorAuth,
+    adminAuth
 }
