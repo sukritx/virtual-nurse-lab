@@ -110,8 +110,8 @@ async function processFile(filePath) {
         });
     }
 
-    // Transcribe the audio file using OpenAI Whisper API
-    const transcription = await transcribeAudio(audioPath);
+    // Transcribe the audio file using Hugging Face API
+    const transcription = await transcribeAudioHuggingFace(audioPath);
     console.log(transcription);
 
     // Compare transcription with answer key using GPT-4 API
@@ -120,20 +120,22 @@ async function processFile(filePath) {
     return { transcription: transcription.text, feedback };
 }
 
-async function transcribeAudio(audioPath) {
-    const form = new FormData();
-    form.append('file', fs.createReadStream(audioPath));
-    form.append('model', 'whisper-1');
-    form.append('language', 'th');
+async function transcribeAudioHuggingFace(audioPath) {
+    const formData = new FormData();
+    formData.append('file', fs.createReadStream(audioPath));
 
-    const response = await axios.post('https://api.openai.com/v1/audio/transcriptions', form, {
-        headers: {
-            ...form.getHeaders(),
-            'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
+    const response = await axios.post(
+        'https://api-inference.huggingface.co/models/biodatlab/whisper-th-large-v3-combined',
+        formData,
+        {
+            headers: {
+                'Authorization': `Bearer ${process.env.HUGGINGFACE_API_KEY}`,
+                ...formData.getHeaders(),
+            },
         }
-    });
+    );
 
-    return response.data;
+    return response.data.text;
 }
 
 async function processTranscription(transcription) {
