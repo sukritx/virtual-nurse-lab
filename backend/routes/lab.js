@@ -121,21 +121,31 @@ async function processFile(filePath) {
 }
 
 async function transcribeAudioHuggingFace(audioPath) {
-    const formData = new FormData();
-    formData.append('file', fs.createReadStream(audioPath));
+    const audioData = fs.readFileSync(audioPath);
 
-    const response = await axios.post(
-        'https://api-inference.huggingface.co/models/biodatlab/whisper-th-large-v3-combined',
-        formData,
-        {
-            headers: {
-                'Authorization': `Bearer ${process.env.HUGGINGFACE_API_KEY}`,
-                ...formData.getHeaders(),
-            },
+    try {
+        const response = await axios.post(
+            'https://ebkphb5j53c9243w.us-east-1.aws.endpoints.huggingface.cloud',
+            audioData,
+            {
+                headers: {
+                    'Authorization': `Bearer ${process.env.HUGGINGFACE_API_KEY}`,
+                    'Content-Type': 'audio/mpeg',
+                    'Accept': 'application/json',
+                },
+            }
+        );
+
+        return response.data;
+    } catch (error) {
+        if (error.response) {
+            console.error(`Error: ${error.response.status} - ${error.response.statusText}`);
+            console.error(error.response.data);
+            throw new Error(`Transcription failed: ${error.response.status} - ${error.response.statusText}`);
+        } else {
+            throw new Error(`Transcription failed: ${error.message}`);
         }
-    );
-
-    return response.data.text;
+    }
 }
 
 async function processTranscription(transcription) {
@@ -190,6 +200,7 @@ async function processTranscription(transcription) {
 การวินิจฉัยทางการพยาบาล: 10%
 การให้คำแนะนำ: 40%
 การสาธิตท่าอุ้มและการบรรเทาอาการ: 30%
+รวม 100%
 
 can you compare key answer and evaluate the score of one nursing student please provide detail, comparing the key answer and her answer
 ตอบเป็นภาษาไทย
@@ -197,7 +208,7 @@ can you compare key answer and evaluate the score of one nursing student please 
 
     const response = await openai.chat.completions.create({
         messages: [{ role: "system", content: checkContent }],
-        model: "gpt-3.5-turbo",
+        model: "gpt-4o",
     });
 
     console.log(response);
