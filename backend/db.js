@@ -84,6 +84,10 @@ const labSchema = new mongoose.Schema({
             ref: 'Lab',
             required: true
         },
+        videoPath: {
+            type: String,
+            required: true
+        },
         studentAnswer: {
             type: String,
             required: true
