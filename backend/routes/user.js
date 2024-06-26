@@ -3,7 +3,7 @@ const express = require('express');
 const bcrypt = require('bcrypt');
 const router = express.Router();
 const zod = require("zod");
-const { User, Account, University } = require("../db");
+const { User, University } = require("../db");
 const jwt = require("jsonwebtoken");
 const  { authMiddleware } = require("../middleware");
 const dotenv = require('dotenv').config();
@@ -72,7 +72,9 @@ router.post("/signup", async (req, res) => {
     })
 
     const token = jwt.sign({
-        userId
+        userId: user._id,
+        isProfessor: user.isProfessor,
+        isAdmin: user.isAdmin
     }, JWT_SECRET);
 
     res.json({
@@ -102,13 +104,15 @@ router.post("/signin", async (req, res) => {
     if (user) {
         const isMatch = await bcrypt.compare(req.body.password, user.password);
         if (isMatch) {
-          const token = jwt.sign({
-            userId: user._id
-          }, JWT_SECRET);
+            const token = jwt.sign({
+                userId: user._id,
+                isProfessor: user.isProfessor,
+                isAdmin: user.isAdmin
+            }, JWT_SECRET);
       
-          return res.json({
+        return res.json({
             token: token
-          });
+        });
         }
     }
 
