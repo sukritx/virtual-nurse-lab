@@ -5,6 +5,7 @@ import { Heading } from "../components/Heading";
 import { InputBox } from "../components/InputBox";
 import { SubHeading } from "../components/SubHeading";
 import axios from "axios";
+import * as jwt_decode from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 import logo from "../assets/NU_CMU_LOGO.png";
 
@@ -19,8 +20,20 @@ export const Signin = () => {
         username,
         password
       });
-      localStorage.setItem("token", response.data.token);
-      navigate("/dashboard");
+      const token = response.data.token;
+      localStorage.setItem("token", token);
+      
+      // Decode the token to get user information
+      const decodedToken = jwt_decode(token);
+      
+      // Redirect based on user role
+      if (decodedToken.isAdmin) {
+        navigate("/admin/dashboard");
+      } else if (decodedToken.isProfessor) {
+        navigate("/professor/dashboard");
+      } else {
+        navigate("/dashboard");
+      }
     } catch (error) {
       console.error("Error during signin:", error);
       alert(error.response?.data?.message || "Signin failed");

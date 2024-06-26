@@ -3,6 +3,8 @@ import { Homepage } from "./pages/Homepage";
 import { Signup } from "./pages/Signup";
 import { Signin } from "./pages/Signin";
 import { Dashboard } from "./pages/Dashboard";
+import { ProfessorDashboard } from "./pages/ProfessorDashboard";
+import { AdminDashboard } from "./pages/AdminDashboard";
 import { Labs } from './pages/Labs';
 import { AuthProvider } from './context/AuthContext';
 import { PrivateRoute } from './components/PrivateRoute';
@@ -21,6 +23,16 @@ function App() {
           <Route path="/dashboard" element={
             <PrivateRoute>
               <Dashboard />
+            </PrivateRoute>
+          } />
+          <Route path="/professor/dashboard" element={
+            <PrivateRoute role="professor">
+              <ProfessorDashboard />
+            </PrivateRoute>
+          } />
+          <Route path="/admin/dashboard" element={
+            <PrivateRoute role="admin">
+              <AdminDashboard />
             </PrivateRoute>
           } />
           <Route path="/labs/*" element={
