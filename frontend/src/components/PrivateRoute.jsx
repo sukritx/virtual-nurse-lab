@@ -2,7 +2,7 @@
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import PropTypes from 'prop-types';
-import * as jwt_decode from "jwt-decode";
+import { jwtDecode } from 'jwt-decode'
 
 export const PrivateRoute = ({ children, role }) => {
   const { token } = useAuth();
@@ -13,7 +13,7 @@ export const PrivateRoute = ({ children, role }) => {
 
   if (role) {
     try {
-      const decodedToken = jwt_decode.default(token);
+      const decodedToken = jwtDecode(token);
       if (role === 'admin' && !decodedToken.isAdmin) {
         return <Navigate to="/dashboard" />;
       }

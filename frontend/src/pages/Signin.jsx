@@ -5,14 +5,16 @@ import { Heading } from "../components/Heading";
 import { InputBox } from "../components/InputBox";
 import { SubHeading } from "../components/SubHeading";
 import axios from "axios";
-import * as jwt_decode from "jwt-decode";
+import { jwtDecode } from 'jwt-decode'
 import { useNavigate } from "react-router-dom";
+import { useAuth } from '../context/AuthContext';
 import logo from "../assets/NU_CMU_LOGO.png";
 
 export const Signin = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleSignin = async () => {
     try {
@@ -21,11 +23,11 @@ export const Signin = () => {
         password
       });
       const token = response.data.token;
-      localStorage.setItem("token", token);
-      
+      login(token);
+
       // Decode the token to get user information
-      const decodedToken = jwt_decode(token);
-      
+      const decodedToken = jwtDecode(token);
+
       // Redirect based on user role
       if (decodedToken.isAdmin) {
         navigate("/admin/dashboard");
@@ -36,7 +38,17 @@ export const Signin = () => {
       }
     } catch (error) {
       console.error("Error during signin:", error);
-      alert(error.response?.data?.message || "Signin failed");
+
+      if (error.response) {
+        // Server responded with a status other than 200 range
+        alert(error.response.data.message || "Signin failed");
+      } else if (error.request) {
+        // Request was made but no response received
+        alert("No response from server. Please try again later.");
+      } else {
+        // Something happened in setting up the request
+        alert("Error during signin. Please try again.");
+      }
     }
   };
 

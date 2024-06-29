@@ -7,6 +7,7 @@ import { SubHeading } from "../components/SubHeading";
 import logo from "../assets/NU_CMU_LOGO.png";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from '../context/AuthContext';
 
 export const Signup = () => {
   const [firstName, setFirstName] = useState("");
@@ -16,6 +17,7 @@ export const Signup = () => {
   const [studentId, setStudentId] = useState("");
   const [registerCode, setRegisterCode] = useState("");
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleSignup = async () => {
     try {
@@ -27,7 +29,7 @@ export const Signup = () => {
         studentId,
         registerCode
       });
-      localStorage.setItem("token", response.data.token);
+      login(response.data.token);
       navigate("/dashboard");
     } catch (error) {
       console.error("Error during signup:", error);
