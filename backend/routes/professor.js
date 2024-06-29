@@ -5,10 +5,10 @@ const { professorAuth } = require('../middleware');
 
 router.get('/university', professorAuth, async (req, res) => {
   try {
-    const university = await University.findOne({ professor: req.userId })
+    const university = await University.findOne({ professor: { $in: [req.userId] } })
       .populate('students', 'firstName lastName studentId')
       .select('universityName numberOfStudents students');
-    
+
     if (!university) {
       return res.status(404).json({ message: 'University not found' });
     }

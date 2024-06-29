@@ -7,7 +7,6 @@ const { adminAuth } = require('../middleware')
 
 
 // admin generate university's registercode
-// Generate unique registration code
 const generateUniqueCode = () => {
     return crypto.randomBytes(3).toString('hex'); // Generate a 6-character hex string
 };
