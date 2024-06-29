@@ -86,41 +86,54 @@ router.post("/signup", async (req, res) => {
 
 const signinBody = zod.object({
     username: zod.string(),
-	password: zod.string()
-})
+    password: zod.string()
+});
 
 router.post("/signin", async (req, res) => {
-    const { success } = signinBody.safeParse(req.body)
-    if (!success) {
-        return res.status(411).json({
-            message: "Username already taken / Incorrect inputs"
-        })
-    }
+    try {
+        const { success } = signinBody.safeParse(req.body);
+        if (!success) {
+            console.error("Input validation failed");
+            return res.status(400).json({
+                message: "Incorrect inputs"
+            });
+        }
 
-    const user = await User.findOne({
-        username: req.body.username
-    });
+        const user = await User.findOne({
+            username: req.body.username
+        });
 
-    if (user) {
+        if (!user) {
+            console.error("User not found");
+            return res.status(404).json({
+                message: "User not found"
+            });
+        }
+
         const isMatch = await bcrypt.compare(req.body.password, user.password);
-        if (isMatch) {
-            const token = jwt.sign({
-                userId: user._id,
-                isProfessor: user.isProfessor,
-                isAdmin: user.isAdmin
-            }, JWT_SECRET);
-      
+        if (!isMatch) {
+            console.error("Invalid password");
+            return res.status(401).json({
+                message: "Invalid password"
+            });
+        }
+
+        const token = jwt.sign({
+            userId: user._id,
+            isProfessor: user.isProfessor,
+            isAdmin: user.isAdmin
+        }, JWT_SECRET);
+
         return res.json({
             token: token
         });
-        }
+    } catch (error) {
+        console.error("Error during signin:", error);
+        return res.status(500).json({
+            message: "Internal server error"
+        });
     }
-
-    
-    res.status(411).json({
-        message: "Error while logging in"
-    })
-})
+});
 
 const updateBody = zod.object({
 	password: zod.string().optional(),

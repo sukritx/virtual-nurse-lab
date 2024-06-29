@@ -110,32 +110,37 @@ async function processFile(filePath) {
         });
     }
 
-    // Transcribe the audio file using Hugging Face API
-    const transcription = await transcribeAudioHuggingFace(audioPath);
-    console.log(transcription);
+    // Transcribe the audio file using iapp.co.th API
+    const transcription = await transcribeAudioIApp(audioPath);
+
+    // Concatenate the text from each segment
+    const transcriptionText = concatenateTranscriptionText(transcription.output);
+    console.log(transcriptionText);
 
     // Compare transcription with answer key using GPT-4 API
-    const feedback = await processTranscription(transcription.text);
+    const feedback = await processTranscription(transcriptionText);
     console.log(feedback);
-    return { transcription: transcription.text, feedback };
+    return { transcription: transcriptionText, feedback };
 }
 
-async function transcribeAudioHuggingFace(audioPath) {
-    const audioData = fs.readFileSync(audioPath);
+async function transcribeAudioIApp(audioPath) {
+    const audioData = fs.createReadStream(audioPath);
+    let data = new FormData();
+    data.append('file', audioData);
+
+    let config = {
+        method: 'post',
+        maxBodyLength: Infinity,
+        url: 'https://api.iapp.co.th/asr/v3',
+        headers: { 
+            'apikey': process.env.IAPP_API_KEY, 
+            ...data.getHeaders()
+        },
+        data : data
+    };
 
     try {
-        const response = await axios.post(
-            'https://ebkphb5j53c9243w.us-east-1.aws.endpoints.huggingface.cloud',
-            audioData,
-            {
-                headers: {
-                    'Authorization': `Bearer ${process.env.HUGGINGFACE_API_KEY}`,
-                    'Content-Type': 'audio/mpeg',
-                    'Accept': 'application/json',
-                },
-            }
-        );
-
+        const response = await axios.request(config);
         return response.data;
     } catch (error) {
         if (error.response) {
@@ -146,6 +151,10 @@ async function transcribeAudioHuggingFace(audioPath) {
             throw new Error(`Transcription failed: ${error.message}`);
         }
     }
+}
+
+function concatenateTranscriptionText(transcriptionOutput) {
+    return transcriptionOutput.map(segment => segment.text).join(' ');
 }
 
 async function processTranscription(transcription) {
@@ -202,8 +211,7 @@ async function processTranscription(transcription) {
 การสาธิตท่าอุ้มและการบรรเทาอาการ: 30%
 รวม 100%
 
-can you compare key answer and evaluate the score of one nursing student please provide detail, comparing the key answer and her answer
-ตอบเป็นภาษาไทย
+โปรดเปรียบเทียบคำตอบของนักศึกษากับเฉลยและให้คะแนน พร้อมทั้งอธิบายรายละเอียดข้อดีและข้อเสนอแนะของคำตอบนักศึกษา ตอบเป็นภาษาไทย
 `;
 
     const response = await openai.chat.completions.create({
