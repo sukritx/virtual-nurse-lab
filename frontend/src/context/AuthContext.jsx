@@ -1,9 +1,10 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem('token'));
+  const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')));
 
   useEffect(() => {
     if (token) {
@@ -11,18 +12,27 @@ export const AuthProvider = ({ children }) => {
     } else {
       localStorage.removeItem('token');
     }
-  }, [token]);
 
-  const login = (newToken) => {
+
+    if (user) {
+      localStorage.setItem('user', JSON.stringify(user));
+    } else {
+      localStorage.removeItem('user');
+    }
+  }, [token, user]);
+
+  const login = (newToken, userInfo) => {
     setToken(newToken);
+    setUser(userInfo);
   };
 
   const logout = () => {
     setToken(null);
+    setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ token, login, logout }}>
+    <AuthContext.Provider value={{ token, user, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

@@ -22,8 +22,8 @@ export const Signin = () => {
         username,
         password
       });
-      const token = response.data.token;
-      login(token);
+      const { token, user } = response.data;
+      login(token, user);
 
       // Decode the token to get user information
       const decodedToken = jwtDecode(token);

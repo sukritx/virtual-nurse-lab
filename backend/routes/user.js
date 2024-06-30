@@ -124,8 +124,14 @@ router.post("/signin", async (req, res) => {
             isAdmin: user.isAdmin
         }, JWT_SECRET);
 
+        const userObject = user.toObject(); // Convert Mongoose document to plain JavaScript object
+        delete userObject.password; // Remove password field
+        delete userObject.isAdmin;
+        delete userObject.isProfessor;
+
         return res.json({
-            token: token
+            token: token,
+            user: userObject
         });
     } catch (error) {
         console.error("Error during signin:", error);

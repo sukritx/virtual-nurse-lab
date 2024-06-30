@@ -70,7 +70,8 @@ const universitySchema = new mongoose.Schema({
 
 const labSchema = new mongoose.Schema({
     studentId: {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
         required: true
     },
     universityId: {
@@ -81,7 +82,7 @@ const labSchema = new mongoose.Schema({
     lab: [{
         question: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'Lab',
+            ref: 'LabQuestion',
             required: true
         },
         videoPath: {
@@ -107,12 +108,20 @@ const labSchema = new mongoose.Schema({
     }],
 })
 
+const labQuestion = new mongoose.Schema({
+    question: {
+        type: String,
+    }
+})
+
 const User = mongoose.model('User', userSchema);
 const University = mongoose.model('University', universitySchema);
 const Lab = mongoose.model('Lab', labSchema);
+const LabQuestion = mongoose.model('LabQuestion', labQuestion);
 
 module.exports = {
 	User,
     University,
-    Lab
+    Lab,
+    LabQuestion
 };

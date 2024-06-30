@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { University } = require('../db');
+const { User, University } = require('../db');
 const { professorAuth } = require('../middleware');
 
 router.get('/university', professorAuth, async (req, res) => {
@@ -19,5 +19,31 @@ router.get('/university', professorAuth, async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 });
+
+// get each student lab info
+router.get('/students', professorAuth, async (req, res) => {
+      const filter = req.query.filter || "";
+
+    const users = await User.find({
+        $or: [{
+            firstName: {
+                "$regex": filter
+            }
+        }, {
+            lastName: {
+                "$regex": filter
+            }
+        }]
+    })
+
+    res.json({
+        user: users.map(user => ({
+            username: user.username,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            _id: user._id
+        }))
+    })
+})
 
 module.exports = router;
