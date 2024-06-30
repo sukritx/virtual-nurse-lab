@@ -15,10 +15,10 @@ export const PrivateRoute = ({ children, role }) => {
     try {
       const decodedToken = jwtDecode(token);
       if (role === 'admin' && !decodedToken.isAdmin) {
-        return <Navigate to="/dashboard" />;
+        return <Navigate to="/admin/dashboard" />;
       }
       if (role === 'professor' && !decodedToken.isProfessor) {
-        return <Navigate to="/dashboard" />;
+        return <Navigate to="/professor/dashboard" />;
       }
     } catch (error) {
       console.error('Error decoding token:', error);

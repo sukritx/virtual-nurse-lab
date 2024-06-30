@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
-const { University } = require('../db');
+const { User, University } = require('../db');
 const crypto = require('crypto');
 const { adminAuth } = require('../middleware')
 
@@ -51,11 +51,43 @@ router.post('/generate-code', adminAuth, async (req, res) => {
 });
 
 // admin assign professor role and remove from student's university schema
+router.post('/assign-professor', adminAuth, async (req, res) => {
+    const { registerCode, professorUsername } = req.body;
+
+    try {
+        // Find the university by register code
+        const university = await University.findOne({ registerCode });
+        if (!university) {
+            return res.status(404).json({ message: 'University not found' });
+        }
+
+        // Find the user by username (professorName)
+        const professor = await User.findOne({ username: professorUsername });
+        if (!professor) {
+            return res.status(404).json({ message: 'Professor not found' });
+        }
+
+        // Update user to be a professor and remove from university students
+        professor.isProfessor = true;
+        await professor.save();
+
+        // Remove the professor from the university's students list
+        university.students = university.students.filter(studentId => !studentId.equals(professor._id));
+        // Add the professor to the university's professor list
+        university.professor.push(professor._id);
+        await university.save();
+
+        return res.json({ message: 'Professor assigned successfully' });
+    } catch (error) {
+        console.error('Error assigning professor:', error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+});
 
 // get all universities
 router.get('/universities', adminAuth, async (req, res) => {
     try {
-        const universities = await University.find().select('universityName numberOfStudents students');
+        const universities = await University.find().select('universityName numberOfStudents students registerCode');
         res.json(universities);
     } catch (error) {
         console.error('Error fetching universities:', error);
