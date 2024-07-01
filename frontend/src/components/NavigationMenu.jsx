@@ -4,9 +4,6 @@ import { useAuth } from '../context/AuthContext';
 export const NavigationMenu = () => {
   const { token, user, logout } = useAuth();
 
-  console.log('Token:', token);
-  console.log('User:', user);
-
   return (
     <nav className="bg-white shadow-md">
       <div className="max-w-6xl mx-auto px-4">
