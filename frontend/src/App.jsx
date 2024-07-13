@@ -5,12 +5,14 @@ import { Signin } from "./pages/Signin";
 import { Dashboard } from "./pages/Dashboard";
 import { ProfessorDashboard } from "./pages/ProfessorDashboard";
 import { AdminDashboard } from "./pages/AdminDashboard";
-import { Labs } from './pages/Labs';
+import { StudentDashboard } from "./pages/StudentDashboard";
+import { LabPage } from "./pages/LabPage";
 import { AuthProvider } from './context/AuthContext';
 import { PrivateRoute } from './components/PrivateRoute';
-import Upload from './components/Upload';
 import Library from './pages/Library';
 import BlogContent from './pages/BlogContent';
+import UploadTest from './components/UploadTest';
+import Upload1 from './components/Upload1';
 
 function App() {
   return (
@@ -25,6 +27,16 @@ function App() {
               <Dashboard />
             </PrivateRoute>
           } />
+          <Route path="/student/dashboard" element={
+            <PrivateRoute>
+              <StudentDashboard />
+            </PrivateRoute>
+          } />
+          <Route path="/lab/:labId" element={
+            <PrivateRoute>
+              <LabPage />
+            </PrivateRoute>
+          } />
           <Route path="/professor/dashboard" element={
             <PrivateRoute role="professor">
               <ProfessorDashboard />
@@ -35,12 +47,12 @@ function App() {
               <AdminDashboard />
             </PrivateRoute>
           } />
-          <Route path="/labs/*" element={
+          <Route path="/student/upload1" element={
             <PrivateRoute>
-              <Labs />
+              <Upload1 />
             </PrivateRoute>
           } />
-          <Route path="/upload" element={<Upload />} />
+          <Route path="/test-upload" element={<UploadTest />} />
           <Route path="/library" element={<Library />} />
           <Route path="/library/:id" element={<BlogContent />} />
         </Routes>

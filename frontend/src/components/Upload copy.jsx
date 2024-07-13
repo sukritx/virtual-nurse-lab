@@ -6,6 +6,10 @@ const Upload = () => {
     const [feedback, setFeedback] = useState('');
     const [transcription, setTranscription] = useState('');
     const [loading, setLoading] = useState(false);
+    const [passFailStatus, setPassFailStatus] = useState('');
+    const [score, setScore] = useState('');
+    const [pros, setPros] = useState('');
+    const [recommendations, setRecommendations] = useState('');
 
     const onFileChange = event => {
         setSelectedFile(event.target.files[0]);
@@ -17,13 +21,17 @@ const Upload = () => {
 
         try {
             setLoading(true);
-            const response = await axios.post('http://localhost:3000/api/v1/lab/upload', formData, {
+            const response = await axios.post('http://localhost:3000/api/v1/lab/1', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
             });
             setFeedback(response.data.feedback);
             setTranscription(response.data.transcription);
+            setPassFailStatus(response.data.passFailStatus);
+            setScore(response.data.score);
+            setPros(response.data.pros);
+            setRecommendations(response.data.recommendations);
             setLoading(false);
         } catch (error) {
             console.error('Error uploading file:', error);
@@ -57,6 +65,28 @@ const Upload = () => {
                     <div className="mt-6 p-4 bg-blue-100 text-blue-700 rounded">
                         <h3 className="text-lg font-bold">Transcription:</h3>
                         <p>{transcription}</p>
+                    </div>
+                )}
+                {passFailStatus && (
+                    <div className={`mt-6 p-4 rounded ${passFailStatus === 'Passed' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                        <h3 className="text-lg font-bold">Status: {passFailStatus}</h3>
+                    </div>
+                )}
+                {score && (
+                    <div className="mt-6 p-4 bg-yellow-100 text-yellow-700 rounded">
+                        <h3 className="text-lg font-bold">Score: {score}</h3>
+                    </div>
+                )}
+                {pros && (
+                    <div className="mt-6 p-4 bg-gray-100 text-gray-700 rounded">
+                        <h3 className="text-lg font-bold">Pros:</h3>
+                        <p>{pros}</p>
+                    </div>
+                )}
+                {recommendations && (
+                    <div className="mt-6 p-4 bg-gray-100 text-gray-700 rounded">
+                        <h3 className="text-lg font-bold">Recommendations:</h3>
+                        <p>{recommendations}</p>
                     </div>
                 )}
             </div>

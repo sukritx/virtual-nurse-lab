@@ -34,7 +34,7 @@ export const Signin = () => {
       } else if (decodedToken.isProfessor) {
         navigate("/professor/dashboard");
       } else {
-        navigate("/dashboard");
+        navigate("/student/dashboard");
       }
     } catch (error) {
       console.error("Error during signin:", error);

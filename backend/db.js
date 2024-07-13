@@ -68,60 +68,72 @@ const universitySchema = new mongoose.Schema({
     }],
 })
 
-const labSchema = new mongoose.Schema({
+const labSubmissionSchema = new mongoose.Schema({
     studentId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
-        required: true
     },
-    universityId: {
+    labInfo: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'University',
+        ref: 'LabInfo',
         required: true
     },
-    lab: [{
-        question: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'LabQuestion',
-            required: true
-        },
-        videoPath: {
-            type: String,
-            required: true
-        },
-        studentAnswer: {
-            type: String,
-            required: true
-        },
-        isPass: {
-            type: Boolean,
-            required: false
-        },
-        grading: {
-            type: String,
-            required: true
-        },
-        recommendations: {
-            type: String,
-            required: true
-        }
-    }],
-})
-
-const labQuestion = new mongoose.Schema({
-    question: {
+    videoPath: {
         type: String,
+        required: true
+    },
+    studentAnswer: {
+        type: String,
+        required: true
+    },
+    studentScore: {
+        type: Number,
+        required: true
+    },
+    isPass: {
+        type: Boolean,
+        required: false
+    },
+    pros: {
+        type: String,
+        required: true
+    },
+    recommendations: {
+        type: String,
+        required: true
+    },
+    attempt: {
+        type: Number,
+        required: true
+    },
+    timestamp: {
+        type: Date,
+        default: Date.now
     }
-})
+});
+
+const labInfoSchema = new mongoose.Schema({
+    labName: {
+        type: String,
+    },
+    labNumber: {
+        type: Number,
+        required: true
+    },
+    subject: {
+        type: String,
+        required: true
+    },
+});
 
 const User = mongoose.model('User', userSchema);
 const University = mongoose.model('University', universitySchema);
-const Lab = mongoose.model('Lab', labSchema);
-const LabQuestion = mongoose.model('LabQuestion', labQuestion);
+const LabSubmission = mongoose.model('LabSubmission', labSubmissionSchema);
+const LabInfo = mongoose.model('LabInfo', labInfoSchema);
 
 module.exports = {
 	User,
     University,
-    Lab,
-    LabQuestion
+    LabSubmission,
+    LabInfo
 };

@@ -30,7 +30,7 @@ export const Signup = () => {
         registerCode
       });
       login(response.data.token);
-      navigate("/dashboard");
+      navigate("/student/dashboard");
     } catch (error) {
       console.error("Error during signup:", error);
       alert(error.response?.data?.message || "Signup failed");

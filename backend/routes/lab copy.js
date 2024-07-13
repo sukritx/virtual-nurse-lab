@@ -7,10 +7,8 @@ const ffmpeg = require('fluent-ffmpeg');
 const ffmpegPath = require('ffmpeg-static');
 const fs = require('fs');
 const FormData = require('form-data');
-const mongoose = require('mongoose');
 
 const { User, LabSubmission, LabInfo } = require('../db');
-const { authMiddleware } = require('../middleware');
 
 require('dotenv').config();
 
@@ -184,16 +182,16 @@ async function processTranscriptionLab1(transcription) {
 โปรดเปรียบเทียบคำตอบของนักศึกษากับเฉลยและให้คะแนน พร้อมทั้งอธิบายรายละเอียดข้อดีและข้อเสนอแนะของคำตอบนักศึกษา ตอบเป็นภาษาไทย
 โปรดแปลงผลการประเมินเป็น JSON รูปแบบดังนี้เท่านั้น:
     {
-      "totalScore": <คะแนนนักศึกษาได้>,
-      "pros": "<สิ่งที่นักศึกษาทำได้ดี>",
-      "recommendations": "<ข้อปรับปรุง>"
+      "totalScore": <totalScore>,
+      "pros": "<pros>",
+      "improvements": "<finalRecommendations>"
     }
 `;
 
     const response = await openai.chat.completions.create({
         messages: [{ role: "system", content: checkContent }],
         model: "gpt-4o",
-        response_format: { "type": "json_object" }
+        response_format: "json_object"
     });
 
     const feedbackJson = JSON.parse(response.choices[0].message.content.trim());
@@ -203,32 +201,23 @@ async function processTranscriptionLab1(transcription) {
 
 // Store student's lab data into the database
 router.post('/submit-lab', async (req, res) => {
-    const { studentId, labNumber, subject, videoPath, studentAnswer, studentScore, isPass, pros, recommendations } = req.body;
+    const { studentId, labNumber, subject, videoPath, studentAnswer, isPass, pros, recommendations, attempt } = req.body;
 
-    // Validate studentId as ObjectId
-    if (!mongoose.Types.ObjectId.isValid(studentId)) {
-        return res.status(400).json({ message: 'Invalid studentId' });
-    }
     try {
         const labInfo = await LabInfo.findOne({ labNumber, subject });
         if (!labInfo) {
             return res.status(404).json({ message: 'Lab information not found' });
         }
 
-        // Check for previous submissions and calculate the attempt number
-        const previousSubmissions = await LabSubmission.find({ studentId, labInfo: labInfo._id });
-        const currentAttempt = previousSubmissions.length + 1;
-
         const labSubmission = new LabSubmission({
             studentId,
             labInfo: labInfo._id,
             videoPath,
             studentAnswer,
-            studentScore,
             isPass,
             pros,
             recommendations,
-            attempt: currentAttempt
+            attempt
         });
 
         await labSubmission.save();
@@ -240,7 +229,7 @@ router.post('/submit-lab', async (req, res) => {
 });
 
 // Handle file upload and processing
-router.post('/1', authMiddleware, (req, res) => {
+router.post('/1', (req, res) => {
     upload(req, res, async (err) => {
         if (err) {
             return res.status(400).json({ msg: err.message });
@@ -265,15 +254,15 @@ router.post('/1', authMiddleware, (req, res) => {
             const feedbackJson = await processTranscriptionLab1(transcription);
 
             const labInfo = {
-                studentId: req.userId,
+                studentUsername: req.body.studentId,
                 labNumber: 1,
                 subject: 'maternalandchild',
                 videoPath: compressedFilePath,
                 studentAnswer: transcription,
-                studentScore: feedbackJson.totalScore,
                 isPass: feedbackJson.totalScore >= 50,
                 pros: feedbackJson.pros,
                 recommendations: feedbackJson.recommendations,
+                attempt: req.body.attempt
             };
 
             await axios.post('http://localhost:3000/api/v1/lab/submit-lab', labInfo);
@@ -291,52 +280,6 @@ router.post('/1', authMiddleware, (req, res) => {
             res.status(500).json({ msg: 'Error processing the file' });
         }
     });
-});
-
-// Dummy endpoint to simulate GPT API response
-router.post('/dummy-gpt-response', async (req, res) => {
-    const dummyFeedbackJson = {
-        totalScore: 99,
-        pros: 'นักศึกษามีความพยายามในการอธิบายขั้นตอนการนำลูกเข้าเต้าได้ดีพอควร รวมถึงการระบุถึงรายละเอียดเช่นตำแหน่งของหัวนมและศีรษะของทารก',
-        recommendations: 'นักศึกษาควรเพิ่มการซักประวัติจากมารดารวมถึงจากบุตรให้ครบถ้วนตามที่เฉลยกำหนด เช่น ปริมาณน้ำที่มารดาดื่ม จำนวนครั้งของการปัสสาวะและอุจจาระของบุตร น้ำหนักบุตร เป็นต้น นอกจากนี้ควรขยายข้อมูลการวินิจฉัยทางการพยาบาลและเพิ่มเติมคำแนะนำอย่างละเอียด เช่นเดียวกับการสาธิตท่าอุ้มและการบรรเทาอาการเจ็บที่หัวนมให้ครบถ้วน'
-    };
-    res.json(dummyFeedbackJson);
-});
-
-// Handle file upload and processing (Modified for dummy data testing)
-router.post('/dummy', authMiddleware, async (req, res) => {
-    const dummyTranscription = 'นี่จะเป็นวิธีการสาธินำลูกเข้าเต้า โดยวัจการประคองศีรษะของธรุป ในรูปแบบของทุกวอนโฮเตอร์ แล้วก็ นำลูกเข้าเต่าโดยที่ให้สหัวของสารกงศีรษะเงียนขึ้น โดยใช้มือข้างหนึ่งนะครับ จับเท้าไว้แล้วก็นำ ติดปากของทารกและเอาหัวนมมาให้ใกล้กันอย่างนี้นะครับ และให้ทำการเอานมเข้าปากทะเลาะโดยให้ทะเลาะอมทั้งหมด นมและอมจนถึงร้านนมนะครับ เพื่อป้องกันการเจ็บที่บริเวณหัวนม เพื่อการเหงียนขึ้น เราจะไม่นำลูก เข้าแบบอย่างนี้นะครับเราจะนั่งลูกใหญ่ขึ้นนิดนึงนะครับแล้วก็เข้าเต้าในเนรนาดแบบนี้ครับ อุ้ย';
-
-    try {
-        const feedbackResponse = await axios.post('http://localhost:3000/api/v1/lab/dummy-gpt-response');
-        const feedbackJson = feedbackResponse.data;
-
-        const labInfo = {
-            studentId: req.userId, // Make sure this is a valid ObjectId in your test data
-            labNumber: 2,
-            subject: 'maternalandchild',
-            videoPath: 'dummy-path/compressed-video.mp4', // Use a dummy path
-            studentAnswer: dummyTranscription,
-            studentScore: feedbackJson.totalScore,
-            isPass: feedbackJson.totalScore >= 50,
-            pros: feedbackJson.pros,
-            recommendations: feedbackJson.recommendations,
-        };
-
-        await axios.post('http://localhost:3000/api/v1/lab/submit-lab', labInfo);
-
-        res.json({
-            feedback: feedbackJson,
-            transcription: dummyTranscription,
-            passFailStatus: feedbackJson.totalScore >= 50 ? 'Passed' : 'Failed',
-            score: feedbackJson.totalScore,
-            pros: feedbackJson.pros,
-            recommendations: feedbackJson.recommendations
-        });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ msg: 'Error processing the dummy data' });
-    }
 });
 
 module.exports = router;

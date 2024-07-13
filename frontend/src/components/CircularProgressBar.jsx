@@ -1,5 +1,3 @@
-import React from 'react';
-
 const CircularProgressBar = ({ percentage, label }) => {
   const radius = 50;
   const stroke = 10;
