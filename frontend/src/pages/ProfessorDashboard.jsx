@@ -10,6 +10,8 @@ import { useNavigate } from 'react-router-dom';
 
 export const ProfessorDashboard = () => {
   const [university, setUniversity] = useState(null);
+  const [labStats, setLabStats] = useState([]);
+  const [studentLabStatuses, setStudentLabStatuses] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const { token } = useAuth();
   const navigate = useNavigate();
@@ -20,18 +22,26 @@ export const ProfessorDashboard = () => {
 
   const fetchUniversityData = async () => {
     try {
-      const response = await axios.get('http://localhost:3000/api/v1/professor/university', {
+      const universityResponse = await axios.get('http://localhost:3000/api/v1/professor/university', {
         headers: {
           Authorization: `Bearer ${token}`
         }
       });
-      setUniversity(response.data);
+      setUniversity(universityResponse.data);
+
+      const labsResponse = await axios.get('http://localhost:3000/api/v1/professor/labs', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      setLabStats(labsResponse.data.labStats);
+      setStudentLabStatuses(labsResponse.data.studentLabStatuses);
     } catch (error) {
-      console.error('Error fetching university data:', error);
+      console.error('Error fetching data:', error);
     }
   };
 
-  const filteredStudents = university?.students.filter(student => 
+  const filteredStudents = studentLabStatuses.filter(student =>
     student.studentId.includes(searchQuery) || 
     `${student.firstName} ${student.lastName}`.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -50,36 +60,15 @@ export const ProfessorDashboard = () => {
         <h1 className="text-4xl font-bold mb-4">Professor Dashboard</h1>
         <div className="flex justify-between mb-4">
           <span className="text-lg">Statistics</span>
-          <span className="text-lg">Registered student: {university.students.length}/{university.numberOfStudents}</span>
+          <span className="text-lg">Registered students: {university.students.length}/{university.numberOfStudents}</span>
         </div>
         <div className="flex justify-around mb-4">
-          <div className="flex flex-col items-center">
-            <span>Lab 1</span>
-            <CircularProgressBar percentage={46} label="Completed" />
-          </div>
-          <div className="flex flex-col items-center">
-            <span>Lab 2</span>
-            <CircularProgressBar percentage={64} label="Completed" />
-          </div>
-          {/* Repeat for other labs */}
-          <div className="flex flex-col items-center">
-            <span>Lab 3</span>
-          </div>
-          <div className="flex flex-col items-center">
-            <span>Lab 4</span>
-          </div>
-          <div className="flex flex-col items-center">
-            <span>Lab 6</span>
-          </div>
-          <div className="flex flex-col items-center">
-            <span>Lab 7</span>
-          </div>
-          <div className="flex flex-col items-center">
-            <span>Lab 8</span>
-          </div>
-          <div className="flex flex-col items-center">
-            <span>Lab 9</span>
-          </div>
+          {labStats.map(stat => (
+            <div key={stat.labNumber} className="flex flex-col items-center">
+              <span>Lab {stat.labNumber}</span>
+              <CircularProgressBar percentage={Math.round((stat.completed / stat.total) * 100)} label="Completed" />
+            </div>
+          ))}
         </div>
         <SearchBar value={searchQuery} onChange={setSearchQuery} />
         <table className="min-w-full bg-white shadow-md rounded my-6">
@@ -93,24 +82,18 @@ export const ProfessorDashboard = () => {
           </thead>
           <tbody className="text-gray-600 text-sm font-light">
             {filteredStudents.map((student) => (
-              <tr key={student._id} className="border-b border-gray-200 hover:bg-gray-100">
+              <tr key={student.studentId} className="border-b border-gray-200 hover:bg-gray-100">
                 <td className="py-3 px-6 text-left">{student.studentId}</td>
                 <td className="py-3 px-6 text-left">{student.firstName} {student.lastName}</td>
                 <td className="py-3 px-6 text-center">
                   <div className="flex justify-center space-x-2">
-                    <div className="w-4 h-4 rounded-full bg-green-500"></div>
-                    <div className="w-4 h-4 rounded-full bg-red-500"></div>
-                    <div className="w-4 h-4 rounded-full bg-red-500"></div>
-                    <div className="w-4 h-4 rounded-full bg-green-500"></div>
-                    <div className="w-4 h-4 rounded-full bg-green-500"></div>
-                    <div className="w-4 h-4 rounded-full bg-green-500"></div>
-                    <div className="w-4 h-4 rounded-full bg-green-500"></div>
-                    <div className="w-4 h-4 rounded-full bg-green-500"></div>
-                    <div className="w-4 h-4 rounded-full bg-green-500"></div>
+                    {student.labsStatus.map((labStatus, index) => (
+                      <div key={index} className={`w-4 h-4 rounded-full ${labStatus.isPass === null ? 'bg-gray-500' : labStatus.isPass ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                    ))}
                   </div>
                 </td>
                 <td className="py-3 px-6 text-center">
-                  <Button onClick={() => navigate(`/view-labs?studentId=${student._id}`)} label={"View Labs"} />
+                  <Button onClick={() => navigate(`/view-labs?studentId=${student.studentId}`)} label={"View Labs"} />
                 </td>
               </tr>
             ))}
