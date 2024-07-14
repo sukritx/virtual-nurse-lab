@@ -13,6 +13,8 @@ import Library from './pages/Library';
 import BlogContent from './pages/BlogContent';
 import UploadTest from './components/UploadTest';
 import Upload1 from './components/Upload1';
+import Contact from './pages/Contact';
+import Sale from './pages/Sale';
 
 function App() {
   return (
@@ -52,6 +54,8 @@ function App() {
               <Upload1 />
             </PrivateRoute>
           } />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/sale" element={<Sale />} />
           <Route path="/test-upload" element={<UploadTest />} />
           <Route path="/library" element={<Library />} />
           <Route path="/library/:id" element={<BlogContent />} />
