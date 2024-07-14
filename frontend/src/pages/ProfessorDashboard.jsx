@@ -54,51 +54,55 @@ export const ProfessorDashboard = () => {
     <div className="min-h-screen flex flex-col items-center bg-slate-100">
       <header className="w-full">
         <NavigationMenu />
-        <img src={logo} alt="Logo" className="h-32 mx-auto my-4" />
+        <img src={logo} alt="Logo" className="h-24 mx-auto my-4" />
       </header>
-      <main className="w-full max-w-4xl px-4 text-center">
-        <h1 className="text-4xl font-bold mb-4">Professor Dashboard</h1>
-        <div className="flex justify-between mb-4">
-          <span className="text-lg">Statistics</span>
-          <span className="text-lg">Registered students: {university.students.length}/{university.numberOfStudents}</span>
+      <main className="w-full max-w-7xl px-4 text-center">
+        <h1 className="text-4xl font-bold mb-8">Professor Dashboard</h1>
+        <div className="flex flex-wrap justify-between items-center mb-8">
+          <div className="text-lg">Statistics</div>
+          <div className="text-lg">Registered students: {university.students.length}/{university.numberOfStudents}</div>
         </div>
-        <div className="flex justify-around mb-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-8">
           {labStats.map(stat => (
-            <div key={stat.labNumber} className="flex flex-col items-center">
-              <span>Lab {stat.labNumber}</span>
+            <div key={stat.labNumber} className="flex flex-col items-center bg-white p-4 rounded-lg shadow-md">
+              <span className="text-lg font-semibold mb-2">Lab {stat.labNumber}</span>
               <CircularProgressBar percentage={Math.round((stat.completed / stat.total) * 100)} label="Completed" />
             </div>
           ))}
         </div>
-        <SearchBar value={searchQuery} onChange={setSearchQuery} />
-        <table className="min-w-full bg-white shadow-md rounded my-6">
-          <thead>
-            <tr className="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
-              <th className="py-3 px-6 text-left">Student ID</th>
-              <th className="py-3 px-6 text-left">Full Name</th>
-              <th className="py-3 px-6 text-center">Progress</th>
-              <th className="py-3 px-6 text-center">Action</th>
-            </tr>
-          </thead>
-          <tbody className="text-gray-600 text-sm font-light">
-            {filteredStudents.map((student) => (
-              <tr key={student.studentId} className="border-b border-gray-200 hover:bg-gray-100">
-                <td className="py-3 px-6 text-left">{student.studentId}</td>
-                <td className="py-3 px-6 text-left">{student.firstName} {student.lastName}</td>
-                <td className="py-3 px-6 text-center">
-                  <div className="flex justify-center space-x-2">
-                    {student.labsStatus.map((labStatus, index) => (
-                      <div key={index} className={`w-4 h-4 rounded-full ${labStatus.isPass === null ? 'bg-gray-500' : labStatus.isPass ? 'bg-green-500' : 'bg-red-500'}`}></div>
-                    ))}
-                  </div>
-                </td>
-                <td className="py-3 px-6 text-center">
-                  <Button onClick={() => navigate(`/view-labs?studentId=${student.studentId}`)} label={"View Labs"} />
-                </td>
+        <div className="mb-8">
+          <SearchBar value={searchQuery} onChange={setSearchQuery} />
+        </div>
+        <div className="overflow-x-auto">
+          <table className="min-w-full bg-white shadow-md rounded-lg">
+            <thead>
+              <tr className="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
+                <th className="py-3 px-6 text-left">Student ID</th>
+                <th className="py-3 px-6 text-left">Full Name</th>
+                <th className="py-3 px-6 text-center">Progress</th>
+                <th className="py-3 px-6 text-center">Action</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="text-gray-600 text-sm font-light">
+              {filteredStudents.map((student) => (
+                <tr key={student.studentId} className="border-b border-gray-200 hover:bg-gray-100">
+                  <td className="py-3 px-6 text-left">{student.studentId}</td>
+                  <td className="py-3 px-6 text-left">{student.firstName} {student.lastName}</td>
+                  <td className="py-3 px-6 text-center">
+                    <div className="flex justify-center space-x-2">
+                      {student.labsStatus.map((labStatus, index) => (
+                        <div key={index} className={`w-4 h-4 rounded-full ${labStatus.isPass === null ? 'bg-gray-500' : labStatus.isPass ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                      ))}
+                    </div>
+                  </td>
+                  <td className="py-3 px-6 text-center">
+                    <Button onClick={() => navigate(`/view-labs?studentId=${student.studentId}`)} label={"View Labs"} />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </main>
     </div>
   );
