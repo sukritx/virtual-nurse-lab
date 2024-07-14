@@ -29,7 +29,8 @@ export const Signup = () => {
         studentId,
         registerCode
       });
-      login(response.data.token);
+      const { token, user } = response.data;
+      login(token, user);
       navigate("/student/dashboard");
     } catch (error) {
       console.error("Error during signup:", error);
