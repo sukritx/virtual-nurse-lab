@@ -49,24 +49,26 @@ const blogs = [
 
 const Library = () => {
     return (
-        <div className="bg-slate-300 min-h-screen flex flex-col items-center justify-center py-10">
+        <div className="bg-slate-300 min-h-screen flex flex-col">
             <NavigationMenu />
-            <div className="w-full max-w-6xl mt-6">
-                <h1 className="text-3xl font-bold mb-6 text-center">Virtual Nurse Lab Library</h1>
-                <p className="text-center mb-8">Learn with Virtual Nurse Lab Online</p>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {blogs.map((blog, index) => (
-                        <div key={index} className="bg-white rounded-lg shadow-md overflow-hidden">
-                            <img src={blog.image} alt={blog.title} className="w-full h-48 object-cover"/>
-                            <div className="p-6">
-                                <p className="text-sm text-gray-600">{blog.time}</p>
-                                <h2 className="text-xl font-semibold text-purple-700 mt-2">
-                                    <Link to={`/library/${blog.id}`}>{blog.title}</Link>
-                                </h2>
-                                <p className="mt-2 text-gray-700">{blog.description}</p>
+            <div className="flex flex-col items-center justify-center py-10">
+                <div className="w-full max-w-6xl mt-6">
+                    <h1 className="text-3xl font-bold mb-6 text-center">Virtual Nurse Lab Library</h1>
+                    <p className="text-center mb-8">Learn with Virtual Nurse Lab Online</p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {blogs.map((blog, index) => (
+                            <div key={index} className="bg-white rounded-lg shadow-md overflow-hidden">
+                                <img src={blog.image} alt={blog.title} className="w-full h-48 object-cover"/>
+                                <div className="p-6">
+                                    <p className="text-sm text-gray-600">{blog.time}</p>
+                                    <h2 className="text-xl font-semibold text-purple-700 mt-2">
+                                        <Link to={`/library/${blog.id}`}>{blog.title}</Link>
+                                    </h2>
+                                    <p className="mt-2 text-gray-700">{blog.description}</p>
+                                </div>
                             </div>
-                        </div>
-                    ))}
+                        ))}
+                    </div>
                 </div>
             </div>
         </div>
