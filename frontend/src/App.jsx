@@ -13,6 +13,7 @@ import Library from './pages/Library';
 import BlogContent from './pages/BlogContent';
 import UploadTest from './components/UploadTest';
 import Upload1 from './components/Upload1';
+import Upload4 from './components/Upload4';
 import Contact from './pages/Contact';
 import Sale from './pages/Sale';
 
@@ -52,6 +53,11 @@ function App() {
           <Route path="/student/upload1" element={
             <PrivateRoute>
               <Upload1 />
+            </PrivateRoute>
+          } />
+          <Route path="/student/upload4" element={
+            <PrivateRoute>
+              <Upload4 />
             </PrivateRoute>
           } />
           <Route path="/contact" element={<Contact />} />
