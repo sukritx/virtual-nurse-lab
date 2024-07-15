@@ -1,4 +1,3 @@
-import { NavigationMenu } from '../components/NavigationMenu';
 import { useNavigate } from 'react-router-dom';
 
 const Sale = () => {
@@ -11,7 +10,6 @@ const Sale = () => {
   return (
     <div className="min-h-screen flex flex-col items-center bg-slate-100">
       <header className="w-full">
-        <NavigationMenu />
       </header>
       <main className="w-full max-w-7xl px-4 py-10 text-center">
         <h1 className="text-4xl font-bold mb-8">Our Pricing Packages</h1>

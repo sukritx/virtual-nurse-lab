@@ -3,7 +3,6 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import CircularProgressBar from '../components/CircularProgressBar';
-import { NavigationMenu } from '../components/NavigationMenu';
 
 export const LabPage = ({ match }) => {
   const [lab, setLab] = useState(null);
@@ -35,7 +34,6 @@ export const LabPage = ({ match }) => {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <NavigationMenu />
       <div className="container mx-auto py-10">
         <h1 className="text-3xl font-bold mb-6">Lab {lab.labNumber}</h1>
         <div className="flex justify-between items-center mb-6">

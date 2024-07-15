@@ -8,7 +8,6 @@ import axios from "axios";
 import { jwtDecode } from 'jwt-decode'
 import { useNavigate } from "react-router-dom";
 import { useAuth } from '../context/AuthContext';
-import logo from "../assets/NU_CMU_LOGO.png";
 
 export const Signin = () => {
   const [username, setUsername] = useState("");
@@ -56,7 +55,6 @@ export const Signin = () => {
     <div className="bg-slate-300 h-screen flex justify-center">
       <div className="flex flex-col justify-center">
         <div className="rounded-lg bg-white w-80 text-center p-2 h-max px-4">
-          <img src={logo} alt="Logo" className="h-48 w-48 mx-auto" />
           <Heading label={"Sign in"} />
           <SubHeading label={"ลงชื่อเข้าใช้งาน"} />
           <InputBox onChange={e => setUsername(e.target.value)} placeholder="username" label={"Username"} />

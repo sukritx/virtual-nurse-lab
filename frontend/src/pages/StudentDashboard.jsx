@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import CircularProgressBar from '../components/CircularProgressBar';
-import { NavigationMenu } from '../components/NavigationMenu';
 import { useNavigate } from 'react-router-dom';
 
 export const StudentDashboard = () => {
@@ -31,7 +30,6 @@ export const StudentDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <NavigationMenu />
       <div className="container mx-auto py-10">
         <h1 className="text-3xl font-bold mb-6">Student's Dashboard</h1>
         <div className="flex justify-center mb-6">

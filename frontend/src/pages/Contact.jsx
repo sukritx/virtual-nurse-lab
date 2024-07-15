@@ -1,10 +1,8 @@
-import { NavigationMenu } from '../components/NavigationMenu';
 
 const Contact = () => {
   return (
     <div className="min-h-screen flex flex-col items-center bg-slate-100">
       <header className="w-full">
-        <NavigationMenu />
       </header>
       <main className="w-full max-w-4xl px-4 py-10 text-center">
         <h1 className="text-4xl font-bold mb-4">Contact Us</h1>

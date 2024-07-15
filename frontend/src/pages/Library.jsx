@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom';
-import { NavigationMenu } from '../components/NavigationMenu';
 import img1 from '../assets/GettyImages-1289379328.png';
 
 const blogs = [
@@ -50,7 +49,6 @@ const blogs = [
 const Library = () => {
     return (
         <div className="bg-slate-300 min-h-screen flex flex-col">
-            <NavigationMenu />
             <div className="flex flex-col items-center justify-center py-10">
                 <div className="w-full max-w-6xl mt-6">
                     <h1 className="text-3xl font-bold mb-6 text-center">Virtual Nurse Lab Library</h1>

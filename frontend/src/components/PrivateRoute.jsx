@@ -1,10 +1,10 @@
 // src/components/PrivateRoute.jsx
-import { Navigate } from 'react-router-dom';
+import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import PropTypes from 'prop-types';
 import { jwtDecode } from 'jwt-decode'
 
-export const PrivateRoute = ({ children, role }) => {
+export const PrivateRoute = ({ role }) => {
   const { token } = useAuth();
 
   if (!token) {
@@ -26,11 +26,10 @@ export const PrivateRoute = ({ children, role }) => {
     }
   }
 
-  return children;
+  return <Outlet />;
 };
 
 PrivateRoute.propTypes = {
-  children: PropTypes.node.isRequired,
   role: PropTypes.string
 };
 

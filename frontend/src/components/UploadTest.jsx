@@ -4,7 +4,6 @@ import { FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
 import { FiUpload } from 'react-icons/fi';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
-import { NavigationMenu } from './NavigationMenu';
 import { useAuth } from '../context/AuthContext';
 
 const UploadTest = () => {
@@ -44,7 +43,6 @@ const UploadTest = () => {
 
     return (
         <>
-            <NavigationMenu />
             <div className="bg-gray-100 min-h-screen flex flex-col items-center justify-center py-12">
                 <div className="w-full max-w-lg bg-white p-8 rounded-lg shadow-lg relative">
                     <h2 className="text-3xl font-bold mb-6 text-center text-gray-800">Lab 1: Virtual Nurse Lab</h2>

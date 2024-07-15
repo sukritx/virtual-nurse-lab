@@ -107,4 +107,65 @@ router.get('/labs', professorAuth, async (req, res) => {
   }
 });
 
+// Get all labs for a specific student
+router.get('/student/:studentId/labs', professorAuth, async (req, res) => {
+  try {
+    const student = await User.findOne({ studentId: req.params.studentId });
+    if (!student) {
+      return res.status(404).json({ message: 'Student not found' });
+    }
+
+    const university = student.university ? await University.findOne({ universityName: student.university }) : null;
+
+    const labInfos = await LabInfo.find().select('labNumber');
+    const labSubmissions = await LabSubmission.find({ studentId: student._id }).select('labInfo isPass');
+
+    const labs = labInfos.map(labInfo => {
+      const submission = labSubmissions.find(sub => sub.labInfo.equals(labInfo._id));
+      return {
+        labNumber: labInfo.labNumber,
+        isPass: submission ? submission.isPass : null
+      };
+    });
+
+    res.json({
+      student: {
+        firstName: student.firstName,
+        lastName: student.lastName,
+        studentId: student.studentId,
+        university: university ? university.universityName : 'N/A'
+      },
+      labs
+    });
+  } catch (error) {
+    console.error('Error fetching student labs:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+// Get details of a specific lab for a specific student
+router.get('/student/:studentId/lab/:labNumber', professorAuth, async (req, res) => {
+  try {
+    const student = await User.findOne({ studentId: req.params.studentId });
+    if (!student) {
+      return res.status(404).json({ message: 'Student not found' });
+    }
+
+    const labInfo = await LabInfo.findOne({ labNumber: req.params.labNumber });
+    if (!labInfo) {
+      return res.status(404).json({ message: 'Lab not found' });
+    }
+
+    const labSubmission = await LabSubmission.findOne({ studentId: student._id, labInfo: labInfo._id });
+    if (!labSubmission) {
+      return res.status(404).json({ message: 'Lab submission not found' });
+    }
+
+    res.json({ lab: labSubmission });
+  } catch (error) {
+    console.error('Error fetching lab details:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
 module.exports = router;

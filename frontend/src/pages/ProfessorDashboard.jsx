@@ -1,10 +1,8 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
-import { NavigationMenu } from '../components/NavigationMenu';
 import CircularProgressBar from '../components/CircularProgressBar';
 import { SearchBar } from '../components/SearchBar';
-import logo from '../assets/NU_CMU_LOGO.png';
 import { Button } from '../components/Button';
 import { useNavigate } from 'react-router-dom';
 
@@ -52,9 +50,7 @@ export const ProfessorDashboard = () => {
 
   return (
     <div className="min-h-screen flex flex-col items-center bg-slate-100">
-      <header className="w-full">
-        <NavigationMenu />
-        <img src={logo} alt="Logo" className="h-24 mx-auto my-4" />
+      <header className="w-full mt-10">
       </header>
       <main className="w-full max-w-7xl px-4 text-center">
         <h1 className="text-4xl font-bold mb-8">Professor Dashboard</h1>
@@ -96,7 +92,7 @@ export const ProfessorDashboard = () => {
                     </div>
                   </td>
                   <td className="py-3 px-6 text-center">
-                    <Button onClick={() => navigate(`/view-labs?studentId=${student.studentId}`)} label={"View Labs"} />
+                    <Button onClick={() => navigate(`/professor/view-labs/${student.studentId}`)} label={"View Labs"} />
                   </td>
                 </tr>
               ))}

@@ -4,7 +4,6 @@ import { Button } from "../components/Button";
 import { Heading } from "../components/Heading";
 import { InputBox } from "../components/InputBox";
 import { SubHeading } from "../components/SubHeading";
-import logo from "../assets/NU_CMU_LOGO.png";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from '../context/AuthContext';
@@ -42,7 +41,6 @@ export const Signup = () => {
     <div className="bg-slate-300 h-screen flex justify-center">
       <div className="flex flex-col justify-center">
         <div className="rounded-lg bg-white w-80 text-center p-2 h-max px-4">
-          <img src={logo} alt="Logo" className="h-48 w-48 mx-auto" />
           <Heading label={"Sign up"} />
           <SubHeading label={"ใส่ข้อมูลของตนเองเพื่อลงทะเบียน"} />
           <InputBox onChange={e => setFirstName(e.target.value)} placeholder="Supassara" label={"First Name*"} />
