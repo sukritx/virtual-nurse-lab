@@ -49,6 +49,14 @@ export const StudentDashboard = () => {
               >
                 View
               </button>
+              {lab.isPass !== null && (
+                <button
+                  onClick={() => navigate(`/student/lab/${lab.labInfo.labNumber}/history`)}
+                  className="mt-4 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition duration-200"
+                >
+                  View Lab History
+                </button>
+              )}
             </div>
           ))}
         </div>

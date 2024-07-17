@@ -20,6 +20,7 @@ import Contact from './pages/Contact';
 import Sale from './pages/Sale';
 import StudentLabs from './pages/StudentLabs';
 import LabDetails from './pages/LabDetails';
+import LabHistory from './pages/LabHistory';
 
 // Layouts
 import MainLayout from './layouts/MainLayout';
@@ -49,6 +50,7 @@ function App() {
               <Route path="/student/upload1" element={<Upload1 />} />
               <Route path="/student/upload4" element={<Upload4 />} />
               <Route path="/test-upload" element={<UploadTest />} />
+              <Route path="/student/lab/:labNumber/history" element={<LabHistory />} />
             </Route>
           </Route>
 

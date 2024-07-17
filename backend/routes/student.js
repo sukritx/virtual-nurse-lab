@@ -25,4 +25,22 @@ router.get('/labs', authMiddleware, async (req, res) => {
     }
 });
 
+router.get('/:labNumber/history', authMiddleware, async (req, res) => {
+    try {
+        const studentId = req.userId;
+        const { labNumber } = req.params;
+
+        const labInfo = await LabInfo.findOne({ labNumber });
+        if (!labInfo) {
+            return res.status(404).json({ message: 'Lab not found' });
+        }
+
+        const labSubmissions = await LabSubmission.find({ studentId, labInfo: labInfo._id }).sort({ attempt: 1 }).exec();
+        res.json({ labSubmissions });
+    } catch (error) {
+        console.error('Error fetching lab history:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
 module.exports = router;

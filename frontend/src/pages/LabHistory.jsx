@@ -1,0 +1,73 @@
+import { useState, useEffect } from 'react';
+import axios from 'axios';
+import { useAuth } from '../context/AuthContext';
+import { useParams } from 'react-router-dom';
+
+const LabHistory = () => {
+  const [labHistory, setLabHistory] = useState([]);
+  const [selectedAttempt, setSelectedAttempt] = useState(null);
+  const { token } = useAuth();
+  const { labNumber } = useParams();
+
+  useEffect(() => {
+    fetchLabHistory();
+  }, [token, labNumber]);
+
+  const fetchLabHistory = async () => {
+    try {
+      const response = await axios.get(`http://localhost:3000/api/v1/student/${labNumber}/history`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      setLabHistory(response.data.labSubmissions);
+    } catch (error) {
+      console.error('Error fetching lab history:', error);
+    }
+  };
+
+  if (!labHistory.length) {
+    return <div>Loading...</div>;
+  }
+
+  const handleAttemptChange = (event) => {
+    const attempt = labHistory.find(attempt => attempt.attempt === parseInt(event.target.value));
+    setSelectedAttempt(attempt);
+  };
+
+  return (
+    <div className="min-h-screen flex flex-col items-center bg-slate-100">
+      <header className="w-full">
+      </header>
+      <main className="w-full max-w-4xl px-4 py-10">
+        <h1 className="text-4xl font-bold mb-8 text-center">Lab {labNumber} History</h1>
+        <div className="bg-white p-8 rounded-lg shadow-md">
+          <label htmlFor="attempt-select" className="block text-lg font-bold mb-2">Select Attempt:</label>
+          <select id="attempt-select" className="mb-4 p-2 border rounded" onChange={handleAttemptChange}>
+            <option value="">--Select an attempt--</option>
+            {labHistory.map((attempt) => (
+              <option key={attempt._id} value={attempt.attempt}>Attempt {attempt.attempt}</option>
+            ))}
+          </select>
+          {selectedAttempt && (
+            <div>
+              <h2 className="text-2xl font-bold mb-4">Score: {selectedAttempt.studentScore}</h2>
+              <div className="mb-4">
+                <p className="mb-2"><strong>Pros:</strong> {selectedAttempt.pros}</p>
+                <p className="mb-2"><strong>Recommendations:</strong> {selectedAttempt.recommendations}</p>
+                {selectedAttempt.videoPath && (
+                  <video width="100%" controls>
+                    <source src={`http://localhost:3000/${selectedAttempt.videoPath}`} type="video/mp4" />
+                    Your browser does not support the video tag.
+                  </video>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      </main>
+    </div>
+  );
+};
+
+export default LabHistory;
