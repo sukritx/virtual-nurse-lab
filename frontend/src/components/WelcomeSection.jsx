@@ -21,7 +21,7 @@ const WelcomeSection = () => {
       <div className="md:w-1/2 text-center md:text-left md:pl-8">
         <h2 className="text-4xl font-bold mb-4">Next Level Learning, Real Results</h2>
         <p className="text-xl mb-6">
-          นักศึกษาสามารถฝึกทำแล็บเสมือนโดยอัพโหลดวิดีโอ ตรวจโดยใช้ AI ช่วยแบ่งเบาภาระบุคลากร
+          นักศึกษาสามารถฝึกทำแล็บเสมือนโดยอัพโหลดวิดีโอ ตรวจโดยใช้ AI ช่แบ่งเบาภาระบุคลากร
         </p>
         <div className="flex justify-center md:justify-start space-x-4">
           <button
