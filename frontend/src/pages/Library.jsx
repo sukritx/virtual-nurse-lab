@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import img1 from '../assets/GettyImages-1289379328.png';
 
+/* 
 const blogs = [
     {
         id: 1,
@@ -69,6 +70,17 @@ const Library = () => {
                     </div>
                 </div>
             </div>
+        </div>
+    );
+};
+
+*/
+
+const Library = () => {
+    return (
+        <div className="min-h-screen flex flex-col items-center justify-center">
+            <h1 className="text-3xl font-bold mb-6 text-center">Virtual Nurse Lab Library</h1>
+            <p className="text-center mb-8">This section is not available yet.</p>
         </div>
     );
 };
