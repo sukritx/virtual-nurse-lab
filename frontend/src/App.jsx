@@ -15,7 +15,15 @@ import Library from './pages/Library';
 import BlogContent from './pages/BlogContent';
 import UploadTest from './components/UploadTest';
 import Upload1 from './components/Upload1';
+import Upload2 from './components/Upload2';
+import Upload3 from './components/Upload3';
 import Upload4 from './components/Upload4';
+import Upload5 from './components/Upload5';
+import Upload6 from './components/Upload6';
+import Upload7 from './components/Upload7';
+import Upload8 from './components/Upload8';
+import Upload9 from './components/Upload9';
+import Upload10 from './components/Upload10';
 import Contact from './pages/Contact';
 import Sale from './pages/Sale';
 import StudentLabs from './pages/StudentLabs';
@@ -48,7 +56,15 @@ function App() {
               <Route path="/student/dashboard" element={<StudentDashboard />} />
               <Route path="/lab/:labId" element={<LabPage />} />
               <Route path="/student/upload1" element={<Upload1 />} />
+              <Route path="/student/upload2" element={<Upload2 />} />
+              <Route path="/student/upload3" element={<Upload3 />} />
               <Route path="/student/upload4" element={<Upload4 />} />
+              <Route path="/student/upload5" element={<Upload5 />} />
+              <Route path="/student/upload6" element={<Upload6 />} />
+              <Route path="/student/upload7" element={<Upload7 />} />
+              <Route path="/student/upload8" element={<Upload8 />} />
+              <Route path="/student/upload9" element={<Upload9 />} />
+              <Route path="/student/upload10" element={<Upload10 />} />
               <Route path="/test-upload" element={<UploadTest />} />
               <Route path="/student/lab/:labNumber/history" element={<LabHistory />} />
             </Route>
