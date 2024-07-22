@@ -48,7 +48,7 @@ const blogs = [
 
 const Library = () => {
     return (
-        <div className="bg-slate-300 min-h-screen flex flex-col">
+        <div className="min-h-screen flex flex-col">
             <div className="flex flex-col items-center justify-center py-10">
                 <div className="w-full max-w-6xl mt-6">
                     <h1 className="text-3xl font-bold mb-6 text-center">Virtual Nurse Lab Library</h1>

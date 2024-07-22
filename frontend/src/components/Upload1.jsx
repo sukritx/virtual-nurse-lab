@@ -13,10 +13,12 @@ const Upload1 = () => {
     const [score, setScore] = useState('');
     const [pros, setPros] = useState('');
     const [recommendations, setRecommendations] = useState('');
+    const [error, setError] = useState(''); // State for error message
     const { token } = useAuth(); // Get the token from the Auth context
 
     const onFileChange = event => {
         setSelectedFile(event.target.files[0]);
+        setError(''); // Clear previous errors
     };
 
     const onFileUpload = async () => {
@@ -25,6 +27,7 @@ const Upload1 = () => {
 
         try {
             setLoading(true);
+            setError(''); // Clear previous errors
             const response = await axios.post('http://localhost:3000/api/v1/lab/1', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
@@ -37,8 +40,8 @@ const Upload1 = () => {
             setRecommendations(response.data.recommendations);
             setLoading(false);
         } catch (error) {
-            console.error('Error uploading file:', error);
             setLoading(false);
+            setError('Error uploading file: ' + error.message);
         }
     };
 
@@ -71,8 +74,13 @@ const Upload1 = () => {
                         <span>ส่งข้อมูล</span>
                     </button>
                     {loading && (
-                        <div className="w-full bg-gray-200 rounded-full h-2.5 mt-4">
-                            <div className="loading-indicator mt-4 text-purple-600">รอประมวลผลประมาณ 1-2นาที...</div>
+                        <div className="w-full rounded-full h-2.5 mt-4">
+                            <div className="loading-indicator mt-4 text-purple-600">รอประมวลผลประมาณ 30 วินาที...</div>
+                        </div>
+                    )}
+                    {error && (
+                        <div className="mt-4 p-2 bg-red-200 text-red-700 rounded">
+                            <p>{error}</p>
                         </div>
                     )}
                     {score && (

@@ -30,7 +30,7 @@ const BlogContent = () => {
     const blog = blogDetails.find(blog => blog.id === parseInt(id));
 
     return (
-        <div className="bg-gray-100 min-h-screen">
+        <div className="min-h-screen">
             <div className="w-full max-w-4xl mx-auto mt-6 p-6 bg-white rounded-lg shadow-md">
                 <h1 className="text-3xl font-bold mb-4 text-gray-800">{blog.title}</h1>
                 <p className="text-gray-600 mb-4">{blog.date}</p>

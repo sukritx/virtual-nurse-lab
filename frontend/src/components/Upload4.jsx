@@ -84,9 +84,9 @@ const Upload1 = () => {
                 <span>ส่งข้อมูล</span>
               </button>
               {loading && (
-                <div className="w-full bg-gray-200 rounded-full h-2.5 mt-4">
+                <div className="w-full rounded-full h-2.5 mt-4">
                   <div className="loading-indicator mt-4 text-purple-600">
-                    รอประมวลผลประมาณ 1-2นาที...
+                    รอประมวลผลประมาณ 30 วินาที...
                   </div>
                 </div>
               )}
