@@ -49,12 +49,22 @@ const Upload6 = () => {
         <>
             <div className="bg-gray-100 min-h-screen flex flex-col items-center justify-center py-12">
                 <div className="w-full max-w-lg bg-white p-8 rounded-lg shadow-lg relative">
-                <h2 className="text-3xl font-bold mb-6 text-center text-gray-800">Lab 6: การทำความสะอาดฝีเย็บ</h2>
-                    <p className="mb-6 text-center text-gray-600">มารดาหลังคลอด normal labor อายุ 30 ปี GA 38 สัปดาห์ G1 Para 1001 last 4 ชั่วโมง รู้สึกตัวดี อ่อนเพลียเล็กน้อย เจ็บมดลูกระดับ 3 เจ็บแผลฝีเย็บระดับ 4 ทารกเพศชาย น้ำหนัก 3,000 กรัม Apgar score 9, 10 ทารกอยู่กับมารดาที่เตียง (rooming-in)</p>
-                    <p className="mb-6 text-center text-gray-600">ผลการตรวจร่างกาย:</p>
-                    <p className="mb-6 text-center text-gray-600">หัวนม เต้านม ปกติทั้งสองข้าง คัดตึงเต้านมเล็กน้อย น้ำนมยังไม่ไหล  มดลูกหดรัดตัวดี ต่ำกว่าสะดือ 1 FB แผลฝีเย็บ Right mediolateral episiotomy, REEDA scores = 2 (Redness 1, Edema 1), normal bleeding/vg, Rubra lochia ชุ่มผ้าอนามัยครึ่งผืน, empty bladder</p>
-                    <p className="mb-6 text-center text-gray-600">สัญญาณชีพมารดา: ไม่มีไข้ อัตราชีพจร 82 ครั้งต่อนาที อัตราการหายใจ 20 ครั้งต่อนาที ความดันโลหิต 120/76 mmHg</p>
-                    <p className="mb-6 text-center text-gray-600">ท่านจะให้คำแนะนำหลักการสำคัญในการอาบน้ำทารกแก่มารดาอย่างไร (อาบหลังอิ่มนมเมื่อไร อาบบ่อยแค่ไหน สระผมทารกบ่อยแค่ไหน  สังเกตร่างกายทารกก่อนอาบน้ำอะไรบ้าง การเตรียมตัวมารดาทำอย่างไร สิ่งแวดล้อมบริเวณอาบน้ำควรเป็นอย่างไร การเตรียมน้ำอาบ)</p>
+                <h1 className="text-3xl font-extrabold mb-2 text-center text-purple-800">Lab 6: การทำความสะอาดแผลฝีเย็บ</h1>
+
+                    {/* Add video element here */}
+                    <div className="mb-6">
+                        <video 
+                            controls 
+                            className="w-full rounded-lg shadow-md"
+                            src="/questionVideos/situation6.mp4"
+                        >
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+                    
+                    <div className="space-y-4 mb-8 text-gray-700">
+                        <p>ท่านจะให้คำแนะนำวิธีการทำความสะอาดแผลผีเย็บและเปลี่ยนผ้าอนามัยแก่มารดารายนี้อย่างไร (ครอบคลุมในประเด็น วิธีการเปลี่ยนผ้าอนามัย การทำความสะอาดแผลฝีเย็บ และการสังเกตความผิดปกติของแผลฝีเย็บ)</p>
+                    </div>
                     <div className="mb-6">
                         <input type="file" onChange={onFileChange} className="w-full p-2 border border-gray-300 rounded" />
                         {selectedFile && (

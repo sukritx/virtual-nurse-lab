@@ -46,22 +46,23 @@ const Upload1 = () => {
         <>
           <div className="bg-gray-100 min-h-screen flex flex-col items-center justify-center py-12">
             <div className="w-full max-w-lg bg-white p-8 rounded-lg shadow-lg relative">
-              <h2 className="text-3xl font-bold mb-6 text-center text-gray-800">
-                Lab 4: Virtual Nurse Lab
-              </h2>
+            <h1 className="text-3xl font-extrabold mb-2 text-center text-purple-800">Lab 4: การวางแผนครอบครัว</h1>
+              <h2 className="text-xl font-semibold mb-6 text-center text-purple-600">ยาเม็ดคุมกำเนิด</h2>
+
+              {/* Add video element here */}
               <div className="mb-6">
-                <p className="text-lg font-semibold text-center text-gray-800">
-                  คำถามที่ 1:
-                </p>
-                <p className="text-center text-gray-600 mb-4">
-                  ในฐานะนักศึกษาพยาบาลในหอผู้ป่วยหลังคลอด คุณจะให้คำแนะนำเกี่ยวกับวิธีการคุมกำเนิดที่เหมาะสมแก่มารดาหลังคลอดรายนี้อย่างไร แนะนำ 3 วิธี (15 คะแนน)
-                </p>
-                <p className="text-lg font-semibold text-center text-gray-800">
-                  คำถามที่ 2:
-                </p>
-                <p className="text-center text-gray-600">
-                  หากมารดาหลังคลอดรายนี้กำลังพิจารณาเลือกใช้ยาเม็ดคุมกำเนิดที่มีฮอร์โมนโปรเจสเตอโรนเพียงอย่างเดียว คุณจะให้คำแนะนำอย่างไรเกี่ยวกับการใช้ยาเม็ดคุมกำเนิด ผลข้างเคียงที่อาจเกิดขึ้น และวิธีการแก้ไขปัญหาในกรณีที่ลืมรับประทานยาเม็ดคุมกำเนิด (85 คะแนน)
-                </p>
+                  <video 
+                      controls 
+                      className="w-full rounded-lg shadow-md"
+                      src="/questionVideos/situation4.mp4"
+                  >
+                      Your browser does not support the video tag.
+                  </video>
+              </div>
+              
+              <div className="space-y-4 mb-8 text-gray-700">
+                  <p>1. ท่านจะให้คำแนะนำเกี่ยวกับวิธีการคุมกำเนิดที่เหมาะสมแก่มารดาหลังคลอดรายนี้อย่างไร แนะนำ 1 วิธี</p>
+                  <p>2. หากมารดาหลังคลอดรายนี้ กำลังพิจารณาเลือกใช้ยาเม็ดคุมกำเนิดที่มีฮอร์โมนโปรเจสเตอโรนเพียงอย่างเดียว จะให้คำแนะนำอย่างไร เกี่ยวกับการใช้ยาเม็ดคุมกำเนิด ผลข้างเคียงที่อาจจะเกิดขึ้น และวิธีการแก้ไขปัญหาอย่างเหมาะสมกรณีที่ลืมรับประทานยาเม็ดคุมกำเนิด</p>
               </div>
               <div className="mb-6">
                 <input

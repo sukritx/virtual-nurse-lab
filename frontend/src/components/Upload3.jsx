@@ -49,10 +49,23 @@ const Upload3 = () => {
         <>
             <div className="bg-gray-100 min-h-screen flex flex-col items-center justify-center py-12">
                 <div className="w-full max-w-lg bg-white p-8 rounded-lg shadow-lg relative">
-                <h2 className="text-3xl font-bold mb-6 text-center text-gray-800">Lab 3: เต้านมคัดตึง</h2>
-                    <p className="mb-6 text-center text-gray-600">ตอบคำถามเสมือนว่ามารดาอยู่ต่อหน้า...กรณีศึกษา มารดาหลังคลอด 7 วัน มาปรึกษาที่คลินิกนมแม่ เนื่องจากเต้านมข้างขวาแข็งตึง กดเจ็บ น้ำนมข้างขวาไหลน้อยลง และลูกดูดนมข้างขวาไม่ได้มา 2 วัน</p>
-                    <p className="mb-6 text-center text-gray-600">ตรวจร่างกายพบ เต้านมและลานนมข้างขวาแข็ง ตึง กดเจ็บ คลำไม่พบก้อน น้ำนมไหล 1-2 หยด ส่วนเต้านมข้างซ้ายปกติ น้ำนมไหลดี ข้อมูลจากการซักประวัติ มารดาถนัดให้ลูกดูดนมข้างซ้ายมากกว่าข้างขวา แต่ละมื้อที่ให้นมลูกจะดูดนมข้างเดียว ส่วนเต้านมอีกข้างที่ลูกไม่ได้ดูด ไม่ได้บีบน้ำนมออก เพราะเสียดายน้ำนมจะเก็บเอาไว้ให้ลูกกินมื้อถัดไป หลังจากดูดนมลูกจะหลับนาน 2-3 ชั่วโมง</p>
-                    <p className="mb-6 text-center text-gray-600">ท่านจะให้คำแนะนำเพื่อแก้ไขปัญหาคัดตึงเต้านมแก่มารดารายนี้อย่างไร (คำแนะนำก่อนให้ลูกดูดนม ขณะลูกดูดนม หลังจากลูกดูดนม)</p>
+                <h1 className="text-3xl font-extrabold mb-2 text-center text-purple-800">Lab 3: การเลี้ยงลูกด้วยนมแม่</h1>
+                    <h2 className="text-xl font-semibold mb-6 text-center text-purple-600">เต้านมคัดตึง</h2>
+
+                    {/* Add video element here */}
+                    <div className="mb-6">
+                        <video 
+                            controls 
+                            className="w-full rounded-lg shadow-md"
+                            src="/questionVideos/situation3.mp4"
+                        >
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+                    
+                    <div className="space-y-4 mb-8 text-gray-700">
+                        <p>ท่านจะให้คำแนะนำใดแก่มารดารายนี้ เพื่อบรรเทาอาการคัดตึงเต้านมก่อนให้ลูกดูดนม ขณะลูกดูดนม และหลังจากลูกดูดนม</p>
+                    </div>
                     <div className="mb-6">
                         <input type="file" onChange={onFileChange} className="w-full p-2 border border-gray-300 rounded" />
                         {selectedFile && (

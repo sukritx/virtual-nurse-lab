@@ -49,17 +49,21 @@ const Upload10 = () => {
         <>
             <div className="bg-gray-100 min-h-screen flex flex-col items-center justify-center py-12">
                 <div className="w-full max-w-lg bg-white p-8 rounded-lg shadow-lg relative">
-                <h2 className="text-3xl font-bold mb-6 text-center text-gray-800">Lab 10: สื่อสัญญาณทารก</h2>
-                    <p className="mb-6 text-center text-gray-600">ณ หอผู้ป่วยหลังคลอด</p>
-                    <p className="mb-6 text-center text-gray-600">มารดาครรภ์แรก ที่คลอดทารกครบกำหนด 2 วัน บ่นกับคุณว่า “จะทราบได้อย่างไรว่าลูกหิว หรือ อยากกินนมแล้ว” คุณจะให้คำแนะนำลักษณะที่ทารกจะแสดงออกเมื่อหิว ให้มารดารายนี้ ได้อย่างไร</p>
+                <h1 className="text-3xl font-extrabold mb-2 text-center text-purple-800">Lab 10: การสื่อสัญญานทารก</h1>
+
+                    {/* Add video element here */}
                     <div className="mb-6">
-                        <input type="file" onChange={onFileChange} className="w-full p-2 border border-gray-300 rounded" />
-                        {selectedFile && (
-                            <div className="mt-2 flex items-center space-x-2">
-                                <FiUpload className="text-blue-500" />
-                                <span>{selectedFile.name}</span>
-                            </div>
-                        )}
+                        <video 
+                            controls 
+                            className="w-full rounded-lg shadow-md"
+                            src="/questionVideos/situation10.mp4"
+                        >
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+                    
+                    <div className="space-y-4 mb-8 text-gray-700">
+                        <p>มารดาครรภ์แรกที่คลอดทารกครบกำหนด 2 วัน บ่นกับท่านว่า “จะทราบได้อย่างไรว่าลูกหิว หรือ อยากกินนมแล้ว” ท่านจะให้คำแนะนำเพื่อสังเกตพฤติกรรมที่ทารกจะแสดงออกเมื่อหิว ให้มารดารายนี้ได้อย่างไร</p>
                     </div>
                     <button
                         onClick={onFileUpload}

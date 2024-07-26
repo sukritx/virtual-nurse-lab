@@ -49,14 +49,24 @@ const Upload1 = () => {
         <>
             <div className="bg-gray-100 min-h-screen flex flex-col items-center justify-center py-12">
                 <div className="w-full max-w-lg bg-white p-8 rounded-lg shadow-lg relative">
-                    <h2 className="text-3xl font-bold mb-6 text-center text-gray-800">Lab 1: Virtual Nurse Lab</h2>
-                    <p className="mb-6 text-center text-gray-600">ตอบคำถามเสมือนว่ามารดาอยู่ต่อหน้า...กรณีศึกษา มารดาเจ็บหัวนม</p>
-                    <ul className="mb-6 list-disc list-inside text-gray-700">
-                        <li className="mb-2">ท่านจะซักประวัติใดเพิ่มเติม</li>
-                        <li className="mb-2">ท่านจะกำหนดข้อวินิจฉัยทางการพยาบาลสำหรับมารดารายนี้อย่างไร (เลือกตอบ 1 ข้อ)</li>
-                        <li className="mb-2">ท่านจะให้คำแนะนำใดแก่มารดารายนี้</li>
-                        <li className="mb-2">ท่านจะสาธิตท่าอุ้มที่ถูกต้อง และการบรรเทา/ป้องกันการเจ็บหัวนม ให้กับมารดารายนี้อย่างไร</li>
-                    </ul>
+                <h1 className="text-3xl font-extrabold mb-2 text-center text-purple-800">Lab 1: การเลี้ยงลูกด้วยนมแม่</h1>
+                    <h2 className="text-xl font-semibold mb-6 text-center text-purple-600">มารดาเจ็บหัวนม</h2>
+
+                    {/* Add video element here */}
+                    <div className="mb-6">
+                        <video 
+                            controls 
+                            className="w-full rounded-lg shadow-md"
+                            src="/questionVideos/situation1.mp4"
+                        >
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+                    
+                    <div className="space-y-4 mb-8 text-gray-700">
+                        <p>1. ท่านจะให้คำแนะนำใดแก่มารดารายนี้ เช่น การดูดอย่างถูกวิธี 4 ดูด การแก้ไขปัญหา</p>
+                        <p>2. ท่านจะสาธิตท่าอุ้มที่ถูกต้อง และการบรรเทา/ป้องกันการเจ็บหัวนม ให้กับมารดารายนี้อย่างไร</p>
+                    </div>
                     <div className="mb-6">
                         <input type="file" onChange={onFileChange} className="w-full p-2 border border-gray-300 rounded" />
                         {selectedFile && (

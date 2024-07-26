@@ -49,17 +49,21 @@ const Upload9 = () => {
         <>
             <div className="bg-gray-100 min-h-screen flex flex-col items-center justify-center py-12">
                 <div className="w-full max-w-lg bg-white p-8 rounded-lg shadow-lg relative">
-                <h2 className="text-3xl font-bold mb-6 text-center text-gray-800">Lab 8: การส่งเสริมพัฒนาการทารก</h2>
-                    <p className="mb-6 text-center text-gray-600">ณ หอผู้ป่วยหลังคลอด</p>
-                    <p className="mb-6 text-center text-gray-600">ในวันที่ 3 ของมารดาหลังคลอดปกติและครบกำหนดรายหนึ่ง ในการสอนมารดารายเดี่ยวเพื่อเตรียมตัวจะกลับบ้าน มารดาสอบถามว่า “จะสามารถกระตุ้นพัฒนาการของลูกในช่วงแรกเกิดถึง 2 เดือนได้อย่างไร” ท่านจะให้คำแนะนำมารดารายนี้อย่างไร</p>
+                <h1 className="text-3xl font-extrabold mb-2 text-center text-purple-800">Lab 9: การส่งเสริมพัฒนาการทารก</h1>
+
+                    {/* Add video element here */}
                     <div className="mb-6">
-                        <input type="file" onChange={onFileChange} className="w-full p-2 border border-gray-300 rounded" />
-                        {selectedFile && (
-                            <div className="mt-2 flex items-center space-x-2">
-                                <FiUpload className="text-blue-500" />
-                                <span>{selectedFile.name}</span>
-                            </div>
-                        )}
+                        <video 
+                            controls 
+                            className="w-full rounded-lg shadow-md"
+                            src="/questionVideos/situation9.mp4"
+                        >
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+                    
+                    <div className="space-y-4 mb-8 text-gray-700">
+                        <p>ท่านจะให้คำแนะนำแก่มารดาหลังคลอดรายนี้อย่างไร เพื่อเตรียมตัวกลับบ้าน เมื่อมารดาสอบถามว่า “จะสามารถกระตุ้นพัฒนาการของลูกในช่วงแรกเกิดถึง 2 เดือนได้อย่างไร”</p>
                     </div>
                     <button
                         onClick={onFileUpload}

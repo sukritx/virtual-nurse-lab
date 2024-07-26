@@ -15,7 +15,6 @@ export const Homepage = () => {
           <WelcomeSection />
           <div className="px-4 text-center">
             <DemoMessage />
-            <FeaturedLabs />
           </div>
         </main>
       </div>

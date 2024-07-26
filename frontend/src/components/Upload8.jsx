@@ -49,14 +49,22 @@ const Upload8 = () => {
         <>
             <div className="bg-gray-100 min-h-screen flex flex-col items-center justify-center py-12">
                 <div className="w-full max-w-lg bg-white p-8 rounded-lg shadow-lg relative">
-                <h2 className="text-3xl font-bold mb-6 text-center text-gray-800">Lab 8: การทำความสะอาดตาและสายสะดือทารก</h2>
-                    <p className="mb-6 text-center text-gray-600">มารดาหลังคลอด normal labor อายุ 30 ปี GA 38 สัปดาห์ G1 Para 1001 last 4 ชั่วโมง รู้สึกตัวดี อ่อนเพลียเล็กน้อย เจ็บมดลูกระดับ 3 เจ็บแผลฝีเย็บระดับ 4 ทารกเพศชาย น้ำหนัก 3,000 กรัม Apgar score 9, 10 ทารกอยู่กับมารดาที่เตียง (rooming-in)</p>
-                    <p className="mb-6 text-center text-gray-600">ผลการตรวจร่างกาย:</p>
-                    <p className="mb-6 text-center text-gray-600">หัวนม เต้านม ปกติทั้งสองข้าง คัดตึงเต้านมเล็กน้อย น้ำนมยังไม่ไหล  มดลูกหดรัดตัวดี ต่ำกว่าสะดือ 1 FB แผลฝีเย็บ Right mediolateral episiotomy, REEDA scores = 2 (Redness 1, Edema 1), normal bleeding/vg, Rubra lochia ชุ่มผ้าอนามัยครึ่งผืน, empty bladder</p>
-                    <p className="mb-6 text-center text-gray-600">สัญญาณชีพมารดา: ไม่มีไข้ อัตราชีพจร 82 ครั้งต่อนาที อัตราการหายใจ 20 ครั้งต่อนาที ความดันโลหิต 120/76 mmHg</p>
-                    <p className="mb-6 text-center text-gray-600">ท่านจะให้คำแนะนำหลักการสำคัญในการทำความสะอาดตาและสายสะดือทารกแก่มารดาอย่างไร</p>
-                    <p className="mb-6 text-center text-gray-600">1) การทำความสะอาดตา (วัสดุและน้ำ วิธีการเช็ดตา การสังเกตความผิดปกติอะไรบ้าง)</p>
-                    <p className="mb-6 text-center text-gray-600">2) การทำความสะอาดสายสะดือ (วัสดุและน้ำยา วิธีเช็ดสายสะดือ ควรทำความสะอาดนานเท่าไรจึงหยุดได้)</p>
+                <h1 className="text-3xl font-extrabold mb-2 text-center text-purple-800">Lab 8: การทำความสะอาดตาและสายสะดือทารก</h1>
+
+                    {/* Add video element here */}
+                    <div className="mb-6">
+                        <video 
+                            controls 
+                            className="w-full rounded-lg shadow-md"
+                            src="/questionVideos/situation8.mp4"
+                        >
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+                    
+                    <div className="space-y-4 mb-8 text-gray-700">
+                        <p>ท่านจะให้คำแนะนำในการทำความสะอาดตาและสายสะดือทารกแก่มารดารายนี้อย่างไร (ครอบคลุมประเด็น การเตรียมอุปกรณ์ และขั้นตอนการทำความสะอาดตาและสายสะดือ)</p>
+                    </div>
                     <div className="mb-6">
                         <input type="file" onChange={onFileChange} className="w-full p-2 border border-gray-300 rounded" />
                         {selectedFile && (

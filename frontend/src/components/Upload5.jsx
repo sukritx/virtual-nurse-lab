@@ -49,10 +49,23 @@ const Upload5 = () => {
         <>
             <div className="bg-gray-100 min-h-screen flex flex-col items-center justify-center py-12">
                 <div className="w-full max-w-lg bg-white p-8 rounded-lg shadow-lg relative">
-                <h2 className="text-3xl font-bold mb-6 text-center text-gray-800">Lab 5: ยาฝังคุมกำเนิด</h2>
-                    <p className="mb-6 text-center text-gray-600">มารดาหลังคลอดอายุ 17 ปี สามีอายุ 18 ปี ปัจจุบันทั้งคู่กำลังเรียน ปวช. ประจำเดือนมาไม่สม่ำเสมอ การตั้งครรภ์ครั้งนี้ไม่ได้วางแผน ก่อนตั้งครรภ์คุมกำเนิดโดยการหลั่งภายนอก และรับประทานยาคุมกำเนิดแต่มักจะลืมรับประทาน หลังคลอดตั้งใจเลี้ยงบุตรด้วยนมมารดา และจะต้องกลับไปเรียนหนังสือเมื่อครบ 3 เดือนหลังคลอด</p>
-                    <p className="mb-6 text-center text-gray-600">หากมารดาหลังคลอดรายนี้ เลือกที่จะคุมกำเนิดหลังคลอดโดยใช้ยาฝังคุมกำเนิด</p>
-                    <p className="mb-6 text-center text-gray-600">ท่านจะให้คำแนะนำอย่างไร เกี่ยวกับการใช้ยาฝังคุมกำเนิด (จะเริ่มฝังยาได้ตั้งแต่เมื่อใด ประสิทธิภาพของยาฝังในการคุมกำเนิด ระยะเวลาที่สามารถคุมกำเนิด ผลข้างเคียง และการดูแลตนเองหลังจากการฝังยาคุมกำเนิด)</p>
+                <h1 className="text-3xl font-extrabold mb-2 text-center text-purple-800">Lab 5: การวางแผนครอบครัว</h1>
+                    <h2 className="text-xl font-semibold mb-6 text-center text-purple-600">ยาฝังคุมกำเนิด</h2>
+
+                    {/* Add video element here */}
+                    <div className="mb-6">
+                        <video 
+                            controls 
+                            className="w-full rounded-lg shadow-md"
+                            src="/questionVideos/situation5.mp4"
+                        >
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+                    
+                    <div className="space-y-4 mb-8 text-gray-700">
+                        <p>หากมารดาหลังคลอดรายนี้ กำลังพิจารณาเลือกใช้ยาฝังคุมกำเนิด ท่านจะให้คำแนะนำอย่างไร (ครอบคลุมประเด็น วันเริ่มฝังยา ประสิทธิภาพของยาฝัง ระยะเวลาที่คุมกำเนิด ผลข้างเคียงที่อาจจะเกิดขึ้น และการดูแลตนเองหลังจากการฝังยาคุมกำเนิด)</p>
+                    </div>
                     <div className="mb-6">
                         <input type="file" onChange={onFileChange} className="w-full p-2 border border-gray-300 rounded" />
                         {selectedFile && (
