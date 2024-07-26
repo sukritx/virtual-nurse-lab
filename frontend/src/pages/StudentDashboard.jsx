@@ -31,9 +31,38 @@ export const StudentDashboard = () => {
   return (
     <div className="min-h-screen bg-gray-100">
       <div className="container mx-auto py-10">
-        <h1 className="text-3xl font-bold mb-6">Student's Dashboard</h1>
-        <div className="flex justify-center mb-6">
+        <h1 className="text-3xl font-bold mb-6 text-center">Student's Dashboard</h1>
+        <div className="flex flex-col items-center mb-6">
           <CircularProgressBar percentage={completedPercentage} label={`${completedPercentage}%`} />
+          <div className="mt-4 p-4 bg-white rounded shadow-md text-gray-600">
+            <h2 className="text-center text-2xl font-bold text-indigo-700 mb-6">แนะนำการใช้งาน</h2>
+            <ul className="space-y-4">
+              <li className="flex items-start">
+                <svg className="w-6 h-6 text-green-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <span className="text-gray-700">นักศึกษาสามารถเลือกให้การพยาบาลในห้องปฏิบัติการใดก่อนก็ได้</span>
+              </li>
+              <li className="flex items-start">
+                <svg className="w-6 h-6 text-green-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <span className="text-gray-700">เมื่อท่านเลือกแล้ว ขอให้ท่านให้การพยาบาลพร้อมกับอัดคลิปด้วยอุปกรณ์ของท่าน (ความยาวของคลิปต่อฐาน ไม่ควรยาวกว่า 3 นาที) และ upload ในระบบ</span>
+              </li>
+              <li className="flex items-start">
+                <svg className="w-6 h-6 text-green-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <span className="text-gray-700">ขอให้ท่านพูดในลักษณะเสียงดัง ฟังชัด ไม่ปรับคลิปที่อัดเสร็จให้มีความเร็วมากกว่า 1x</span>
+              </li>
+              <li className="flex items-start">
+                <svg className="w-6 h-6 text-green-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <span className="text-gray-700">หลังท่านนำส่งคลิปในระบบ ท่านสามารถดูผลการประเมิน หากคำตอบของท่านถูกเกินกว่า 60% ถือว่าท่านผ่านในห้องปฏิบัติการนั้น และระบบจะให้ข้อเสนอแนะแก่ท่าน ทั้งนี้ หากท่านยังทำไม่ผ่าน สามารถทำซ้ำได้</span>
+              </li>
+            </ul>
+          </div>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {labs.map((lab, index) => (
