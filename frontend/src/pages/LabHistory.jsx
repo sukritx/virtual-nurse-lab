@@ -57,7 +57,7 @@ const LabHistory = () => {
                 <p className="mb-2"><strong>Recommendations:</strong> {selectedAttempt.recommendations}</p>
                 {selectedAttempt.videoPath && (
                   <video width="100%" controls>
-                    <source src={`http://localhost:3000/${selectedAttempt.videoPath}`} type="video/mp4" />
+                    <source src={`${selectedAttempt.videoPath}`} type="video/mp4" />
                     Your browser does not support the video tag.
                   </video>
                 )}

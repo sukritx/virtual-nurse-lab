@@ -6,27 +6,31 @@ import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import { useAuth } from '../context/AuthContext';
 
-const UploadTest = () => {
+const Upload1 = () => {
     const [selectedFile, setSelectedFile] = useState(null);
     const [loading, setLoading] = useState(false);
     const [passFailStatus, setPassFailStatus] = useState('');
     const [score, setScore] = useState('');
     const [pros, setPros] = useState('');
     const [recommendations, setRecommendations] = useState('');
+    const [error, setError] = useState(''); // State for error message
     const { token } = useAuth(); // Get the token from the Auth context
 
     const onFileChange = event => {
         setSelectedFile(event.target.files[0]);
+        setError(''); // Clear previous errors
     };
 
     const onFileUpload = async () => {
-        const data = { userId: 'dsads' };
+        const formData = new FormData();
+        formData.append('video', selectedFile);
 
         try {
             setLoading(true);
-            const response = await axios.post('http://localhost:3000/api/v1/lab/dummy', data, {
+            setError(''); // Clear previous errors
+            const response = await axios.post('http://localhost:3000/api/v1/lab/dummy', formData, {
                 headers: {
-                    'Content-Type': 'application/json',
+                    'Content-Type': 'multipart/form-data',
                     'Authorization': `Bearer ${token}` // Include the token in the headers
                 }
             });
@@ -36,8 +40,8 @@ const UploadTest = () => {
             setRecommendations(response.data.recommendations);
             setLoading(false);
         } catch (error) {
-            console.error('Error uploading data:', error);
             setLoading(false);
+            setError('Error uploading file: ' + error.message);
         }
     };
 
@@ -45,14 +49,24 @@ const UploadTest = () => {
         <>
             <div className="bg-gray-100 min-h-screen flex flex-col items-center justify-center py-12">
                 <div className="w-full max-w-lg bg-white p-8 rounded-lg shadow-lg relative">
-                    <h2 className="text-3xl font-bold mb-6 text-center text-gray-800">Lab 1: Virtual Nurse Lab</h2>
-                    <p className="mb-6 text-center text-gray-600">ตอบคำถามเสมือนว่ามารดาอยู่ต่อหน้า...กรณีศึกษา มารดาเจ็บหัวนม</p>
-                    <ul className="mb-6 list-disc list-inside text-gray-700">
-                        <li className="mb-2">ท่านจะซักประวัติใดเพิ่มเติม</li>
-                        <li className="mb-2">ท่านจะกำหนดข้อวินิจฉัยทางการพยาบาลสำหรับมารดารายนี้อย่างไร (เลือกตอบ 1 ข้อ)</li>
-                        <li className="mb-2">ท่านจะให้คำแนะนำใดแก่มารดารายนี้</li>
-                        <li className="mb-2">ท่านจะสาธิตท่าอุ้มที่ถูกต้อง และการบรรเทา/ป้องกันการเจ็บหัวนม ให้กับมารดารายนี้อย่างไร</li>
-                    </ul>
+                <h1 className="text-3xl font-extrabold mb-2 text-center text-purple-800">Lab Dummy</h1>
+                    <h2 className="text-xl font-semibold mb-6 text-center text-purple-600">มารดาเจ็บหัวนม</h2>
+
+                    {/* Add video element here */}
+                    <div className="mb-6">
+                        <video 
+                            controls 
+                            className="w-full rounded-lg shadow-md"
+                            src="/questionVideos/situation1.mp4"
+                        >
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+                    
+                    <div className="space-y-4 mb-8 text-gray-700">
+                        <p>1. ท่านจะให้คำแนะนำใดแก่มารดารายนี้ เช่น การดูดอย่างถูกวิธี 4 ดูด การแก้ไขปัญหา</p>
+                        <p>2. ท่านจะสาธิตท่าอุ้มที่ถูกต้อง และการบรรเทา/ป้องกันการเจ็บหัวนม ให้กับมารดารายนี้อย่างไร</p>
+                    </div>
                     <div className="mb-6">
                         <input type="file" onChange={onFileChange} className="w-full p-2 border border-gray-300 rounded" />
                         {selectedFile && (
@@ -70,8 +84,13 @@ const UploadTest = () => {
                         <span>ส่งข้อมูล</span>
                     </button>
                     {loading && (
-                        <div className="w-full bg-gray-200 rounded-full h-2.5 mt-4">
-                            <div className="loading-indicator mt-4 text-purple-600">รอประมวลผลประมาณ 1-2นาที...</div>
+                        <div className="w-full rounded-full h-2.5 mt-4">
+                            <div className="loading-indicator mt-4 text-purple-600">รอประมวลผลประมาณ 30 วินาที...</div>
+                        </div>
+                    )}
+                    {error && (
+                        <div className="mt-4 p-2 bg-red-200 text-red-700 rounded">
+                            <p>{error}</p>
                         </div>
                     )}
                     {score && (
@@ -124,4 +143,4 @@ const UploadTest = () => {
     );
 };
 
-export default UploadTest;
+export default Upload1;
