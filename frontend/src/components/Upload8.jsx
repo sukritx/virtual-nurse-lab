@@ -83,7 +83,7 @@ const Upload8 = () => {
                     </button>
                     {loading && (
                         <div className="w-full rounded-full h-2.5 mt-4">
-                            <div className="loading-indicator mt-4 text-purple-600">รอประมวลผลประมาณ 30 วินาที...</div>
+                            <div className="loading-indicator mt-4 text-purple-600">รอประมวลผลประมาณ 1-2 นาที...</div>
                         </div>
                     )}
                     {error && (
@@ -99,13 +99,13 @@ const Upload8 = () => {
                                 text={`${score}`}
                                 styles={buildStyles({
                                     textColor: "#333",
-                                    pathColor: score >= 50 ? 'green' : 'red',
+                                    pathColor: score >= 60 ? 'green' : 'red',
                                     trailColor: '#d6d6d6'
                                 })}
                             />
                             <div className="flex items-center mt-4">
-                                {score >= 50 ? <FaCheckCircle className="text-green-700 mr-2" /> : <FaTimesCircle className="text-red-700 mr-2" />}
-                                <h3 className={`text-lg font-bold ${score >= 50 ? 'text-green-700' : 'text-red-700'}`}>
+                                {score >= 60 ? <FaCheckCircle className="text-green-700 mr-2" /> : <FaTimesCircle className="text-red-700 mr-2" />}
+                                <h3 className={`text-lg font-bold ${score >= 60 ? 'text-green-700' : 'text-red-700'}`}>
                                     Status: {passFailStatus}
                                 </h3>
                             </div>

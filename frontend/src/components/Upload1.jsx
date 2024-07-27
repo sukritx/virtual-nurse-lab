@@ -41,7 +41,11 @@ const Upload1 = () => {
             setLoading(false);
         } catch (error) {
             setLoading(false);
-            setError('Error uploading file: ' + error.message);
+            if (error.response && error.response.status === 413) {
+                setError('ขนาดไฟล์ใหญ่เกินกว่า 500MB. โปรดอัพโหลดไฟล์ที่มีขนาดเล็กกว่านี้');
+            } else {
+                setError('Error uploading file: ' + (error.response?.data?.msg || error.message));
+            }
         }
     };
 
@@ -50,7 +54,7 @@ const Upload1 = () => {
             <div className="bg-gray-100 min-h-screen flex flex-col items-center justify-center py-12">
                 <div className="w-full max-w-lg bg-white p-8 rounded-lg shadow-lg relative">
                 <h1 className="text-3xl font-extrabold mb-2 text-center text-purple-800">Lab 1: การเลี้ยงลูกด้วยนมแม่</h1>
-                    <h2 className="text-xl font-semibold mb-6 text-center text-purple-600">มารดาเจ็บหัวนม</h2>
+                    <h2 className="text-xl font-semibold mb-6 text-center text-purple-600">มารดาเจ็บหัวนมด้านขวา</h2>
 
                     {/* Add video element here */}
                     <div className="mb-6">
@@ -85,7 +89,7 @@ const Upload1 = () => {
                     </button>
                     {loading && (
                         <div className="w-full rounded-full h-2.5 mt-4">
-                            <div className="loading-indicator mt-4 text-purple-600">รอประมวลผลประมาณ 30 วินาที...</div>
+                            <div className="loading-indicator mt-4 text-purple-600">รอประมวลผลประมาณ 1-2 นาที...</div>
                         </div>
                     )}
                     {error && (
@@ -101,13 +105,13 @@ const Upload1 = () => {
                                 text={`${score}`}
                                 styles={buildStyles({
                                     textColor: "#333",
-                                    pathColor: score >= 50 ? 'green' : 'red',
+                                    pathColor: score >= 60 ? 'green' : 'red',
                                     trailColor: '#d6d6d6'
                                 })}
                             />
                             <div className="flex items-center mt-4">
-                                {score >= 50 ? <FaCheckCircle className="text-green-700 mr-2" /> : <FaTimesCircle className="text-red-700 mr-2" />}
-                                <h3 className={`text-lg font-bold ${score >= 50 ? 'text-green-700' : 'text-red-700'}`}>
+                                {score >= 60 ? <FaCheckCircle className="text-green-700 mr-2" /> : <FaTimesCircle className="text-red-700 mr-2" />}
+                                <h3 className={`text-lg font-bold ${score >= 60 ? 'text-green-700' : 'text-red-700'}`}>
                                     Status: {passFailStatus}
                                 </h3>
                             </div>
