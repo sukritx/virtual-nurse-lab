@@ -73,8 +73,17 @@ const adminAuth = (req, res, next) => {
     }
 };
 
+// Middleware to handle file size error
+function fileSizeErrorHandler(err, req, res, next) {
+    if (err instanceof multer.MulterError && err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(400).json({ message: 'Error: Video is too large, please upload a file smaller than 500MB' });
+    }
+    next(err);
+}
+
 module.exports = {
     authMiddleware,
     professorAuth,
-    adminAuth
+    adminAuth,
+    fileSizeErrorHandler
 };
