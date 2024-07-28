@@ -13,6 +13,7 @@ const Upload4 = () => {
     const [score, setScore] = useState('');
     const [pros, setPros] = useState('');
     const [recommendations, setRecommendations] = useState('');
+    const [error, setError] = useState(''); // State for error message
     const { token } = useAuth(); // Get the token from the Auth context
 
     const onFileChange = event => {
@@ -25,6 +26,7 @@ const Upload4 = () => {
 
         try {
             setLoading(true);
+            setError(''); // Clear previous errors
             const response = await axios.post('http://localhost:3000/api/v1/lab/4', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
@@ -37,8 +39,12 @@ const Upload4 = () => {
             setRecommendations(response.data.recommendations);
             setLoading(false);
         } catch (error) {
-            console.error('Error uploading file:', error);
             setLoading(false);
+            if (error.response && error.response.status === 413) {
+                setError('ขนาดไฟล์ใหญ่เกินกว่า 500MB. โปรดอัพโหลดไฟล์ที่มีขนาดเล็กกว่านี้');
+            } else {
+                setError('Error uploading file: ' + (error.response?.data?.msg || error.message));
+            }
         }
     };
 
@@ -88,6 +94,11 @@ const Upload4 = () => {
                 <div className="w-full rounded-full h-2.5 mt-4">
                     <div className="loading-indicator mt-4 text-purple-600">รอประมวลผลประมาณ 1-2 นาที...</div>
                 </div>
+              )}
+              {error && (
+                        <div className="mt-4 p-2 bg-red-200 text-red-700 rounded">
+                            <p>{error}</p>
+                        </div>
               )}
               {score && (
                 <div className="mt-6 flex flex-col items-center">

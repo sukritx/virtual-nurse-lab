@@ -13,25 +13,30 @@ const Upload10 = () => {
     const [score, setScore] = useState('');
     const [pros, setPros] = useState('');
     const [recommendations, setRecommendations] = useState('');
-    const [error, setError] = useState(''); // State for error message
-    const { token } = useAuth(); // Get the token from the Auth context
+    const [error, setError] = useState('');
+    const { token } = useAuth();
 
     const onFileChange = event => {
         setSelectedFile(event.target.files[0]);
-        setError(''); // Clear previous errors
+        setError('');
     };
 
     const onFileUpload = async () => {
+        if (!selectedFile) {
+            setError('Please select a file to upload.');
+            return;
+        }
+
         const formData = new FormData();
         formData.append('video', selectedFile);
 
         try {
             setLoading(true);
-            setError(''); // Clear previous errors
+            setError('');
             const response = await axios.post('http://localhost:3000/api/v1/lab/10', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
-                    'Authorization': `Bearer ${token}` // Include the token in the headers
+                    'Authorization': `Bearer ${token}`
                 }
             });
             setPassFailStatus(response.data.passFailStatus);
@@ -41,7 +46,11 @@ const Upload10 = () => {
             setLoading(false);
         } catch (error) {
             setLoading(false);
-            setError('Error uploading file: ' + error.message);
+            if (error.response && error.response.status === 413) {
+                setError('ขนาดไฟล์ใหญ่เกินกว่า 500MB. โปรดอัพโหลดไฟล์ที่มีขนาดเล็กกว่านี้');
+            } else {
+                setError('Error uploading file: ' + (error.response?.data?.msg || error.message));
+            }
         }
     };
 
@@ -49,9 +58,8 @@ const Upload10 = () => {
         <>
             <div className="bg-gray-100 min-h-screen flex flex-col items-center justify-center py-12">
                 <div className="w-full max-w-lg bg-white p-8 rounded-lg shadow-lg relative">
-                <h1 className="text-3xl font-extrabold mb-2 text-center text-purple-800">Lab 10: การสื่อสัญญาณทารก</h1>
+                    <h1 className="text-3xl font-extrabold mb-2 text-center text-purple-800">Lab 10: การสื่อสัญญาณทารก</h1>
 
-                    {/* Add video element here */}
                     <div className="mb-6">
                         <video 
                             controls 
@@ -63,8 +71,19 @@ const Upload10 = () => {
                     </div>
                     
                     <div className="space-y-4 mb-8 text-gray-700">
-                        <p>มารดาครรภ์แรกที่คลอดทารกครบกำหนด 2 วัน บ่นกับท่านว่า “จะทราบได้อย่างไรว่าลูกหิว หรือ อยากกินนมแล้ว” ท่านจะให้คำแนะนำเพื่อสังเกตพฤติกรรมที่ทารกจะแสดงออกเมื่อหิว ให้มารดารายนี้ได้อย่างไร</p>
+                        <p>มารดาครรภ์แรกที่คลอดทารกครบกำหนด 2 วัน บ่นกับท่านว่า "จะทราบได้อย่างไรว่าลูกหิว หรือ อยากกินนมแล้ว" ท่านจะให้คำแนะนำเพื่อสังเกตพฤติกรรมที่ทารกจะแสดงออกเมื่อหิว ให้มารดารายนี้ได้อย่างไร</p>
                     </div>
+
+                    <div className="mb-6">
+                        <input type="file" onChange={onFileChange} className="w-full p-2 border border-gray-300 rounded" />
+                        {selectedFile && (
+                            <div className="mt-2 flex items-center space-x-2">
+                                <FiUpload className="text-blue-500" />
+                                <span>{selectedFile.name}</span>
+                            </div>
+                        )}
+                    </div>
+
                     <button
                         onClick={onFileUpload}
                         className="bg-purple-600 text-white w-full py-3 rounded hover:bg-purple-700 transition duration-200 flex items-center justify-center space-x-2"
@@ -72,16 +91,19 @@ const Upload10 = () => {
                         <FiUpload />
                         <span>ส่งข้อมูล</span>
                     </button>
+
                     {loading && (
                         <div className="w-full rounded-full h-2.5 mt-4">
                             <div className="loading-indicator mt-4 text-purple-600">รอประมวลผลประมาณ 1-2 นาที...</div>
                         </div>
                     )}
+
                     {error && (
                         <div className="mt-4 p-2 bg-red-200 text-red-700 rounded">
                             <p>{error}</p>
                         </div>
                     )}
+
                     {score && (
                         <div className="mt-6 flex flex-col items-center">
                             <CircularProgressbar
@@ -102,12 +124,14 @@ const Upload10 = () => {
                             </div>
                         </div>
                     )}
+
                     {pros && (
                         <div className="mt-6 p-4 bg-gray-100 text-gray-700 rounded">
                             <h3 className="text-lg font-bold">นักศึกษาทำได้ดี:</h3>
                             <p>{pros}</p>
                         </div>
                     )}
+
                     {recommendations && (
                         <div className="mt-6 p-4 bg-gray-100 text-gray-700 rounded">
                             <h3 className="text-lg font-bold">ข้อเสนอแนะ:</h3>

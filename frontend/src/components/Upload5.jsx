@@ -16,15 +16,10 @@ const Upload5 = () => {
     const [error, setError] = useState(''); // State for error message
     const { token } = useAuth(); // Get the token from the Auth context
 
-    const onFileChange = event => {
-        setSelectedFile(event.target.files[0]);
-        setError(''); // Clear previous errors
-    };
-
     const onFileUpload = async () => {
         const formData = new FormData();
         formData.append('video', selectedFile);
-
+    
         try {
             setLoading(true);
             setError(''); // Clear previous errors
@@ -41,7 +36,11 @@ const Upload5 = () => {
             setLoading(false);
         } catch (error) {
             setLoading(false);
-            setError('Error uploading file: ' + error.message);
+            if (error.response && error.response.status === 413) {
+                setError('ขนาดไฟล์ใหญ่เกินกว่า 500MB. โปรดอัพโหลดไฟล์ที่มีขนาดเล็กกว่านี้');
+            } else {
+                setError('Error uploading file: ' + (error.response?.data?.msg || error.message));
+            }
         }
     };
 

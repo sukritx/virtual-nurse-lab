@@ -24,7 +24,7 @@ const Upload3 = () => {
     const onFileUpload = async () => {
         const formData = new FormData();
         formData.append('video', selectedFile);
-
+    
         try {
             setLoading(true);
             setError(''); // Clear previous errors
@@ -41,7 +41,11 @@ const Upload3 = () => {
             setLoading(false);
         } catch (error) {
             setLoading(false);
-            setError('Error uploading file: ' + error.message);
+            if (error.response && error.response.status === 413) {
+                setError('ขนาดไฟล์ใหญ่เกินกว่า 500MB. โปรดอัพโหลดไฟล์ที่มีขนาดเล็กกว่านี้');
+            } else {
+                setError('Error uploading file: ' + (error.response?.data?.msg || error.message));
+            }
         }
     };
 
