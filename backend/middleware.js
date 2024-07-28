@@ -1,6 +1,8 @@
 const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
 
+dotenv.config()
+
 const authMiddleware = (req, res, next) => {
     const authHeader = req.headers.authorization;
 
@@ -32,7 +34,7 @@ const professorAuth = (req, res, next) => {
     const token = authHeader.split(' ')[1];
 
     try {
-        const decoded = jwt.verify(token, JWT_SECRET);
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
         if (!decoded.isProfessor) {
             console.log('Not a professor');
@@ -58,7 +60,7 @@ const adminAuth = (req, res, next) => {
     const token = authHeader.split(' ')[1];
 
     try {
-        const decoded = jwt.verify(token, JWT_SECRET);
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
         if (!decoded.isAdmin) {
             console.log('Not an admin');
