@@ -20,7 +20,7 @@ export const NavigationMenu = () => {
               <img src={logo} alt="Virtual Nurse Lab Logo" className="h-10" />
             </a>
             <div className="hidden md:flex items-center space-x-4">
-              <a href="/library" className="py-5 px-3 text-gray-700 hover:text-gray-900">Library</a>
+              {/*<a href="/library" className="py-5 px-3 text-gray-700 hover:text-gray-900">Library</a>*/}
               <a href="/contact" className="py-5 px-3 text-gray-700 hover:text-gray-900">Contact</a>
               {token && user && (
                 <a href="/student/dashboard" className="py-5 px-3 text-gray-700 hover:text-gray-900">Dashboard</a>
@@ -52,7 +52,7 @@ export const NavigationMenu = () => {
           <button onClick={handleMobileMenuToggle} className="absolute top-4 right-4 text-gray-700 focus:outline-none">
             <FaTimes size={24} />
           </button>
-          <a href="/library" className="text-2xl text-gray-700 hover:text-gray-900">Library</a>
+          {/*<a href="/library" className="text-2xl text-gray-700 hover:text-gray-900">Library</a>*/}
           <a href="/contact" className="text-2xl text-gray-700 hover:text-gray-900">Contact</a>
           {token && user && (
             <>
