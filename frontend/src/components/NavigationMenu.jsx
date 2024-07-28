@@ -22,9 +22,6 @@ export const NavigationMenu = () => {
             <div className="hidden md:flex items-center space-x-4">
               {/*<a href="/library" className="py-5 px-3 text-gray-700 hover:text-gray-900">Library</a>*/}
               <a href="/contact" className="py-5 px-3 text-gray-700 hover:text-gray-900">Contact</a>
-              {token && user && (
-                <a href="/student/dashboard" className="py-5 px-3 text-gray-700 hover:text-gray-900">Dashboard</a>
-              )}
             </div>
           </div>
           <div className="hidden md:flex items-center space-x-4">
@@ -56,7 +53,6 @@ export const NavigationMenu = () => {
           <a href="/contact" className="text-2xl text-gray-700 hover:text-gray-900">Contact</a>
           {token && user && (
             <>
-              <a href="/student/dashboard" className="text-2xl text-gray-700 hover:text-gray-900">Dashboard</a>
               <span className="text-2xl text-gray-700">Hello, {user.firstName} {user.lastName}</span>
               <button onClick={logout} className="py-2 px-6 bg-red-600 text-white rounded hover:bg-red-700">Logout</button>
             </>

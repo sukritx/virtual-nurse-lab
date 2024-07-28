@@ -49,7 +49,7 @@ const Upload10 = () => {
         <>
             <div className="bg-gray-100 min-h-screen flex flex-col items-center justify-center py-12">
                 <div className="w-full max-w-lg bg-white p-8 rounded-lg shadow-lg relative">
-                <h1 className="text-3xl font-extrabold mb-2 text-center text-purple-800">Lab 10: การสื่อสัญญานทารก</h1>
+                <h1 className="text-3xl font-extrabold mb-2 text-center text-purple-800">Lab 10: การสื่อสัญญาณทารก</h1>
 
                     {/* Add video element here */}
                     <div className="mb-6">
