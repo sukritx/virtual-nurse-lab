@@ -30,7 +30,7 @@ export const AdminDashboard = () => {
   const handleSubmitUniversity = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:3000/api/v1/admin/generate-code', {
+      const response = await axios.post('/api/v1/admin/generate-code', {
         universityName,
         numberOfStudents: parseInt(numberOfStudents)
       }, {
@@ -51,7 +51,7 @@ export const AdminDashboard = () => {
   const handleAssignProfessor = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:3000/api/v1/admin/assign-professor', {
+      await axios.post('/api/v1/admin/assign-professor', {
         registerCode,
         professorUsername
       }, {

@@ -27,7 +27,7 @@ export const ProfessorDashboard = () => {
       });
       setUniversity(universityResponse.data);
 
-      const labsResponse = await axios.get('http://localhost:3000/api/v1/professor/labs', {
+      const labsResponse = await axios.get('/api/v1/professor/labs', {
         headers: {
           Authorization: `Bearer ${token}`
         }
