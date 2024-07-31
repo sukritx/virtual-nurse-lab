@@ -74,7 +74,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({
     storage: storage,
-    limits: { fileSize: 500000000 }, // 500MB file size limit
+    limits: { fileSize: 800000000 }, // 800MB file size limit
     fileFilter: function (req, file, cb) {
         checkFileType(file, cb);
     }
@@ -263,7 +263,7 @@ router.post('/1', authMiddleware, (req, res) => {
                 recommendations: feedbackJson.recommendations,
             };
 
-            await axios.post('http://localhost:3000/api/v1/lab/submit-lab', labInfo);
+            await axios.post('/api/v1/lab/submit-lab', labInfo);
 
             res.json({
                 feedback: feedbackJson,
@@ -406,7 +406,7 @@ router.post('/2', authMiddleware, (req, res) => {
                 recommendations: feedbackJson.recommendations,
             };
 
-            await axios.post('http://localhost:3000/api/v1/lab/submit-lab', labInfo);
+            await axios.post('/api/v1/lab/submit-lab', labInfo);
 
             res.json({
                 feedback: feedbackJson,
@@ -575,7 +575,7 @@ router.post('/3', authMiddleware, (req, res) => {
                 recommendations: feedbackJson.recommendations,
             };
 
-            await axios.post('http://localhost:3000/api/v1/lab/submit-lab', labInfo);
+            await axios.post('/api/v1/lab/submit-lab', labInfo);
 
             res.json({
                 feedback: feedbackJson,
@@ -710,7 +710,7 @@ router.post('/4', authMiddleware, (req, res) => {
                 recommendations: feedbackJson.recommendations,
             };
 
-            await axios.post('http://localhost:3000/api/v1/lab/submit-lab', labInfo);
+            await axios.post('/api/v1/lab/submit-lab', labInfo);
 
             res.json({
                 feedback: feedbackJson,
@@ -848,7 +848,7 @@ router.post('/5', authMiddleware, (req, res) => {
                 recommendations: feedbackJson.recommendations,
             };
 
-            await axios.post('http://localhost:3000/api/v1/lab/submit-lab', labInfo);
+            await axios.post('/api/v1/lab/submit-lab', labInfo);
 
             res.json({
                 feedback: feedbackJson,
@@ -990,7 +990,7 @@ router.post('/6', authMiddleware, (req, res) => {
                 recommendations: feedbackJson.recommendations,
             };
 
-            await axios.post('http://localhost:3000/api/v1/lab/submit-lab', labInfo);
+            await axios.post('/api/v1/lab/submit-lab', labInfo);
 
             res.json({
                 feedback: feedbackJson,
@@ -1129,7 +1129,7 @@ router.post('/7', authMiddleware, (req, res) => {
                 recommendations: feedbackJson.recommendations,
             };
 
-            await axios.post('http://localhost:3000/api/v1/lab/submit-lab', labInfo);
+            await axios.post('/api/v1/lab/submit-lab', labInfo);
 
             res.json({
                 feedback: feedbackJson,
@@ -1271,7 +1271,7 @@ router.post('/8', authMiddleware, (req, res) => {
                 recommendations: feedbackJson.recommendations,
             };
 
-            await axios.post('http://localhost:3000/api/v1/lab/submit-lab', labInfo);
+            await axios.post('/api/v1/lab/submit-lab', labInfo);
 
             res.json({
                 feedback: feedbackJson,
@@ -1419,7 +1419,7 @@ router.post('/9', authMiddleware, (req, res) => {
                 recommendations: feedbackJson.recommendations,
             };
 
-            await axios.post('http://localhost:3000/api/v1/lab/submit-lab', labInfo);
+            await axios.post('/api/v1/lab/submit-lab', labInfo);
 
             res.json({
                 feedback: feedbackJson,
@@ -1551,7 +1551,7 @@ router.post('/10', authMiddleware, (req, res) => {
                 recommendations: feedbackJson.recommendations,
             };
 
-            await axios.post('http://localhost:3000/api/v1/lab/submit-lab', labInfo);
+            await axios.post('/api/v1/lab/submit-lab', labInfo);
 
             res.json({
                 feedback: feedbackJson,
@@ -1664,7 +1664,7 @@ router.post('/dummy', authMiddleware, (req, res) => {
             
             const dummyTranscription = 'นี่จะเป็นวิธีการสาธินำลูกเข้าเต้า โดยวัจการประคองศีรษะของธรุป ในรูปแบบของทุกวอนโฮเตอร์ แล้วก็ นำลูกเข้าเต่าโดยที่ให้สหัวของสารกงศีรษะเงียนขึ้น โดยใช้มือข้างหนึ่งนะครับ จับเท้าไว้แล้วก็นำ ติดปากของทารกและเอาหัวนมมาให้ใกล้กันอย่างนี้นะครับ และให้ทำการเอานมเข้าปากทะเลาะโดยให้ทะเลาะอมทั้งหมด นมและอมจนถึงร้านนมนะครับ เพื่อป้องกันการเจ็บที่บริเวณหัวนม เพื่อการเหงียนขึ้น เราจะไม่นำลูก เข้าแบบอย่างนี้นะครับเราจะนั่งลูกใหญ่ขึ้นนิดนึงนะครับแล้วก็เข้าเต้าในเนรนาดแบบนี้ครับ อุ้ย';
 
-            const feedbackResponse = await axios.post('http://localhost:3000/api/v1/lab/dummy-gpt-response');
+            const feedbackResponse = await axios.post('/api/v1/lab/dummy-gpt-response');
             const feedbackJson = feedbackResponse.data;
 
             const labInfo = {
@@ -1679,7 +1679,7 @@ router.post('/dummy', authMiddleware, (req, res) => {
                 recommendations: feedbackJson.recommendations,
             };
 
-            await axios.post('http://localhost:3000/api/v1/lab/submit-lab', labInfo);
+            await axios.post('/api/v1/lab/submit-lab', labInfo);
 
             res.json({
                 feedback: feedbackJson,
