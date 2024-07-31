@@ -1,0 +1,49 @@
+name: Deploy to DigitalOcean
+
+on:
+  push:
+    branches:
+      - main  # or your default branch name
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14'  # or your preferred Node.js version
+
+    - name: Install dependencies
+      run: |
+        cd frontend
+        npm install
+        cd ../backend
+        npm install
+
+    - name: Build frontend
+      run: |
+        cd frontend
+        npm run build
+
+    - name: Deploy to DigitalOcean
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
+          cd /root/virtual-nurse-lab
+          git pull origin main
+          cd frontend
+          npm install
+          npm run build
+          sudo cp -R dist/* /var/www/html/virtualnurselab.com/
+          cd ../backend
+          npm install
+          pm2 restart index
+          sudo chown -R www-data:www-data /var/www/html/virtualnurselab.com
+          sudo chmod -R 755 /var/www/html/virtualnurselab.com
+          sudo systemctl reload nginx
