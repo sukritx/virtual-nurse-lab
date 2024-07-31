@@ -19,7 +19,9 @@ mongoose.connect(db, {
     .then(() => console.log('Successfully connected to MongoDB'))
     .catch(err => console.log(err));
 
-app.use(cors());
+app.use(cors({
+  origin: ['https://virtualnurselab.com', 'https://www.virtualnurselab.com']
+}));
 app.use(express.json());
 
 app.use("/api/v1", rootRouter);
