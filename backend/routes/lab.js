@@ -44,7 +44,7 @@ async function uploadToSpaces(filePath, fileName) {
         });
 
         const result = await upload.done();
-        // console.log("Upload successful:", result);
+        console.log("Upload successful:", result);
         
         // Construct the correct URL
         const cdnUrl = `https://${process.env.DO_SPACES_BUCKET}.${process.env.DO_SPACES_CDN_ENDPOINT}/${fileName}`;
@@ -130,7 +130,7 @@ async function processFile(filePath) {
 
     // Concatenate the text from each segment
     const transcriptionText = concatenateTranscriptionText(transcription.output);
-    // console.log(transcriptionText);
+    console.log(transcriptionText);
 
     return { transcription: transcriptionText, audioPath: audioPath };
 }
@@ -234,9 +234,9 @@ router.post('/1', authMiddleware, (req, res) => {
             // If an audio file was created, store its path
             if (generatedAudioPath && fs.existsSync(generatedAudioPath)) {
                 audioPath = generatedAudioPath;
-                //console.log(`Audio file exists at: ${audioPath}`);
+                console.log(`Audio file exists at: ${audioPath}`);
             } else {
-                //console.log(`Audio file was not created or does not exist`);
+                console.log(`Audio file was not created or does not exist`);
             }
 
             const feedbackJson = await processTranscriptionLab1(transcription);
@@ -285,12 +285,12 @@ router.post('/1', authMiddleware, (req, res) => {
                 if (fs.existsSync(path)) {
                     try {
                         fs.unlinkSync(path);
-                        //console.log(`Successfully deleted: ${path}`);
+                        console.log(`Successfully deleted: ${path}`);
                     } catch (deleteError) {
                         //console.error(`Failed to delete file: ${path}`, deleteError);
                     }
                 } else {
-                    //console.log(`File not found or already deleted: ${path}`);
+                    console.log(`File not found or already deleted: ${path}`);
                 }
             });
         }
@@ -346,7 +346,7 @@ o	ท่านอน (side lying) แม่ลูกนอนตะแคงเ�
     });
 
     const feedbackJson = JSON.parse(response.choices[0].message.content.trim());
-    //console.log(feedbackJson);
+    console.log(feedbackJson);
     return feedbackJson;
 }
 
@@ -377,9 +377,9 @@ router.post('/2', authMiddleware, (req, res) => {
             // If an audio file was created, store its path
             if (generatedAudioPath && fs.existsSync(generatedAudioPath)) {
                 audioPath = generatedAudioPath;
-                //console.log(`Audio file exists at: ${audioPath}`);
+                console.log(`Audio file exists at: ${audioPath}`);
             } else {
-                //console.log(`Audio file was not created or does not exist`);
+                console.log(`Audio file was not created or does not exist`);
             }
 
             const feedbackJson = await processTranscriptionLab2(transcription);
@@ -428,12 +428,12 @@ router.post('/2', authMiddleware, (req, res) => {
                 if (fs.existsSync(path)) {
                     try {
                         fs.unlinkSync(path);
-                        //console.log(`Successfully deleted: ${path}`);
+                        console.log(`Successfully deleted: ${path}`);
                     } catch (deleteError) {
-                        //console.error(`Failed to delete file: ${path}`, deleteError);
+                        console.error(`Failed to delete file: ${path}`, deleteError);
                     }
                 } else {
-                    //console.log(`File not found or already deleted: ${path}`);
+                    console.log(`File not found or already deleted: ${path}`);
                 }
             });
         }
@@ -515,7 +515,7 @@ o	เมื่อต้องการนำนมออกมาใช้ ค�
     });
 
     const feedbackJson = JSON.parse(response.choices[0].message.content.trim());
-    //console.log(feedbackJson);
+    console.log(feedbackJson);
     return feedbackJson;
 }
 
@@ -546,9 +546,9 @@ router.post('/3', authMiddleware, (req, res) => {
             // If an audio file was created, store its path
             if (generatedAudioPath && fs.existsSync(generatedAudioPath)) {
                 audioPath = generatedAudioPath;
-                //console.log(`Audio file exists at: ${audioPath}`);
+                console.log(`Audio file exists at: ${audioPath}`);
             } else {
-                //console.log(`Audio file was not created or does not exist`);
+                console.log(`Audio file was not created or does not exist`);
             }
 
             const feedbackJson = await processTranscriptionLab3(transcription);
@@ -597,12 +597,12 @@ router.post('/3', authMiddleware, (req, res) => {
                 if (fs.existsSync(path)) {
                     try {
                         fs.unlinkSync(path);
-                        //console.log(`Successfully deleted: ${path}`);
+                        console.log(`Successfully deleted: ${path}`);
                     } catch (deleteError) {
-                        //console.error(`Failed to delete file: ${path}`, deleteError);
+                        console.error(`Failed to delete file: ${path}`, deleteError);
                     }
                 } else {
-                    //console.log(`File not found or already deleted: ${path}`);
+                    console.log(`File not found or already deleted: ${path}`);
                 }
             });
         }
@@ -650,7 +650,7 @@ Lab 3: การเลี้ยงลูกด้วยนมแม่ กรณ
     });
 
     const feedbackJson = JSON.parse(response.choices[0].message.content.trim());
-    //console.log(feedbackJson);
+    console.log(feedbackJson);
     return feedbackJson;
 }
 
@@ -681,9 +681,9 @@ router.post('/4', authMiddleware, (req, res) => {
             // If an audio file was created, store its path
             if (generatedAudioPath && fs.existsSync(generatedAudioPath)) {
                 audioPath = generatedAudioPath;
-                //console.log(`Audio file exists at: ${audioPath}`);
+                console.log(`Audio file exists at: ${audioPath}`);
             } else {
-                //console.log(`Audio file was not created or does not exist`);
+                console.log(`Audio file was not created or does not exist`);
             }
 
             const feedbackJson = await processTranscriptionLab4(transcription);
