@@ -9,7 +9,7 @@ export const DemoMessage = () => {
   };
 
   return (
-    <div className="text-center mt-8">
+    <div className="text-center mt-8 mb-4">
       <h1 className="text-4xl font-bold">Try us with your faculty now!</h1>
       <p className="mt-2 text-gray-600">Free 15 days for 10 students</p>
       <button

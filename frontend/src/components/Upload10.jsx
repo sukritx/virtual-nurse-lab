@@ -33,7 +33,7 @@ const Upload10 = () => {
         try {
             setLoading(true);
             setError('');
-            const response = await axios.post('http://localhost:3000/api/v1/lab/10', formData, {
+            const response = await axios.post('/api/v1/lab/10', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                     'Authorization': `Bearer ${token}`

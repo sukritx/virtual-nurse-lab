@@ -15,7 +15,7 @@ const LabHistory = () => {
 
   const fetchLabHistory = async () => {
     try {
-      const response = await axios.get(`http://localhost:3000/api/v1/student/${labNumber}/history`, {
+      const response = await axios.get(`/api/v1/student/${labNumber}/history`, {
         headers: {
           Authorization: `Bearer ${token}`
         }

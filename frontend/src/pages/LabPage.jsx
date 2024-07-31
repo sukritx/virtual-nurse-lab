@@ -15,7 +15,7 @@ export const LabPage = ({ match }) => {
 
   const fetchLab = async () => {
     try {
-      const response = await axios.get(`http://localhost:3000/api/v1/student/lab/${labId}`, {
+      const response = await axios.get(`/api/v1/student/lab/${labId}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
