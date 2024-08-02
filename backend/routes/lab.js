@@ -269,7 +269,7 @@ router.post('/1', authMiddleware, (req, res) => {
             };
 
             // Store lab submission
-            await axios.post('http://localhost:3000/api/v1/lab/submit-lab', labInfo);
+            await axios.post('/api/v1/lab/submit-lab', labInfo);
 
             // Send response to frontend
             res.json({
