@@ -16,6 +16,9 @@ const { authMiddleware, fileSizeErrorHandler } = require('../middleware');
 
 require('dotenv').config();
 
+const Queue = require('bull');
+const videoQueue = new Queue('video processing', 'redis://127.0.0.1:6379');
+
 const s3Client = new S3Client({
     endpoint: `https://${process.env.DO_SPACES_ENDPOINT}`,
     region: process.env.DO_SPACES_REGION,
@@ -24,34 +27,6 @@ const s3Client = new S3Client({
         secretAccessKey: process.env.DO_SPACES_SECRET
     },
     forcePathStyle: false
-});
-
-const Queue = require('bull');
-const videoQueue = new Queue('video processing', 'redis://127.0.0.1:6379');
-
-videoQueue.process(async (job) => {
-    const { filePath, userId } = job.data;
-    
-    // Extract audio
-    const audioPath = await extractAudio(filePath);
-    
-    // Upload to Spaces
-    const videoUrl = await uploadToSpaces(filePath, `lab1/${userId}/${Date.now()}${path.extname(filePath)}`);
-    
-    // Transcribe
-    const transcription = await transcribeAudioIApp(audioPath);
-    
-    // Process with GPT
-    const feedbackJson = await processTranscriptionLab1(transcription);
-    
-    // Store submission
-    await storeLabSubmission(userId, videoUrl, transcription, feedbackJson);
-    
-    // Cleanup
-    fs.unlinkSync(filePath);
-    fs.unlinkSync(audioPath);
-    
-    return { videoUrl, feedbackJson, transcription };
 });
 
 // Function to upload file to DigitalOcean Spaces
@@ -235,102 +210,78 @@ router.post('/submit-lab', async (req, res) => {
     }
 });
 
+// New endpoint to check job status
+router.get('/job-status/:jobId', authMiddleware, async (req, res) => {
+    const job = await videoQueue.getJob(req.params.jobId);
+    
+    if (!job) {
+        return res.status(404).json({ message: 'Job not found' });
+    }
+    
+    const state = await job.getState();
+    const result = job.returnvalue;
+    
+    res.json({ state, result });
+});
+
 // Handle file upload and processing
 router.post('/1', authMiddleware, (req, res) => {
     upload(req, res, async (err) => {
         if (err) {
-            if (err.code === 'LIMIT_FILE_SIZE') {
-                return res.status(413).json({ msg: 'File is too large', errorCode: 'FILE_TOO_LARGE' });
-            }
             return res.status(400).json({ msg: err.message });
         }
 
-        const uploadTimestamp = Date.now();
         const filePath = `./public/uploads/${req.file.filename}`;
-        let audioPath = null;
-        let videoUrl = null;
-
+        
         try {
-            // Extract MP3 from the uploaded video
-            audioPath = `./public/uploads/audio-${uploadTimestamp}.mp3`;
-            await new Promise((resolve, reject) => {
-                ffmpeg(filePath)
-                    .output(audioPath)
-                    .audioCodec('libmp3lame')
-                    .on('end', resolve)
-                    .on('error', reject)
-                    .run();
+            const job = await videoQueue.add({
+                filePath,
+                userId: req.userId
             });
-
-            // Start parallel processes: upload video to Spaces and transcribe audio
-            const [spacesUploadPromise, transcriptionPromise] = await Promise.all([
-                // Upload original video to DigitalOcean Spaces
-                (async () => {
-                    const spacesFileName = `lab1/${req.userId}/${uploadTimestamp}${path.extname(req.file.filename)}`;
-                    return await uploadToSpaces(filePath, spacesFileName);
-                })(),
-                // Transcribe the extracted audio
-                transcribeAudioIApp(audioPath)
-            ]);
-
-            // Wait for both processes to complete
-            videoUrl = await spacesUploadPromise;
-            const transcriptionResult = await transcriptionPromise;
-
-            // Concatenate the transcription text
-            const transcription = concatenateTranscriptionText(transcriptionResult.output);
-
-            // Process transcription with GPT API
-            const feedbackJson = await processTranscriptionLab1(transcription);
-
-            // Prepare lab info
-            const labInfo = {
-                studentId: req.userId,
-                labNumber: 1,
-                subject: 'maternalandchild',
-                videoPath: videoUrl,
-                studentAnswer: transcription,
-                studentScore: feedbackJson.totalScore,
-                isPass: feedbackJson.totalScore >= 60,
-                pros: feedbackJson.pros,
-                recommendations: feedbackJson.recommendations,
-            };
-
-            // Store lab submission
-            await axios.post('/api/v1/lab/submit-lab', labInfo);
-
-            // Send response to frontend
-            res.json({
-                feedback: feedbackJson,
-                transcription,
-                passFailStatus: feedbackJson.totalScore >= 60 ? 'Passed' : 'Failed',
-                score: feedbackJson.totalScore,
-                pros: feedbackJson.pros,
-                recommendations: feedbackJson.recommendations,
-                videoUrl: videoUrl
-            });
-
+            
+            res.json({ jobId: job.id, message: "Video upload successful. Processing started." });
         } catch (error) {
             console.error(error);
-            res.status(500).json({ msg: 'Error processing the file', error: error.message });
-        } finally {
-            // Delete all local files
-            const filesToDelete = [filePath, audioPath].filter(Boolean);
-        
-            filesToDelete.forEach(path => {
-                if (fs.existsSync(path)) {
-                    try {
-                        fs.unlinkSync(path);
-                        console.log(`Successfully deleted: ${path}`);
-                    } catch (deleteError) {
-                        console.error(`Failed to delete file: ${path}`, deleteError);
-                    }
-                } else {
-                    console.log(`File not found or already deleted: ${path}`);
-                }
-            });
+            res.status(500).json({ msg: 'Error queueing the file for processing', error: error.message });
         }
     });
+});
+videoQueue.process(async (job) => {
+    const { filePath, userId } = job.data;
+    
+    // Extract audio
+    const audioPath = await extractAudio(filePath);
+    
+    // Upload to Spaces
+    const videoUrl = await uploadToSpaces(filePath, `lab1/${userId}/${Date.now()}${path.extname(filePath)}`);
+    
+    // Transcribe
+    const transcription = await transcribeAudioIApp(audioPath);
+    
+    // Process with GPT
+    const feedbackJson = await processTranscriptionLab1(transcription);
+    
+    // Prepare lab info
+    const labInfo = {
+        studentId: req.userId,
+        labNumber: 1,
+        subject: 'maternalandchild',
+        videoPath: videoUrl,
+        studentAnswer: transcription,
+        studentScore: feedbackJson.totalScore,
+        isPass: feedbackJson.totalScore >= 60,
+        pros: feedbackJson.pros,
+        recommendations: feedbackJson.recommendations,
+    };
+
+    // Store lab submission
+    await axios.post('/api/v1/lab/submit-lab', labInfo);
+    
+    // Cleanup
+    fs.unlinkSync(filePath);
+    fs.unlinkSync(audioPath);
+    
+    return { videoUrl, feedbackJson, transcription };
 });
 async function processTranscriptionLab1(transcription) {
     const answerKey = `
