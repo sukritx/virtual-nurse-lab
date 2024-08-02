@@ -13,51 +13,39 @@ const Upload1 = () => {
     const [score, setScore] = useState('');
     const [pros, setPros] = useState('');
     const [recommendations, setRecommendations] = useState('');
-    const [error, setError] = useState('');
-    const [transcription, setTranscription] = useState('');
-    const [videoUrl, setVideoUrl] = useState('');
-    const { token } = useAuth();
+    const [error, setError] = useState(''); // State for error message
+    const { token } = useAuth(); // Get the token from the Auth context
 
     const onFileChange = event => {
         setSelectedFile(event.target.files[0]);
-        setError('');
-    };
-
-    const updateUIWithResult = (result) => {
-        setPassFailStatus(result.passFailStatus);
-        setScore(result.score);
-        setPros(result.pros);
-        setRecommendations(result.recommendations);
-        setTranscription(result.transcription);
-        setVideoUrl(result.videoUrl);
+        setError(''); // Clear previous errors
     };
 
     const onFileUpload = async () => {
-        if (!selectedFile) {
-            setError('Please select a file first');
-            return;
-        }
+        const formData = new FormData();
+        formData.append('video', selectedFile);
 
         try {
             setLoading(true);
-            setError('');
-
-            const formData = new FormData();
-            formData.append('video', selectedFile);
-
+            setError(''); // Clear previous errors
             const response = await axios.post('/api/v1/lab/1', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
-                    'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer ${token}` // Include the token in the headers
                 }
             });
-
-            updateUIWithResult(response.data);
-        } catch (error) {
-            console.error('Upload error:', error);
-            setError('Error uploading file: ' + (error.response?.data?.msg || error.message));
-        } finally {
+            setPassFailStatus(response.data.passFailStatus);
+            setScore(response.data.score);
+            setPros(response.data.pros);
+            setRecommendations(response.data.recommendations);
             setLoading(false);
+        } catch (error) {
+            setLoading(false);
+            if (error.response && error.response.status === 413) {
+                setError('ขนาดไฟล์ใหญ่เกินกว่า 500MB. โปรดอัพโหลดไฟล์ที่มีขนาดเล็กกว่านี้');
+            } else {
+                setError('Error uploading file: ' + (error.response?.data?.msg || error.message));
+            }
         }
     };
 
@@ -65,9 +53,10 @@ const Upload1 = () => {
         <>
             <div className="bg-gray-100 min-h-screen flex flex-col items-center justify-center py-12">
                 <div className="w-full max-w-lg bg-white p-8 rounded-lg shadow-lg relative">
-                    <h1 className="text-3xl font-extrabold mb-2 text-center text-purple-800">Lab 1: การเลี้ยงลูกด้วยนมแม่</h1>
+                <h1 className="text-3xl font-extrabold mb-2 text-center text-purple-800">Lab 1: การเลี้ยงลูกด้วยนมแม่</h1>
                     <h2 className="text-xl font-semibold mb-6 text-center text-purple-600">มารดาเจ็บหัวนมด้านขวา</h2>
 
+                    {/* Add video element here */}
                     <div className="mb-6">
                         <video 
                             controls 
@@ -94,7 +83,6 @@ const Upload1 = () => {
                     <button
                         onClick={onFileUpload}
                         className="bg-purple-600 text-white w-full py-3 rounded hover:bg-purple-700 transition duration-200 flex items-center justify-center space-x-2"
-                        disabled={loading}
                     >
                         <FiUpload />
                         <span>ส่งข้อมูล</span>
@@ -139,21 +127,6 @@ const Upload1 = () => {
                         <div className="mt-6 p-4 bg-gray-100 text-gray-700 rounded">
                             <h3 className="text-lg font-bold">ข้อเสนอแนะ:</h3>
                             <p>{recommendations}</p>
-                        </div>
-                    )}
-                    {transcription && (
-                        <div className="mt-6 p-4 bg-gray-100 text-gray-700 rounded">
-                            <h3 className="text-lg font-bold">Transcription:</h3>
-                            <p>{transcription}</p>
-                        </div>
-                    )}
-                    {videoUrl && (
-                        <div className="mt-6">
-                            <h3 className="text-lg font-bold mb-2">Uploaded Video:</h3>
-                            <video controls className="w-full rounded-lg shadow-md">
-                                <source src={videoUrl} type="video/mp4" />
-                                Your browser does not support the video tag.
-                            </video>
                         </div>
                     )}
                 </div>
