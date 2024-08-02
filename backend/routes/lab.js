@@ -219,38 +219,43 @@ router.post('/1', authMiddleware, (req, res) => {
 
         const uploadTimestamp = Date.now();
         const filePath = `./public/uploads/${req.file.filename}`;
-        let compressedFilePath = null;
         let audioPath = null;
         let videoUrl = null;
 
         try {
-            // Compress the video file
-            compressedFilePath = `./public/uploads/compressed-${uploadTimestamp}${path.extname(req.file.filename)}`;
-            await compressVideo(filePath, compressedFilePath);
+            // Extract MP3 from the uploaded video
+            audioPath = `./public/uploads/audio-${uploadTimestamp}.mp3`;
+            await new Promise((resolve, reject) => {
+                ffmpeg(filePath)
+                    .output(audioPath)
+                    .audioCodec('libmp3lame')
+                    .on('end', resolve)
+                    .on('error', reject)
+                    .run();
+            });
 
-            // Process the compressed video file
-            const { transcription, audioPath: generatedAudioPath } = await processFile(compressedFilePath);
+            // Start parallel processes: upload video to Spaces and transcribe audio
+            const [spacesUploadPromise, transcriptionPromise] = await Promise.all([
+                // Upload original video to DigitalOcean Spaces
+                (async () => {
+                    const spacesFileName = `lab1/${req.userId}/${uploadTimestamp}${path.extname(req.file.filename)}`;
+                    return await uploadToSpaces(filePath, spacesFileName);
+                })(),
+                // Transcribe the extracted audio
+                transcribeAudioIApp(audioPath)
+            ]);
 
-            // If an audio file was created, store its path
-            if (generatedAudioPath && fs.existsSync(generatedAudioPath)) {
-                audioPath = generatedAudioPath;
-                //console.log(`Audio file exists at: ${audioPath}`);
-            } else {
-                //console.log(`Audio file was not created or does not exist`);
-            }
+            // Wait for both processes to complete
+            videoUrl = await spacesUploadPromise;
+            const transcriptionResult = await transcriptionPromise;
 
+            // Concatenate the transcription text
+            const transcription = concatenateTranscriptionText(transcriptionResult.output);
+
+            // Process transcription with GPT API
             const feedbackJson = await processTranscriptionLab1(transcription);
 
-            // Upload the compressed video to DigitalOcean Spaces
-            const spacesFileName = `lab1/${req.userId}/compressed-${Date.now()}${path.extname(req.file.filename)}`;
-            try {
-                videoUrl = await uploadToSpaces(compressedFilePath, spacesFileName);
-            } catch (uploadError) {
-                console.error('Failed to upload to DigitalOcean Spaces:', uploadError);
-                // If upload fails, we'll use the local compressed file path instead
-                videoUrl = compressedFilePath;
-            }
-
+            // Prepare lab info
             const labInfo = {
                 studentId: req.userId,
                 labNumber: 1,
@@ -263,8 +268,10 @@ router.post('/1', authMiddleware, (req, res) => {
                 recommendations: feedbackJson.recommendations,
             };
 
+            // Store lab submission
             await axios.post('http://localhost:3000/api/v1/lab/submit-lab', labInfo);
 
+            // Send response to frontend
             res.json({
                 feedback: feedbackJson,
                 transcription,
@@ -272,6 +279,7 @@ router.post('/1', authMiddleware, (req, res) => {
                 score: feedbackJson.totalScore,
                 pros: feedbackJson.pros,
                 recommendations: feedbackJson.recommendations,
+                videoUrl: videoUrl
             });
 
         } catch (error) {
@@ -279,18 +287,18 @@ router.post('/1', authMiddleware, (req, res) => {
             res.status(500).json({ msg: 'Error processing the file', error: error.message });
         } finally {
             // Delete all local files
-            const filesToDelete = [filePath, compressedFilePath, audioPath].filter(Boolean);
+            const filesToDelete = [filePath, audioPath].filter(Boolean);
         
             filesToDelete.forEach(path => {
                 if (fs.existsSync(path)) {
                     try {
                         fs.unlinkSync(path);
-                        //console.log(`Successfully deleted: ${path}`);
+                        console.log(`Successfully deleted: ${path}`);
                     } catch (deleteError) {
-                        //console.error(`Failed to delete file: ${path}`, deleteError);
+                        console.error(`Failed to delete file: ${path}`, deleteError);
                     }
                 } else {
-                    //console.log(`File not found or already deleted: ${path}`);
+                    console.log(`File not found or already deleted: ${path}`);
                 }
             });
         }
