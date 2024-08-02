@@ -26,6 +26,34 @@ const s3Client = new S3Client({
     forcePathStyle: false
 });
 
+const Queue = require('bull');
+const videoQueue = new Queue('video processing', 'redis://127.0.0.1:6379');
+
+videoQueue.process(async (job) => {
+    const { filePath, userId } = job.data;
+    
+    // Extract audio
+    const audioPath = await extractAudio(filePath);
+    
+    // Upload to Spaces
+    const videoUrl = await uploadToSpaces(filePath, `lab1/${userId}/${Date.now()}${path.extname(filePath)}`);
+    
+    // Transcribe
+    const transcription = await transcribeAudioIApp(audioPath);
+    
+    // Process with GPT
+    const feedbackJson = await processTranscriptionLab1(transcription);
+    
+    // Store submission
+    await storeLabSubmission(userId, videoUrl, transcription, feedbackJson);
+    
+    // Cleanup
+    fs.unlinkSync(filePath);
+    fs.unlinkSync(audioPath);
+    
+    return { videoUrl, feedbackJson, transcription };
+});
+
 // Function to upload file to DigitalOcean Spaces
 async function uploadToSpaces(filePath, fileName) {
     const fileStream = fs.createReadStream(filePath);
