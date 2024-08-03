@@ -57,7 +57,7 @@ const Upload1 = () => {
             const fileUrl = result.Location;
 
             // Send file URL to your server for processing
-            const response = await axios.post('https://localhost:3000/api/v1/lab/process-1',
+            const response = await axios.post('/api/v1/lab/process-1',
                 { fileUrl },
                 { headers: { 'Authorization': `Bearer ${token}` } }
             );
