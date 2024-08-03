@@ -10,7 +10,6 @@ const FormData = require('form-data');
 const mongoose = require('mongoose');
 const { S3Client  } = require("@aws-sdk/client-s3");
 const { createPresignedPost } = require("@aws-sdk/s3-presigned-post");
-const { PassThrough } = require('stream');
 const { Upload } = require("@aws-sdk/lib-storage");
 
 const { User, LabSubmission, LabInfo } = require('../db');
@@ -171,43 +170,6 @@ function concatenateTranscriptionText(transcriptionOutput) {
     return transcriptionOutput.map(segment => segment.text).join(' ');
 }
 
-async function streamUploadToSpaces(fileStream, fileName) {
-    const upload = new Upload({
-        client: s3Client,
-        params: {
-            Bucket: process.env.DO_SPACES_BUCKET,
-            Key: fileName,
-            Body: fileStream,
-            ACL: 'public-read'
-        }
-    });
-
-    try {
-        await upload.done();
-        console.log("Upload successful");
-        
-        const cdnUrl = `https://${process.env.DO_SPACES_BUCKET}.${process.env.DO_SPACES_CDN_ENDPOINT}/${fileName}`;
-        return cdnUrl;
-    } catch (err) {
-        console.error("Error uploading to DigitalOcean Spaces:", err);
-        throw err;
-    }
-}
-
-async function extractAudioFromStream(videoStream) {
-    return new Promise((resolve, reject) => {
-        const command = ffmpeg(videoStream)
-            .audioCodec('libmp3lame')
-            .format('mp3')
-            .on('end', () => {
-                resolve(command.output);
-            })
-            .on('error', reject);
-
-        command.pipe();
-    });
-}
-
 // Store student's lab data into the database
 router.post('/submit-lab', async (req, res) => {
     const { studentId, labNumber, subject, videoPath, studentAnswer, studentScore, isPass, pros, recommendations } = req.body;
@@ -250,11 +212,6 @@ router.post('/submit-lab', async (req, res) => {
 router.post('/1', authMiddleware, (req, res) => {
     console.time('Total processing time');
     console.log('Starting file upload process');
-
-    let streamEnded = false;
-    const passThrough = new PassThrough();
-
-
     upload(req, res, async (err) => {
         if (err) {
             console.log('File upload error:', err);
@@ -264,32 +221,47 @@ router.post('/1', authMiddleware, (req, res) => {
             return res.status(400).json({ msg: err.message });
         }
 
-        console.log('File upload started');
+        console.log('File uploaded successfully');
         const uploadTimestamp = Date.now();
-        const spacesFileName = `lab1/${req.userId}/${uploadTimestamp}${path.extname(req.file.originalname)}`;
+        const filePath = `./public/uploads/${req.file.filename}`;
+        let audioPath = null;
+        let videoUrl = null;
 
         try {
-            console.log('Starting parallel processes: upload to Spaces and extract audio');
-            console.time('Parallel processes');
+            console.time('Audio extraction');
+            console.log('Starting audio extraction');
+            audioPath = `./public/uploads/audio-${uploadTimestamp}.mp3`;
+            await new Promise((resolve, reject) => {
+                ffmpeg(filePath)
+                    .output(audioPath)
+                    .audioCodec('libmp3lame')
+                    .on('end', resolve)
+                    .on('error', reject)
+                    .run();
+            });
+            console.timeEnd('Audio extraction');
 
-            const [spacesUploadPromise, audioExtractionPromise] = await Promise.all([
-                streamUploadToSpaces(passThrough, spacesFileName),
-                extractAudioFromStream(passThrough)
+            console.log('Starting parallel processes: upload to Spaces and transcribe audio');
+            console.time('Parallel processes');
+            const [spacesUploadPromise, transcriptionPromise] = await Promise.all([
+                (async () => {
+                    console.time('Spaces upload');
+                    const spacesFileName = `lab1/${req.userId}/${uploadTimestamp}${path.extname(req.file.filename)}`;
+                    const result = await uploadToSpaces(filePath, spacesFileName);
+                    console.timeEnd('Spaces upload');
+                    return result;
+                })(),
+                (async () => {
+                    console.time('Audio transcription');
+                    const result = await transcribeAudioIApp(audioPath);
+                    console.timeEnd('Audio transcription');
+                    return result;
+                })()
             ]);
 
-            req.file.stream.pipe(passThrough);
-
-            req.file.stream.on('end', () => {
-                streamEnded = true;
-                passThrough.end();
-            });
-
-            const [videoUrl, audioBuffer] = await Promise.all([spacesUploadPromise, audioExtractionPromise]);
+            videoUrl = await spacesUploadPromise;
+            const transcriptionResult = await transcriptionPromise;
             console.timeEnd('Parallel processes');
-
-            console.time('Audio transcription');
-            const transcriptionResult = await transcribeAudioBuffer(audioBuffer);
-            console.timeEnd('Audio transcription');
 
             console.log('Concatenating transcription text');
             const transcription = concatenateTranscriptionText(transcriptionResult.output);
@@ -331,6 +303,22 @@ router.post('/1', authMiddleware, (req, res) => {
         } catch (error) {
             console.error('Error processing the file:', error);
             res.status(500).json({ msg: 'Error processing the file', error: error.message });
+        } finally {
+            console.log('Cleaning up local files');
+            const filesToDelete = [filePath, audioPath].filter(Boolean);
+        
+            filesToDelete.forEach(path => {
+                if (fs.existsSync(path)) {
+                    try {
+                        fs.unlinkSync(path);
+                        console.log(`Successfully deleted: ${path}`);
+                    } catch (deleteError) {
+                        console.error(`Failed to delete file: ${path}`, deleteError);
+                    }
+                } else {
+                    console.log(`File not found or already deleted: ${path}`);
+                }
+            });
         }
         console.timeEnd('Total processing time');
     });
