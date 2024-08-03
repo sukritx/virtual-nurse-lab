@@ -74,7 +74,7 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({
-    storage: multer.memoryStorage(),
+    storage: storage,
     limits: { fileSize: 800000000 }, // 800MB file size limit
     fileFilter: function (req, file, cb) {
         checkFileType(file, cb);
