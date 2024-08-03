@@ -6,12 +6,8 @@ import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import { useAuth } from '../context/AuthContext';
 
-import { S3Client } from "@aws-sdk/client-s3";
-import { Upload } from "@aws-sdk/lib-storage";
-
 const Upload1 = () => {
     const [selectedFile, setSelectedFile] = useState(null);
-    const [uploadProgress, setUploadProgress] = useState(0);
     const [loading, setLoading] = useState(false);
     const [passFailStatus, setPassFailStatus] = useState('');
     const [score, setScore] = useState('');
@@ -22,56 +18,34 @@ const Upload1 = () => {
 
     const onFileChange = event => {
         setSelectedFile(event.target.files[0]);
-        setError('');
+        setError(''); // Clear previous errors
     };
 
     const onFileUpload = async () => {
-        if (!selectedFile) return;
-
-        const s3Client = new S3Client({
-            endpoint: `https://${import.meta.env.VITE_DO_SPACES_ENDPOINT}`,
-            region: import.meta.env.VITE_DO_SPACES_REGION,
-            credentials: {
-                accessKeyId: import.meta.env.VITE_DO_SPACES_KEY,
-                secretAccessKey: import.meta.env.VITE_DO_SPACES_SECRET
-            }
-        });
-        
-        const params = {
-            Bucket: import.meta.env.VITE_DO_SPACES_BUCKET,
-            Key: `lab1/${Date.now()}_${selectedFile.name}`,
-            Body: selectedFile,
-            ACL: "public-read"
-        };
+        const formData = new FormData();
+        formData.append('video', selectedFile);
 
         try {
             setLoading(true);
-            setError('');
-
-            // Upload file to DigitalOcean Spaces
-            const upload = new Upload({
-                client: s3Client,
-                params: params
+            setError(''); // Clear previous errors
+            const response = await axios.post('/api/v1/lab/1', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    'Authorization': `Bearer ${token}` // Include the token in the headers
+                }
             });
-
-            const result = await upload.done();
-            const fileUrl = result.Location;
-
-            // Send file URL to your server for processing
-            const response = await axios.post('/api/v1/lab/process-1', 
-                { fileUrl },
-                { headers: { 'Authorization': `Bearer ${token}` } }
-            );
-
-            // Handle response as before
             setPassFailStatus(response.data.passFailStatus);
             setScore(response.data.score);
             setPros(response.data.pros);
             setRecommendations(response.data.recommendations);
-        } catch (error) {
-            setError('Error uploading file: ' + error.message);
-        } finally {
             setLoading(false);
+        } catch (error) {
+            setLoading(false);
+            if (error.response && error.response.status === 413) {
+                setError('ขนาดไฟล์ใหญ่เกินกว่า 500MB. โปรดอัพโหลดไฟล์ที่มีขนาดเล็กกว่านี้');
+            } else {
+                setError('Error uploading file: ' + (error.response?.data?.msg || error.message));
+            }
         }
     };
 
@@ -79,9 +53,9 @@ const Upload1 = () => {
         <>
             <div className="bg-gray-100 min-h-screen flex flex-col items-center justify-center py-12">
                 <div className="w-full max-w-lg bg-white p-8 rounded-lg shadow-lg relative">
-                    <h1 className="text-3xl font-extrabold mb-2 text-center text-purple-800">Lab 1: การเลี้ยงลูกด้วยนมแม่</h1>
+                <h1 className="text-3xl font-extrabold mb-2 text-center text-purple-800">Lab 1: การเลี้ยงลูกด้วยนมแม่</h1>
                     <h2 className="text-xl font-semibold mb-6 text-center text-purple-600">มารดาเจ็บหัวนมด้านขวา</h2>
-    
+
                     {/* Add video element here */}
                     <div className="mb-6">
                         <video 
@@ -113,17 +87,6 @@ const Upload1 = () => {
                         <FiUpload />
                         <span>ส่งข้อมูล</span>
                     </button>
-                    {uploadProgress > 0 && uploadProgress < 100 && (
-                        <div className="mt-4">
-                            <div className="w-full bg-gray-200 rounded-full h-2.5">
-                                <div 
-                                    className="bg-blue-600 h-2.5 rounded-full" 
-                                    style={{width: `${uploadProgress}%`}}
-                                ></div>
-                            </div>
-                            <p className="text-sm text-gray-600 mt-1">อัพโหลด: {uploadProgress}%</p>
-                        </div>
-                    )}
                     {loading && (
                         <div className="w-full rounded-full h-2.5 mt-4">
                             <div className="loading-indicator mt-4 text-purple-600">รอประมวลผลประมาณ 1-2 นาที...</div>

@@ -8,9 +8,9 @@ const ffmpegPath = require('ffmpeg-static');
 const fs = require('fs');
 const FormData = require('form-data');
 const mongoose = require('mongoose');
-const { S3Client, GetObjectCommand   } = require("@aws-sdk/client-s3");
+const { S3Client  } = require("@aws-sdk/client-s3");
 const { createPresignedPost } = require("@aws-sdk/s3-presigned-post");
-const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
+const { PassThrough } = require('stream');
 const { Upload } = require("@aws-sdk/lib-storage");
 
 const { User, LabSubmission, LabInfo } = require('../db');
@@ -75,7 +75,7 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({
-    storage: storage,
+    storage: multer.memoryStorage(),
     limits: { fileSize: 800000000 }, // 800MB file size limit
     fileFilter: function (req, file, cb) {
         checkFileType(file, cb);
@@ -171,6 +171,43 @@ function concatenateTranscriptionText(transcriptionOutput) {
     return transcriptionOutput.map(segment => segment.text).join(' ');
 }
 
+async function streamUploadToSpaces(fileStream, fileName) {
+    const upload = new Upload({
+        client: s3Client,
+        params: {
+            Bucket: process.env.DO_SPACES_BUCKET,
+            Key: fileName,
+            Body: fileStream,
+            ACL: 'public-read'
+        }
+    });
+
+    try {
+        await upload.done();
+        console.log("Upload successful");
+        
+        const cdnUrl = `https://${process.env.DO_SPACES_BUCKET}.${process.env.DO_SPACES_CDN_ENDPOINT}/${fileName}`;
+        return cdnUrl;
+    } catch (err) {
+        console.error("Error uploading to DigitalOcean Spaces:", err);
+        throw err;
+    }
+}
+
+async function extractAudioFromStream(videoStream) {
+    return new Promise((resolve, reject) => {
+        const command = ffmpeg(videoStream)
+            .audioCodec('libmp3lame')
+            .format('mp3')
+            .on('end', () => {
+                resolve(command.output);
+            })
+            .on('error', reject);
+
+        command.pipe();
+    });
+}
+
 // Store student's lab data into the database
 router.post('/submit-lab', async (req, res) => {
     const { studentId, labNumber, subject, videoPath, studentAnswer, studentScore, isPass, pros, recommendations } = req.body;
@@ -210,137 +247,93 @@ router.post('/submit-lab', async (req, res) => {
 });
 
 // Handle file upload and processing
-router.post('/process-1', authMiddleware, async (req, res) => {
-    const { fileUrl } = req.body;
-
-    try {
-        // Download file from DigitalOcean Spaces if necessary
-        const response = await axios.get(fileUrl, { responseType: 'arraybuffer' });
-        const tempFilePath = `./temp-${Date.now()}.mp4`;
-        fs.writeFileSync(tempFilePath, response.data);
-
-        // Process the file (extract audio, transcribe, etc.)
-        const { transcription, audioPath } = await processFile(tempFilePath);
-
-        // Process transcription with GPT API
-        const feedbackJson = await processTranscriptionLab1(transcription);
-
-        // Prepare and store lab info
-        const labInfo = {
-            studentId: req.userId,
-            labNumber: 1,
-            subject: 'maternalandchild',
-            videoPath: fileUrl,
-            studentAnswer: transcription,
-            studentScore: feedbackJson.totalScore,
-            isPass: feedbackJson.totalScore >= 60,
-            pros: feedbackJson.pros,
-            recommendations: feedbackJson.recommendations,
-        };
-
-        await axios.post('http://localhost:3000/api/v1/lab/submit-lab', labInfo);
-
-        // Send response to frontend
-        res.json({
-            feedback: feedbackJson,
-            transcription,
-            passFailStatus: feedbackJson.totalScore >= 60 ? 'Passed' : 'Failed',
-            score: feedbackJson.totalScore,
-            pros: feedbackJson.pros,
-            recommendations: feedbackJson.recommendations,
-            videoUrl: fileUrl
-        });
-
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ msg: 'Error processing the file', error: error.message });
-    } finally {
-        // Clean up any temporary files
-        if (tempFilePath && fs.existsSync(tempFilePath)) {
-            fs.unlinkSync(tempFilePath);
-        }
-        if (audioPath && fs.existsSync(audioPath)) {
-            fs.unlinkSync(audioPath);
-        }
-    }
-});
-router.post('/1', authMiddleware, async (req, res) => {
+router.post('/1', authMiddleware, (req, res) => {
     console.time('Total processing time');
-    const { fileName } = req.body;
+    console.log('Starting file upload process');
 
-    if (!fileName) {
-        return res.status(400).json({ msg: 'File name is required' });
-    }
+    let streamEnded = false;
+    const passThrough = new PassThrough();
 
-    try {
-        console.log('Starting file processing');
-        const fileUrl = `https://${process.env.DO_SPACES_BUCKET}.${process.env.DO_SPACES_ENDPOINT}/${fileName}`;
 
-        console.time('Audio extraction');
-        console.log('Starting audio extraction');
-        const audioPath = `./temp/audio-${Date.now()}.mp3`;
-        await new Promise((resolve, reject) => {
-            ffmpeg(fileUrl)
-                .output(audioPath)
-                .audioCodec('libmp3lame')
-                .on('end', resolve)
-                .on('error', reject)
-                .run();
-        });
-        console.timeEnd('Audio extraction');
+    upload(req, res, async (err) => {
+        if (err) {
+            console.log('File upload error:', err);
+            if (err.code === 'LIMIT_FILE_SIZE') {
+                return res.status(413).json({ msg: 'File is too large', errorCode: 'FILE_TOO_LARGE' });
+            }
+            return res.status(400).json({ msg: err.message });
+        }
 
-        console.time('Audio transcription');
-        const transcriptionResult = await transcribeAudioIApp(audioPath);
-        console.timeEnd('Audio transcription');
+        console.log('File upload started');
+        const uploadTimestamp = Date.now();
+        const spacesFileName = `lab1/${req.userId}/${uploadTimestamp}${path.extname(req.file.originalname)}`;
 
-        console.log('Concatenating transcription text');
-        const transcription = concatenateTranscriptionText(transcriptionResult.output);
+        try {
+            console.log('Starting parallel processes: upload to Spaces and extract audio');
+            console.time('Parallel processes');
 
-        console.time('GPT processing');
-        console.log('Processing transcription with GPT API');
-        const feedbackJson = await processTranscriptionLab1(transcription);
-        console.timeEnd('GPT processing');
+            const [spacesUploadPromise, audioExtractionPromise] = await Promise.all([
+                streamUploadToSpaces(passThrough, spacesFileName),
+                extractAudioFromStream(passThrough)
+            ]);
 
-        console.log('Preparing lab info');
-        const labInfo = {
-            studentId: req.userId,
-            labNumber: 1,
-            subject: 'maternalandchild',
-            videoPath: fileUrl,
-            studentAnswer: transcription,
-            studentScore: feedbackJson.totalScore,
-            isPass: feedbackJson.totalScore >= 60,
-            pros: feedbackJson.pros,
-            recommendations: feedbackJson.recommendations,
-        };
+            req.file.stream.pipe(passThrough);
 
-        console.time('Lab submission');
-        console.log('Storing lab submission');
-        await axios.post('http://localhost:3000/api/v1/lab/submit-lab', labInfo);
-        console.timeEnd('Lab submission');
+            req.file.stream.on('end', () => {
+                streamEnded = true;
+                passThrough.end();
+            });
 
-        console.log('Sending response to frontend');
-        res.json({
-            feedback: feedbackJson,
-            transcription,
-            passFailStatus: feedbackJson.totalScore >= 60 ? 'Passed' : 'Failed',
-            score: feedbackJson.totalScore,
-            pros: feedbackJson.pros,
-            recommendations: feedbackJson.recommendations,
-            videoUrl: fileUrl
-        });
+            const [videoUrl, audioBuffer] = await Promise.all([spacesUploadPromise, audioExtractionPromise]);
+            console.timeEnd('Parallel processes');
 
-    } catch (error) {
-        console.error('Error processing the file:', error);
-        res.status(500).json({ msg: 'Error processing the file', error: error.message });
-    } finally {
-        // Clean up temporary audio file
-        if (fs.existsSync(audioPath)) {
-            fs.unlinkSync(audioPath);
-            console.log(`Successfully deleted: ${audioPath}`);
+            console.time('Audio transcription');
+            const transcriptionResult = await transcribeAudioBuffer(audioBuffer);
+            console.timeEnd('Audio transcription');
+
+            console.log('Concatenating transcription text');
+            const transcription = concatenateTranscriptionText(transcriptionResult.output);
+
+            console.time('GPT processing');
+            console.log('Processing transcription with GPT API');
+            const feedbackJson = await processTranscriptionLab1(transcription);
+            console.timeEnd('GPT processing');
+
+            console.log('Preparing lab info');
+            const labInfo = {
+                studentId: req.userId,
+                labNumber: 1,
+                subject: 'maternalandchild',
+                videoPath: videoUrl,
+                studentAnswer: transcription,
+                studentScore: feedbackJson.totalScore,
+                isPass: feedbackJson.totalScore >= 60,
+                pros: feedbackJson.pros,
+                recommendations: feedbackJson.recommendations,
+            };
+
+            console.time('Lab submission');
+            console.log('Storing lab submission');
+            await axios.post('http://localhost:3000/api/v1/lab/submit-lab', labInfo);
+            console.timeEnd('Lab submission');
+
+            console.log('Sending response to frontend');
+            res.json({
+                feedback: feedbackJson,
+                transcription,
+                passFailStatus: feedbackJson.totalScore >= 60 ? 'Passed' : 'Failed',
+                score: feedbackJson.totalScore,
+                pros: feedbackJson.pros,
+                recommendations: feedbackJson.recommendations,
+                videoUrl: videoUrl
+            });
+
+        } catch (error) {
+            console.error('Error processing the file:', error);
+            res.status(500).json({ msg: 'Error processing the file', error: error.message });
         }
         console.timeEnd('Total processing time');
-    }
+    });
 });
 router.get('/get-upload-url-1', authMiddleware, async (req, res) => {
     const fileName = `lab1/${req.userId}/${Date.now()}.mp4`;
@@ -351,12 +344,16 @@ router.get('/get-upload-url-1', authMiddleware, async (req, res) => {
             Key: fileName,
             Conditions: [
                 ['content-length-range', 0, 1048576000], // up to 1000 MB
-                ['starts-with', '$Content-Type', 'video/']
+                ['starts-with', '$Content-Type', 'video/'],
+                ['eq', '$acl', 'public-read']
             ],
+            Fields: {
+                acl: 'public-read'
+            },
             Expires: 3600, // 1 hour
         });
 
-        res.json({ url, fields, fileName });
+        res.json({ url, fields, fileName  });
     } catch (error) {
         console.error("Error generating pre-signed POST data:", error);
         res.status(500).json({ message: 'Error generating upload URL' });
