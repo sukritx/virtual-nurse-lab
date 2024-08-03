@@ -20,14 +20,14 @@ export const ProfessorDashboard = () => {
 
   const fetchUniversityData = async () => {
     try {
-      const universityResponse = await axios.get('http://localhost:3000/api/v1/professor/university', {
+      const universityResponse = await axios.get('/api/v1/professor/university', {
         headers: {
           Authorization: `Bearer ${token}`
         }
       });
       setUniversity(universityResponse.data);
 
-      const labsResponse = await axios.get('http://localhost:3000/api/v1/professor/labs', {
+      const labsResponse = await axios.get('/api/v1/professor/labs', {
         headers: {
           Authorization: `Bearer ${token}`
         }

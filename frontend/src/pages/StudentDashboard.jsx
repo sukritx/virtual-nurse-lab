@@ -15,7 +15,7 @@ export const StudentDashboard = () => {
 
   const fetchLabs = async () => {
     try {
-      const response = await axios.get('http://localhost:3000/api/v1/student/labs', {
+      const response = await axios.get('/api/v1/student/labs', {
         headers: {
           Authorization: `Bearer ${token}`,
         }
