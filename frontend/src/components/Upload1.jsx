@@ -8,6 +8,7 @@ import { useAuth } from '../context/AuthContext';
 
 const Upload1 = () => {
     const [selectedFile, setSelectedFile] = useState(null);
+    const [uploadProgress, setUploadProgress] = useState(0);
     const [loading, setLoading] = useState(false);
     const [passFailStatus, setPassFailStatus] = useState('');
     const [score, setScore] = useState('');
@@ -22,30 +23,51 @@ const Upload1 = () => {
     };
 
     const onFileUpload = async () => {
-        const formData = new FormData();
-        formData.append('video', selectedFile);
+        if (!selectedFile) {
+            setError('Please select a file first');
+            return;
+        }
 
         try {
             setLoading(true);
-            setError(''); // Clear previous errors
-            const response = await axios.post('/api/v1/lab/1', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                    'Authorization': `Bearer ${token}` // Include the token in the headers
+            setError('');
+
+            // Get pre-signed POST data from your server
+            const { data: { url, fields } } = await axios.get('http://localhost:3000/api/v1/lab/get-upload-url-1', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            // Prepare form data for upload
+            const formData = new FormData();
+            Object.entries(fields).forEach(([key, value]) => {
+                formData.append(key, value);
+            });
+            formData.append('file', selectedFile);
+
+            // Upload to Spaces
+            await axios.post(url, formData, {
+                headers: { 'Content-Type': 'multipart/form-data' },
+                onUploadProgress: (progressEvent) => {
+                    const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                    setUploadProgress(percentCompleted);
                 }
             });
+
+            // Notify backend to process the file
+            const response = await axios.post('/api/v1/lab/1', { fileName: fields.key }, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            // Handle response
             setPassFailStatus(response.data.passFailStatus);
             setScore(response.data.score);
             setPros(response.data.pros);
             setRecommendations(response.data.recommendations);
-            setLoading(false);
         } catch (error) {
+            setError('Error uploading or processing file: ' + (error.response?.data?.msg || error.message));
+        } finally {
             setLoading(false);
-            if (error.response && error.response.status === 413) {
-                setError('ขนาดไฟล์ใหญ่เกินกว่า 500MB. โปรดอัพโหลดไฟล์ที่มีขนาดเล็กกว่านี้');
-            } else {
-                setError('Error uploading file: ' + (error.response?.data?.msg || error.message));
-            }
+            setUploadProgress(0);
         }
     };
 
@@ -53,9 +75,9 @@ const Upload1 = () => {
         <>
             <div className="bg-gray-100 min-h-screen flex flex-col items-center justify-center py-12">
                 <div className="w-full max-w-lg bg-white p-8 rounded-lg shadow-lg relative">
-                <h1 className="text-3xl font-extrabold mb-2 text-center text-purple-800">Lab 1: การเลี้ยงลูกด้วยนมแม่</h1>
+                    <h1 className="text-3xl font-extrabold mb-2 text-center text-purple-800">Lab 1: การเลี้ยงลูกด้วยนมแม่</h1>
                     <h2 className="text-xl font-semibold mb-6 text-center text-purple-600">มารดาเจ็บหัวนมด้านขวา</h2>
-
+    
                     {/* Add video element here */}
                     <div className="mb-6">
                         <video 
@@ -87,6 +109,17 @@ const Upload1 = () => {
                         <FiUpload />
                         <span>ส่งข้อมูล</span>
                     </button>
+                    {uploadProgress > 0 && uploadProgress < 100 && (
+                        <div className="mt-4">
+                            <div className="w-full bg-gray-200 rounded-full h-2.5">
+                                <div 
+                                    className="bg-blue-600 h-2.5 rounded-full" 
+                                    style={{width: `${uploadProgress}%`}}
+                                ></div>
+                            </div>
+                            <p className="text-sm text-gray-600 mt-1">อัพโหลด: {uploadProgress}%</p>
+                        </div>
+                    )}
                     {loading && (
                         <div className="w-full rounded-full h-2.5 mt-4">
                             <div className="loading-indicator mt-4 text-purple-600">รอประมวลผลประมาณ 1-2 นาที...</div>
