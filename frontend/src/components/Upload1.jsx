@@ -33,7 +33,7 @@ const Upload1 = () => {
             setError('');
 
             // Get pre-signed POST data from your server
-            const { data: { url, fields } } = await axios.get('http://localhost:3000/api/v1/lab/get-upload-url-1', {
+            const { data: { url, fields } } = await axios.get('/api/v1/lab/get-upload-url-1', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 
