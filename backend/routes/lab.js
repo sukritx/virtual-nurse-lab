@@ -297,16 +297,12 @@ router.get('/get-upload-url-1', authMiddleware, async (req, res) => {
             Key: fileName,
             Conditions: [
                 ['content-length-range', 0, 1048576000], // up to 1000 MB
-                ['starts-with', '$Content-Type', 'video/'],
-                ['eq', '$acl', 'public-read']
+                ['starts-with', '$Content-Type', 'video/']
             ],
-            Fields: {
-                acl: 'public-read'
-            },
             Expires: 3600, // 1 hour
         });
 
-        res.json({ url, fields, fileName  });
+        res.json({ url, fields, fileName });
     } catch (error) {
         console.error("Error generating pre-signed POST data:", error);
         res.status(500).json({ message: 'Error generating upload URL' });
