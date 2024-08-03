@@ -6,6 +6,9 @@ import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import { useAuth } from '../context/AuthContext';
 
+import { S3Client } from "@aws-sdk/client-s3";
+import { Upload } from "@aws-sdk/lib-storage";
+
 const Upload1 = () => {
     const [selectedFile, setSelectedFile] = useState(null);
     const [uploadProgress, setUploadProgress] = useState(0);
@@ -19,55 +22,56 @@ const Upload1 = () => {
 
     const onFileChange = event => {
         setSelectedFile(event.target.files[0]);
-        setError(''); // Clear previous errors
+        setError('');
     };
 
     const onFileUpload = async () => {
-        if (!selectedFile) {
-            setError('Please select a file first');
-            return;
-        }
+        if (!selectedFile) return;
+
+        const s3Client = new S3Client({
+            endpoint: `https://${import.meta.env.VITE_DO_SPACES_ENDPOINT}`,
+            region: import.meta.env.VITE_DO_SPACES_REGION,
+            credentials: {
+                accessKeyId: import.meta.env.VITE_DO_SPACES_KEY,
+                secretAccessKey: import.meta.env.VITE_DO_SPACES_SECRET
+            }
+        });
+        
+        const params = {
+            Bucket: import.meta.env.VITE_DO_SPACES_BUCKET,
+            Key: `lab1/${Date.now()}_${selectedFile.name}`,
+            Body: selectedFile,
+            ACL: "public-read"
+        };
 
         try {
             setLoading(true);
             setError('');
 
-            // Get pre-signed POST data from your server
-            const { data: { url, fields } } = await axios.get('/api/v1/lab/get-upload-url-1', {
-                headers: { 'Authorization': `Bearer ${token}` }
+            // Upload file to DigitalOcean Spaces
+            const upload = new Upload({
+                client: s3Client,
+                params: params
             });
 
-            // Prepare form data for upload
-            const formData = new FormData();
-            Object.entries(fields).forEach(([key, value]) => {
-                formData.append(key, value);
-            });
-            formData.append('file', selectedFile);
+            const result = await upload.done();
+            const fileUrl = result.Location;
 
-            // Upload to Spaces
-            await axios.post(url, formData, {
-                headers: { 'Content-Type': 'multipart/form-data' },
-                onUploadProgress: (progressEvent) => {
-                    const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-                    setUploadProgress(percentCompleted);
-                }
-            });
+            // Send file URL to your server for processing
+            const response = await axios.post('/api/v1/lab/process-1', 
+                { fileUrl },
+                { headers: { 'Authorization': `Bearer ${token}` } }
+            );
 
-            // Notify backend to process the file
-            const response = await axios.post('/api/v1/lab/1', { fileName: fields.key }, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-
-            // Handle response
+            // Handle response as before
             setPassFailStatus(response.data.passFailStatus);
             setScore(response.data.score);
             setPros(response.data.pros);
             setRecommendations(response.data.recommendations);
         } catch (error) {
-            setError('Error uploading or processing file: ' + (error.response?.data?.msg || error.message));
+            setError('Error uploading file: ' + error.message);
         } finally {
             setLoading(false);
-            setUploadProgress(0);
         }
     };
 
