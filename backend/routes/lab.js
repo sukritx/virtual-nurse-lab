@@ -16,6 +16,61 @@ const { authMiddleware, fileSizeErrorHandler } = require('../middleware');
 
 require('dotenv').config();
 
+router.post('/process-1', authMiddleware, async (req, res) => {
+    const { fileUrl } = req.body;
+
+    try {
+        // Download file from DigitalOcean Spaces if necessary
+        const response = await axios.get(fileUrl, { responseType: 'arraybuffer' });
+        const tempFilePath = `./temp-${Date.now()}.mp4`;
+        fs.writeFileSync(tempFilePath, response.data);
+
+        // Process the file (extract audio, transcribe, etc.)
+        const { transcription, audioPath } = await processFile(tempFilePath);
+
+        // Process transcription with GPT API
+        const feedbackJson = await processTranscriptionLab1(transcription);
+
+        // Prepare and store lab info
+        const labInfo = {
+            studentId: req.userId,
+            labNumber: 1,
+            subject: 'maternalandchild',
+            videoPath: fileUrl,
+            studentAnswer: transcription,
+            studentScore: feedbackJson.totalScore,
+            isPass: feedbackJson.totalScore >= 60,
+            pros: feedbackJson.pros,
+            recommendations: feedbackJson.recommendations,
+        };
+
+        await axios.post('http://localhost:3000/api/v1/lab/submit-lab', labInfo);
+
+        // Send response to frontend
+        res.json({
+            feedback: feedbackJson,
+            transcription,
+            passFailStatus: feedbackJson.totalScore >= 60 ? 'Passed' : 'Failed',
+            score: feedbackJson.totalScore,
+            pros: feedbackJson.pros,
+            recommendations: feedbackJson.recommendations,
+            videoUrl: fileUrl
+        });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ msg: 'Error processing the file', error: error.message });
+    } finally {
+        // Clean up any temporary files
+        if (tempFilePath && fs.existsSync(tempFilePath)) {
+            fs.unlinkSync(tempFilePath);
+        }
+        if (audioPath && fs.existsSync(audioPath)) {
+            fs.unlinkSync(audioPath);
+        }
+    }
+});
+
 const s3Client = new S3Client({
     endpoint: `https://${process.env.DO_SPACES_ENDPOINT}`,
     region: process.env.DO_SPACES_REGION,

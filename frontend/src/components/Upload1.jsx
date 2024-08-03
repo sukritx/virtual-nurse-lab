@@ -6,6 +6,9 @@ import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import { useAuth } from '../context/AuthContext';
 
+import { S3Client } from "@aws-sdk/client-s3";
+import { Upload } from "@aws-sdk/lib-storage";
+
 const Upload1 = () => {
     const [selectedFile, setSelectedFile] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -22,30 +25,52 @@ const Upload1 = () => {
     };
 
     const onFileUpload = async () => {
-        const formData = new FormData();
-        formData.append('video', selectedFile);
+        if (!selectedFile) return;
+
+        const s3Client = new S3Client({
+            endpoint: `https://${import.meta.env.VITE_DO_SPACES_ENDPOINT}`,
+            region: import.meta.env.VITE_DO_SPACES_REGION,
+            credentials: {
+                accessKeyId: import.meta.env.VITE_DO_SPACES_KEY,
+                secretAccessKey: import.meta.env.VITE_DO_SPACES_SECRET
+            }
+        });
+        
+        const params = {
+            Bucket: import.meta.env.VITE_DO_SPACES_BUCKET,
+            Key: `lab1/${Date.now()}_${selectedFile.name}`,
+            Body: selectedFile,
+            ACL: "public-read"
+        };
 
         try {
             setLoading(true);
-            setError(''); // Clear previous errors
-            const response = await axios.post('http://localhost:3000/api/v1/lab/1', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                    'Authorization': `Bearer ${token}` // Include the token in the headers
-                }
+            setError('');
+
+            // Upload file to DigitalOcean Spaces
+            const upload = new Upload({
+                client: s3Client,
+                params: params
             });
+
+            const result = await upload.done();
+            const fileUrl = result.Location;
+
+            // Send file URL to your server for processing
+            const response = await axios.post('https://localhost:3000/api/v1/lab/process-1',
+                { fileUrl },
+                { headers: { 'Authorization': `Bearer ${token}` } }
+            );
+
+            // Handle response as before
             setPassFailStatus(response.data.passFailStatus);
             setScore(response.data.score);
             setPros(response.data.pros);
             setRecommendations(response.data.recommendations);
-            setLoading(false);
         } catch (error) {
+            setError('Error uploading file: ' + error.message);
+        } finally {
             setLoading(false);
-            if (error.response && error.response.status === 413) {
-                setError('ขนาดไฟล์ใหญ่เกินกว่า 500MB. โปรดอัพโหลดไฟล์ที่มีขนาดเล็กกว่านี้');
-            } else {
-                setError('Error uploading file: ' + (error.response?.data?.msg || error.message));
-            }
         }
     };
 
