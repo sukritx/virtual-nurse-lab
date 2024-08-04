@@ -52,12 +52,30 @@ const UploadToSpaces = () => {
             formData.append('file', selectedFile);
 
             try {
-                await axios.post(urlResponse.data.url, formData, {
-                    headers: { 'Content-Type': 'multipart/form-data' }
+                await new Promise((resolve, reject) => {
+                    const xhr = new XMLHttpRequest();
+                    xhr.open('POST', urlResponse.data.url);
+                    xhr.onload = () => {
+                        if (xhr.status === 204) {
+                            resolve();
+                        } else {
+                            reject(new Error(`Upload failed with status ${xhr.status}`));
+                        }
+                    };
+                    xhr.onerror = () => reject(new Error('XHR error'));
+                    xhr.upload.onprogress = (event) => {
+                        if (event.lengthComputable) {
+                            const percentComplete = (event.loaded / event.total) * 100;
+                            console.log(`Upload progress: ${percentComplete.toFixed(2)}%`);
+                            // You can update a progress bar here if you want
+                        }
+                    };
+                    xhr.send(formData);
                 });
+                console.log('Upload successful');
             } catch (uploadError) {
                 console.error('Upload error:', uploadError);
-                if (uploadError.response && uploadError.response.status === 403) {
+                if (uploadError.message.includes('403')) {
                     throw new Error('Permission denied when uploading to DigitalOcean Spaces. Please check your credentials and bucket permissions.');
                 }
                 throw uploadError;
