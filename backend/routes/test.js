@@ -75,7 +75,10 @@ router.get('/get-upload-url', authMiddleware, async (req, res) => {
       Conditions: [
         ['content-length-range', 0, 943718400], // 900MB max file size
         {'Content-Type': req.query.contentType}
-      ]
+      ],
+      Fields: {
+        'Content-Type': '${filename}' // This will be replaced with the actual content type
+      }
     };
   
     try {

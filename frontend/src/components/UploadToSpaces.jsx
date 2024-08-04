@@ -49,6 +49,11 @@ const UploadToSpaces = () => {
             Object.entries(urlResponse.data.fields).forEach(([key, value]) => {
                 formData.append(key, value);
             });
+
+            // Explicitly set Content-Type
+            formData.set('Content-Type', selectedFile.type);
+
+            // Append file last
             formData.append('file', selectedFile);
 
             try {
