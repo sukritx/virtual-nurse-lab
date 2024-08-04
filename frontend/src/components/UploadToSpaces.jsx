@@ -21,6 +21,11 @@ const UploadToSpaces = () => {
         setError(''); // Clear previous errors
     };
 
+    const onFileChange = event => {
+        setSelectedFile(event.target.files[0]);
+        setError('');
+    };
+
     const onFileUpload = async () => {
         if (!selectedFile) {
             setError('Please select a file first');
@@ -41,22 +46,30 @@ const UploadToSpaces = () => {
 
             console.log('Server response:', urlResponse.data);
 
-            if (!urlResponse.data.uploadUrl || !urlResponse.data.uploadUrl.url || !urlResponse.data.uploadUrl.fields) {
+            if (!urlResponse.data.url || !urlResponse.data.fields) {
                 throw new Error('Invalid server response format');
             }
 
             const formData = new FormData();
-            Object.entries(urlResponse.data.uploadUrl.fields).forEach(([key, value]) => {
+            Object.entries(urlResponse.data.fields).forEach(([key, value]) => {
                 formData.append(key, value);
             });
             formData.append('file', selectedFile);
 
-            await axios.post(urlResponse.data.uploadUrl.url, formData, {
-                headers: { 'Content-Type': 'multipart/form-data' }
-            });
+            try {
+                await axios.post(urlResponse.data.url, formData, {
+                    headers: { 'Content-Type': 'multipart/form-data' }
+                });
+            } catch (uploadError) {
+                console.error('Upload error:', uploadError);
+                if (uploadError.response && uploadError.response.status === 403) {
+                    throw new Error('Permission denied when uploading to DigitalOcean Spaces. Please check your credentials and bucket permissions.');
+                }
+                throw uploadError;
+            }
 
             const processResponse = await axios.post('/api/v1/test/process', {
-                fileName: urlResponse.data.fileName
+                fileName: urlResponse.data.fields.key
             }, {
                 headers: { Authorization: `Bearer ${token}` }
             });
