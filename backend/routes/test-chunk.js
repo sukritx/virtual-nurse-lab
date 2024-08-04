@@ -27,6 +27,10 @@ const s3Client = new S3Client({
     forcePathStyle: false
 });
 
+const openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+});
+
 // Function to upload file to DigitalOcean Spaces
 async function uploadToSpaces(filePath, fileName) {
     const fileStream = fs.createReadStream(filePath);
