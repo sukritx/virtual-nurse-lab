@@ -5,6 +5,8 @@ import { FiUpload } from 'react-icons/fi';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import { useAuth } from '../context/AuthContext';
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 const UploadToSpaces = () => {
     const [selectedFile, setSelectedFile] = useState(null);
@@ -13,12 +15,13 @@ const UploadToSpaces = () => {
     const [score, setScore] = useState('');
     const [pros, setPros] = useState('');
     const [recommendations, setRecommendations] = useState('');
-    const [error, setError] = useState(''); // State for error message
-    const { token } = useAuth(); // Get the token from the Auth context
+    const [error, setError] = useState('');
+    const [uploadProgress, setUploadProgress] = useState(0);
+    const { token } = useAuth();
 
     const onFileChange = event => {
         setSelectedFile(event.target.files[0]);
-        setError(''); // Clear previous errors
+        setError('');
     };
 
     const onFileUpload = async () => {
@@ -29,8 +32,10 @@ const UploadToSpaces = () => {
 
         setLoading(true);
         setError('');
+        setUploadProgress(0);
 
         try {
+            // Get pre-signed URL from your backend
             const urlResponse = await axios.get('/api/v1/test/get-upload-url', {
                 params: { 
                     fileExtension: '.' + selectedFile.name.split('.').pop(),
@@ -45,61 +50,66 @@ const UploadToSpaces = () => {
                 throw new Error('Invalid server response format');
             }
 
-            const formData = new FormData();
-            Object.entries(urlResponse.data.fields).forEach(([key, value]) => {
-                formData.append(key, value);
-            });
-
-            // Explicitly set Content-Type
-            formData.set('Content-Type', selectedFile.type);
-
-            // Append file last
-            formData.append('file', selectedFile);
-
-            try {
-                await new Promise((resolve, reject) => {
-                    const xhr = new XMLHttpRequest();
-                    xhr.open('POST', urlResponse.data.url);
-                    xhr.onload = () => {
-                        if (xhr.status === 204) {
-                            resolve();
-                        } else {
-                            console.log('XHR response:', xhr.responseText);
-                            reject(new Error(`Upload failed with status ${xhr.status}: ${xhr.statusText}`));
-                        }
-                    };
-                    xhr.onerror = () => {
-                        console.log('XHR error:', xhr.statusText);
-                        reject(new Error('XHR error'));
-                    };
-                    xhr.upload.onprogress = (event) => {
-                        if (event.lengthComputable) {
-                            const percentComplete = (event.loaded / event.total) * 100;
-                            console.log(`Upload progress: ${percentComplete.toFixed(2)}%`);
-                        }
-                    };
-                    console.log('Sending formData:', formData);
-                    xhr.send(formData);
-                });
-                console.log('Upload successful');
-            } catch (uploadError) {
-                console.error('Upload error:', uploadError);
-                if (uploadError.message.includes('403')) {
-                    throw new Error('Permission denied when uploading to DigitalOcean Spaces. Please check your credentials and bucket permissions.');
+            // Create S3 client
+            const client = new S3Client({
+                endpoint: urlResponse.data.url,
+                region: "sgp1", // or your specific region
+                credentials: {
+                    accessKeyId: urlResponse.data.fields.AWSAccessKeyId,
+                    secretAccessKey: urlResponse.data.fields.signature,
                 }
-                throw uploadError;
-            }
-
-            const processResponse = await axios.post('/api/v1/test/process', {
-                fileName: urlResponse.data.fields.key
-            }, {
-                headers: { Authorization: `Bearer ${token}` }
             });
 
-            setPassFailStatus(processResponse.data.passFailStatus);
-            setScore(processResponse.data.score);
-            setPros(processResponse.data.pros);
-            setRecommendations(processResponse.data.recommendations);
+            // Prepare the upload command
+            const command = new PutObjectCommand({
+                Bucket: urlResponse.data.fields.bucket,
+                Key: urlResponse.data.fields.key,
+                Body: selectedFile,
+                ContentType: selectedFile.type
+            });
+
+            // Get a pre-signed URL for this specific upload
+            const signedUrl = await getSignedUrl(client, command, { expiresIn: 3600 });
+
+            // Perform the upload
+            const xhr = new XMLHttpRequest();
+            xhr.open('PUT', signedUrl);
+            xhr.setRequestHeader('Content-Type', selectedFile.type);
+            
+            xhr.upload.onprogress = (event) => {
+                if (event.lengthComputable) {
+                    const percentComplete = (event.loaded / event.total) * 100;
+                    setUploadProgress(percentComplete);
+                    console.log(`Upload progress: ${percentComplete.toFixed(2)}%`);
+                }
+            };
+
+            xhr.onload = async function() {
+                if (xhr.status === 200) {
+                    console.log('Upload successful');
+                    
+                    // Process the uploaded video
+                    const processResponse = await axios.post('/api/v1/test/process', {
+                        fileName: urlResponse.data.fields.key
+                    }, {
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+
+                    setPassFailStatus(processResponse.data.passFailStatus);
+                    setScore(processResponse.data.score);
+                    setPros(processResponse.data.pros);
+                    setRecommendations(processResponse.data.recommendations);
+                } else {
+                    throw new Error(`Upload failed with status ${xhr.status}`);
+                }
+            };
+
+            xhr.onerror = function() {
+                throw new Error('XHR error occurred during upload');
+            };
+
+            xhr.send(selectedFile);
+
         } catch (error) {
             console.error('Error:', error);
             setError('An error occurred: ' + (error.response?.data?.message || error.message));
@@ -147,9 +157,15 @@ const UploadToSpaces = () => {
                         <span>ส่งข้อมูล</span>
                     </button>
                     {loading && (
-                        <div className="w-full rounded-full h-2.5 mt-4">
-                            <div className="loading-indicator mt-4 text-purple-600">รอประมวลผลประมาณ 1-2 นาที...</div>
+                        <div className="w-full mt-4">
+                        <div className="bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                            <div 
+                                className="bg-blue-600 h-2.5 rounded-full" 
+                                style={{width: `${uploadProgress}%`}}
+                            ></div>
                         </div>
+                        <p className="text-center mt-2">{uploadProgress.toFixed(2)}% Uploaded</p>
+                    </div>
                     )}
                     {error && (
                         <div className="mt-4 p-2 bg-red-200 text-red-700 rounded">

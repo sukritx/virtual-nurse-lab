@@ -546,6 +546,20 @@
     "@smithy/util-middleware" "^3.0.3"
     tslib "^2.6.2"
 
+"@aws-sdk/s3-request-presigner@^3.623.0":
+  version "3.623.0"
+  resolved "https://registry.npmjs.org/@aws-sdk/s3-request-presigner/-/s3-request-presigner-3.623.0.tgz"
+  integrity sha512-xdY7x4GQ3jVhkge0I8P2V/18p2unP3AD0m1zvacgFmxZ8tptjVpEg2fwR39gKv3pfri0DdfiPDrVONsPC2KlLw==
+  dependencies:
+    "@aws-sdk/signature-v4-multi-region" "3.622.0"
+    "@aws-sdk/types" "3.609.0"
+    "@aws-sdk/util-format-url" "3.609.0"
+    "@smithy/middleware-endpoint" "^3.1.0"
+    "@smithy/protocol-http" "^4.1.0"
+    "@smithy/smithy-client" "^3.1.12"
+    "@smithy/types" "^3.3.0"
+    tslib "^2.6.2"
+
 "@aws-sdk/signature-v4-multi-region@3.622.0":
   version "3.622.0"
   resolved "https://registry.npmjs.org/@aws-sdk/signature-v4-multi-region/-/signature-v4-multi-region-3.622.0.tgz"
@@ -592,6 +606,16 @@
     "@aws-sdk/types" "3.609.0"
     "@smithy/types" "^3.3.0"
     "@smithy/util-endpoints" "^2.0.5"
+    tslib "^2.6.2"
+
+"@aws-sdk/util-format-url@3.609.0":
+  version "3.609.0"
+  resolved "https://registry.npmjs.org/@aws-sdk/util-format-url/-/util-format-url-3.609.0.tgz"
+  integrity sha512-fuk29BI/oLQlJ7pfm6iJ4gkEpHdavffAALZwXh9eaY1vQ0ip0aKfRTiNudPoJjyyahnz5yJ1HkmlcDitlzsOrQ==
+  dependencies:
+    "@aws-sdk/types" "3.609.0"
+    "@smithy/querystring-builder" "^3.0.3"
+    "@smithy/types" "^3.3.0"
     tslib "^2.6.2"
 
 "@aws-sdk/util-locate-window@^3.0.0":
