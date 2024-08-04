@@ -14,7 +14,7 @@ router.use("/student", studentRouter);
 router.use("/professor", professorRouter);
 router.use("/admin", adminRouter);
 router.use("/lab", labRouter);
-router.use("test", testRouter);
+router.use("/test", testRouter);
 
 
 module.exports = router;
