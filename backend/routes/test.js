@@ -494,3 +494,5 @@ o	ท่านอน (side lying) แม่ลูกนอนตะแคงเ�
     console.log(feedbackJson);
     return feedbackJson;
 }
+
+module.exports = router;
