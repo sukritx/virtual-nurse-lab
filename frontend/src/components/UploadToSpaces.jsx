@@ -21,11 +21,6 @@ const UploadToSpaces = () => {
         setError(''); // Clear previous errors
     };
 
-    const onFileChange = event => {
-        setSelectedFile(event.target.files[0]);
-        setError('');
-    };
-
     const onFileUpload = async () => {
         if (!selectedFile) {
             setError('Please select a file first');
