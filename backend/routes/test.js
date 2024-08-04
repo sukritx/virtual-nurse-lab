@@ -71,15 +71,19 @@ router.get('/get-upload-url', authMiddleware, async (req, res) => {
     const params = {
       Bucket: process.env.DO_SPACES_BUCKET,
       Key: fileName,
-      Expires: 60 * 5, // URL expires in 5 minutes
-      ContentType: req.query.contentType
+      Expires: 60 * 10, // URL expires in 10 minutes
+      Conditions: [
+        ['content-length-range', 0, 943718400], // 900MB max file size
+        {'Content-Type': req.query.contentType}
+      ]
     };
   
     try {
-      const uploadUrl = await createPresignedPost(s3Client, params);
-      res.json({ uploadUrl, fileName });
+      const { url, fields } = await createPresignedPost(s3Client, params);
+      console.log('Pre-signed POST data:', { url, fields });  // Add this line
+      res.json({ url, fields });
     } catch (error) {
-      console.error('Error generating pre-signed URL:', error);
+      console.error('Error generating pre-signed POST policy:', error);
       res.status(500).json({ error: 'Failed to generate upload URL' });
     }
   });

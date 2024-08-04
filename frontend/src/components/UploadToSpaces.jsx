@@ -33,30 +33,33 @@ const UploadToSpaces = () => {
         try {
             const urlResponse = await axios.get('/api/v1/test/get-upload-url', {
                 params: { 
-                  fileExtension: '.' + selectedFile.name.split('.').pop(),
-                  contentType: selectedFile.type
+                    fileExtension: '.' + selectedFile.name.split('.').pop(),
+                    contentType: selectedFile.type
                 },
                 headers: { Authorization: `Bearer ${token}` }
-              });
-          
-              // Create form data
-              const formData = new FormData();
-              Object.entries(urlResponse.data.fields).forEach(([key, value]) => {
+            });
+
+            console.log('Server response:', urlResponse.data);  // Debug log
+
+            if (!urlResponse.data.url || !urlResponse.data.fields) {
+                throw new Error('Invalid server response format');
+            }
+
+            const formData = new FormData();
+            Object.entries(urlResponse.data.fields).forEach(([key, value]) => {
                 formData.append(key, value);
-              });
-              formData.append('file', selectedFile);  // The file must be the last field
-          
-              // Upload directly to DigitalOcean Spaces
-              await axios.post(urlResponse.data.url, formData, {
+            });
+            formData.append('file', selectedFile);
+
+            await axios.post(urlResponse.data.url, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
-              });
-          
-              // Process the uploaded video
-              const processResponse = await axios.post('/api/v1/test/process', {
+            });
+
+            const processResponse = await axios.post('/api/v1/test/process', {
                 fileName: urlResponse.data.fields.key
-              }, {
+            }, {
                 headers: { Authorization: `Bearer ${token}` }
-              });
+            });
 
             setPassFailStatus(processResponse.data.passFailStatus);
             setScore(processResponse.data.score);
