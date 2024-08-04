@@ -39,24 +39,24 @@ const UploadToSpaces = () => {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
-            console.log('Server response:', urlResponse.data);  // Debug log
+            console.log('Server response:', urlResponse.data);
 
-            if (!urlResponse.data.url || !urlResponse.data.fields) {
+            if (!urlResponse.data.uploadUrl || !urlResponse.data.uploadUrl.url || !urlResponse.data.uploadUrl.fields) {
                 throw new Error('Invalid server response format');
             }
 
             const formData = new FormData();
-            Object.entries(urlResponse.data.fields).forEach(([key, value]) => {
+            Object.entries(urlResponse.data.uploadUrl.fields).forEach(([key, value]) => {
                 formData.append(key, value);
             });
             formData.append('file', selectedFile);
 
-            await axios.post(urlResponse.data.url, formData, {
+            await axios.post(urlResponse.data.uploadUrl.url, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
 
             const processResponse = await axios.post('/api/v1/test/process', {
-                fileName: urlResponse.data.fields.key
+                fileName: urlResponse.data.fileName
             }, {
                 headers: { Authorization: `Bearer ${token}` }
             });
@@ -67,7 +67,7 @@ const UploadToSpaces = () => {
             setRecommendations(processResponse.data.recommendations);
         } catch (error) {
             console.error('Error:', error);
-            setError('An error occurred during upload or processing');
+            setError('An error occurred: ' + (error.response?.data?.message || error.message));
         } finally {
             setLoading(false);
         }
