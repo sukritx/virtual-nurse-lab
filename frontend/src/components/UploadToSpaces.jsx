@@ -31,7 +31,7 @@ const UploadToSpaces = () => {
         setError('');
 
         try {
-            const urlResponse = await axios.get('/api/v1/lab/get-upload-url', {
+            const urlResponse = await axios.get('/api/v1/test/get-upload-url', {
                 params: { 
                   fileExtension: '.' + selectedFile.name.split('.').pop(),
                   contentType: selectedFile.type
@@ -52,7 +52,7 @@ const UploadToSpaces = () => {
               });
           
               // Process the uploaded video
-              const processResponse = await axios.post('/api/v1/lab/process', {
+              const processResponse = await axios.post('/api/v1/test/process', {
                 fileName: urlResponse.data.fields.key
               }, {
                 headers: { Authorization: `Bearer ${token}` }
