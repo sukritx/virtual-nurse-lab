@@ -1,4 +1,5 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const router = express.Router();
 const multer = require('multer');
 const path = require('path');
@@ -105,14 +106,16 @@ async function downloadFromSpaces(fileName) {
 }
 
 // Function to extract audio from video
-async function extractAudio(videoPath, audioPath) {
+async function extractAudio(videoBuffer) {
     return new Promise((resolve, reject) => {
-        ffmpeg(videoPath)
-            .output(audioPath)
-            .audioCodec('libmp3lame')
-            .on('end', resolve)
+        const audioStream = new require('stream').PassThrough();
+        ffmpeg(videoBuffer)
+            .toFormat('mp3')
             .on('error', reject)
-            .run();
+            .on('end', () => {
+                resolve(audioStream.read());
+            })
+            .pipe(audioStream);
     });
 }
 
