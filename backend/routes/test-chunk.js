@@ -11,6 +11,7 @@ const mongoose = require('mongoose');
 const { S3Client } = require("@aws-sdk/client-s3");
 const { createPresignedPost } = require("@aws-sdk/s3-presigned-post");
 const { Upload } = require("@aws-sdk/lib-storage");
+const OpenAI = require('openai');
 
 const { User, LabSubmission, LabInfo } = require('../db');
 const { authMiddleware, fileSizeErrorHandler } = require('../middleware');
