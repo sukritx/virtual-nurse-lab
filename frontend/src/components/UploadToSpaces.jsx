@@ -32,10 +32,12 @@ const UploadToSpaces = () => {
 
         try {
             // Get the pre-signed URL
+            console.log('Requesting upload URL...');
             const urlResponse = await axios.get('/api/v1/test/get-upload-url', {
                 params: { fileExtension: '.' + selectedFile.name.split('.').pop() },
                 headers: { Authorization: `Bearer ${token}` }
             });
+            console.log('Upload URL received:', urlResponse.data);
 
             // Upload directly to DigitalOcean Spaces
             await axios.put(urlResponse.data.uploadUrl, selectedFile, {
