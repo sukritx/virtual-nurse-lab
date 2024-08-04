@@ -30,6 +30,7 @@ import StudentLabs from './pages/StudentLabs';
 import LabDetails from './pages/LabDetails';
 import LabHistory from './pages/LabHistory';
 import UploadToSpace from './components/UploadToSpaces';
+import UploadChunk from './components/UploadChunk';
 
 // Layouts
 import MainLayout from './layouts/MainLayout';
@@ -68,6 +69,7 @@ function App() {
               <Route path="/student/upload10" element={<Upload10 />} />
               <Route path="/test-upload" element={<UploadTest />} />
               <Route path="/student/upload-to-spaces" element={<UploadToSpace />} />
+              <Route path="/student/upload-chunk" element={<UploadChunk />} />
               <Route path="/student/lab/:labNumber/history" element={<LabHistory />} />
             </Route>
           </Route>
