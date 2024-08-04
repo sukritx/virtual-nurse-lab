@@ -37,7 +37,7 @@ const UploadChunk = () => {
         formData.append('chunkIndex', chunkIndex);
         formData.append('totalChunks', totalChunks);
     
-        await axios.post('/api/v1/lab/upload-chunk', formData, {
+        await axios.post('/api/v1/test-chunk/upload-chunk', formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
                 'Authorization': `Bearer ${token}`
