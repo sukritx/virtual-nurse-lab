@@ -59,17 +59,21 @@ const UploadToSpaces = () => {
                         if (xhr.status === 204) {
                             resolve();
                         } else {
-                            reject(new Error(`Upload failed with status ${xhr.status}`));
+                            console.log('XHR response:', xhr.responseText);
+                            reject(new Error(`Upload failed with status ${xhr.status}: ${xhr.statusText}`));
                         }
                     };
-                    xhr.onerror = () => reject(new Error('XHR error'));
+                    xhr.onerror = () => {
+                        console.log('XHR error:', xhr.statusText);
+                        reject(new Error('XHR error'));
+                    };
                     xhr.upload.onprogress = (event) => {
                         if (event.lengthComputable) {
                             const percentComplete = (event.loaded / event.total) * 100;
                             console.log(`Upload progress: ${percentComplete.toFixed(2)}%`);
-                            // You can update a progress bar here if you want
                         }
                     };
+                    console.log('Sending formData:', formData);
                     xhr.send(formData);
                 });
                 console.log('Upload successful');
