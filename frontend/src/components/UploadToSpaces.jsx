@@ -35,7 +35,6 @@ const UploadToSpaces = () => {
         setUploadProgress(0);
 
         try {
-            // Get pre-signed URL from your backend
             const urlResponse = await axios.get('/api/v1/test/get-upload-url', {
                 params: { 
                     fileExtension: '.' + selectedFile.name.split('.').pop(),
@@ -50,31 +49,14 @@ const UploadToSpaces = () => {
                 throw new Error('Invalid server response format');
             }
 
-            // Create S3 client
-            const client = new S3Client({
-                endpoint: urlResponse.data.url,
-                region: "sgp1", // or your specific region
-                credentials: {
-                    accessKeyId: urlResponse.data.fields.AWSAccessKeyId,
-                    secretAccessKey: urlResponse.data.fields.signature,
-                }
+            const formData = new FormData();
+            Object.entries(urlResponse.data.fields).forEach(([key, value]) => {
+                formData.append(key, value);
             });
+            formData.append('file', selectedFile);
 
-            // Prepare the upload command
-            const command = new PutObjectCommand({
-                Bucket: urlResponse.data.fields.bucket,
-                Key: urlResponse.data.fields.key,
-                Body: selectedFile,
-                ContentType: selectedFile.type
-            });
-
-            // Get a pre-signed URL for this specific upload
-            const signedUrl = await getSignedUrl(client, command, { expiresIn: 3600 });
-
-            // Perform the upload
             const xhr = new XMLHttpRequest();
-            xhr.open('PUT', signedUrl);
-            xhr.setRequestHeader('Content-Type', selectedFile.type);
+            xhr.open('POST', urlResponse.data.url);
             
             xhr.upload.onprogress = (event) => {
                 if (event.lengthComputable) {
@@ -85,7 +67,7 @@ const UploadToSpaces = () => {
             };
 
             xhr.onload = async function() {
-                if (xhr.status === 200) {
+                if (xhr.status === 204) {
                     console.log('Upload successful');
                     
                     // Process the uploaded video
@@ -108,7 +90,7 @@ const UploadToSpaces = () => {
                 throw new Error('XHR error occurred during upload');
             };
 
-            xhr.send(selectedFile);
+            xhr.send(formData);
 
         } catch (error) {
             console.error('Error:', error);
