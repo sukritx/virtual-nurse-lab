@@ -29,6 +29,7 @@ import Sale from './pages/Sale';
 import StudentLabs from './pages/StudentLabs';
 import LabDetails from './pages/LabDetails';
 import LabHistory from './pages/LabHistory';
+import UploadToSpace from './components/UploadToSpaces';
 
 // Layouts
 import MainLayout from './layouts/MainLayout';
@@ -66,6 +67,7 @@ function App() {
               <Route path="/student/upload9" element={<Upload9 />} />
               <Route path="/student/upload10" element={<Upload10 />} />
               <Route path="/test-upload" element={<UploadTest />} />
+              <Route path="/student/upload-to-spaces" element={<UploadToSpace />} />
               <Route path="/student/lab/:labNumber/history" element={<LabHistory />} />
             </Route>
           </Route>

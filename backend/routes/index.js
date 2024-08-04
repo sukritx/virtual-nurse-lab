@@ -5,6 +5,7 @@ const studentRouter = require("./student");
 const professorRouter = require("./professor");
 const adminRouter = require('./admin');
 const labRouter = require('./lab');
+const testRouter = require('./test');
 
 const router = express.Router();
 
@@ -13,6 +14,7 @@ router.use("/student", studentRouter);
 router.use("/professor", professorRouter);
 router.use("/admin", adminRouter);
 router.use("/lab", labRouter);
+router.use("test", testRouter);
 
 
 module.exports = router;
