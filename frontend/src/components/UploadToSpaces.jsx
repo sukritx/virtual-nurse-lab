@@ -31,23 +31,23 @@ const UploadToSpaces = () => {
         setError('');
 
         try {
-            // Get the pre-signed URL
-            console.log('Requesting upload URL...');
             const urlResponse = await axios.get('/api/v1/test/get-upload-url', {
-                params: { fileExtension: '.' + selectedFile.name.split('.').pop() },
+                params: { 
+                  fileExtension: '.' + selectedFile.name.split('.').pop(),
+                  contentType: selectedFile.type
+                },
                 headers: { Authorization: `Bearer ${token}` }
-            });
-            console.log('Upload URL received:', urlResponse.data);
-
-            // Upload directly to DigitalOcean Spaces
-            await axios.put(urlResponse.data.uploadUrl, selectedFile, {
+              });
+          
+              // Upload directly to DigitalOcean Spaces
+              await axios.put(urlResponse.data.uploadUrl, selectedFile, {
                 headers: { 'Content-Type': selectedFile.type }
-            });
-
-            // Process the uploaded video
-            const processResponse = await axios.post('/api/v1/test/upload', {
+              });
+          
+              // Process the uploaded video
+              const processResponse = await axios.post('/api/v1/test/process', {
                 fileName: urlResponse.data.fileName
-            }, {
+              }, {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
