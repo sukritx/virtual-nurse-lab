@@ -14,7 +14,7 @@ import { LabPage } from './pages/LabPage';
 import Library from './pages/Library';
 import BlogContent from './pages/BlogContent';
 import UploadTest from './components/UploadTest';
-import Upload1 from './components/Upload1';
+import Upload1 from './components/Upload-Deploy/Upload1';
 import Upload2 from './components/Upload2';
 import Upload3 from './components/Upload3';
 import Upload4 from './components/Upload4';

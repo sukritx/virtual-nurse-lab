@@ -4,7 +4,7 @@ import { FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
 import { FiUpload } from 'react-icons/fi';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 
 const CHUNK_SIZE = 1024 * 1024 * 5; // 5MB chunks
 const MAX_FILE_SIZE = 1024 * 1024 * 500; // 500MB max file size
