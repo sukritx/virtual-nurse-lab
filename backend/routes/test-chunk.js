@@ -266,12 +266,14 @@ router.post('/process-upload', authMiddleware, async (req, res) => {
         // Cleanup
         console.log('Cleaning up local files');
         [finalFilePath, audioPath].forEach(path => {
-            if (path && fs.existsSync(path) && path !== finalFilePath) {
+            if (path && fs.existsSync(path)) {
                 try {
                     fs.unlinkSync(path);
                     console.log(`Successfully deleted: ${path}`);
                 } catch (deleteError) {
-                    console.error(`Failed to delete file: ${path}`, deleteError);
+                    if (deleteError.code !== 'ENOENT') {
+                        console.error(`Failed to delete file: ${path}`, deleteError);
+                    }
                 }
             }
         });
