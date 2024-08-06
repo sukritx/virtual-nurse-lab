@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom';
 import img1 from '../assets/GettyImages-1289379328.png';
 
-/* 
 const blogs = [
     {
         id: 1,
@@ -74,8 +73,7 @@ const Library = () => {
     );
 };
 
-*/
-
+/*
 const Library = () => {
     return (
         <div className="min-h-screen flex flex-col items-center justify-center">
@@ -84,5 +82,6 @@ const Library = () => {
         </div>
     );
 };
+*/
 
 export default Library;
