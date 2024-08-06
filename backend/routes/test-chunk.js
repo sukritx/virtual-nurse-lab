@@ -32,6 +32,13 @@ const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
 });
 
+function getFileType(fileName) {
+    const ext = path.extname(fileName).toLowerCase();
+    if (['.mp4', '.avi', '.mov', '.webm'].includes(ext)) return 'video';
+    if (['.mp3', '.m4a', '.wav'].includes(ext)) return 'audio';
+    throw new Error('Unsupported file type');
+}
+
 // Function to upload file to DigitalOcean Spaces
 async function uploadToSpaces(filePath, fileName) {
     const fileStream = fs.createReadStream(filePath);
@@ -97,7 +104,7 @@ function concatenateTranscriptionText(transcriptionOutput) {
 
 // Store student's lab data into the database
 router.post('/submit-lab', async (req, res) => {
-    const { studentId, labNumber, subject, videoPath, studentAnswer, studentScore, isPass, pros, recommendations } = req.body;
+    const { studentId, labNumber, subject, fileUrl, fileType, studentAnswer, studentScore, isPass, pros, recommendations } = req.body;
 
     // Validate studentId as ObjectId
     if (!mongoose.Types.ObjectId.isValid(studentId)) {
@@ -116,7 +123,8 @@ router.post('/submit-lab', async (req, res) => {
         const labSubmission = new LabSubmission({
             studentId,
             labInfo: labInfo._id,
-            videoPath,
+            fileUrl,
+            fileType,
             studentAnswer,
             studentScore,
             isPass,
@@ -160,7 +168,8 @@ router.post('/process-upload', authMiddleware, async (req, res) => {
     const tempDir = path.join(__dirname, '../temp');
     const finalFilePath = path.join(__dirname, '../public/uploads', fileName);
     let audioPath = null;
-    let videoUrl = null;
+    let fileUrl = null;
+    let fileType = null;
 
     try {
         // Reassemble the file from chunks
@@ -183,31 +192,39 @@ router.post('/process-upload', authMiddleware, async (req, res) => {
         console.log('File reassembled successfully');
         const uploadTimestamp = Date.now();
 
-        // Audio extraction
-        console.time('Audio extraction');
-        audioPath = `./public/uploads/audio-${uploadTimestamp}.mp3`;
-        await new Promise((resolve, reject) => {
-            ffmpeg(finalFilePath)
-                .output(audioPath)
-                .audioCodec('libmp3lame')
-                .on('end', resolve)
-                .on('error', reject)
-                .run();
-        });
-        console.timeEnd('Audio extraction');
+        fileType = getFileType(fileName);
 
-        // Parallel processing
-        console.time('Parallel processes');
-        const [spacesUploadResult, transcriptionResult] = await Promise.all([
-            uploadToSpaces(finalFilePath, `lab1/${req.userId}/${uploadTimestamp}${path.extname(fileName)}`),
-            transcribeAudioIApp(audioPath)
-        ]);
-        console.timeEnd('Parallel processes');
+        // Upload the original file to Spaces
+        console.time('Spaces upload');
+        fileUrl = await uploadToSpaces(finalFilePath, `lab1/${req.userId}/${uploadTimestamp}${path.extname(fileName)}`);
+        console.timeEnd('Spaces upload');
 
-        videoUrl = spacesUploadResult;
+        if (fileType === 'video') {
+            // Audio extraction for transcription
+            console.time('Audio extraction');
+            audioPath = `./public/uploads/audio-${uploadTimestamp}.mp3`;
+            await new Promise((resolve, reject) => {
+                ffmpeg(finalFilePath)
+                    .output(audioPath)
+                    .audioCodec('libmp3lame')
+                    .on('end', resolve)
+                    .on('error', reject)
+                    .run();
+            });
+            console.timeEnd('Audio extraction');
+        } else {
+            // For audio files, use the uploaded file directly
+            audioPath = finalFilePath;
+        }
+
+        // Transcription
+        console.time('Transcription');
+        const transcriptionResult = await transcribeAudioIApp(audioPath);
+        console.timeEnd('Transcription');
+
         const transcription = concatenateTranscriptionText(transcriptionResult.output);
 
-        // GPT processing
+        // GPT processing (same as before)
         console.time('GPT processing');
         const feedbackJson = await processTranscriptionLab1(transcription);
         console.timeEnd('GPT processing');
@@ -217,7 +234,8 @@ router.post('/process-upload', authMiddleware, async (req, res) => {
             studentId: req.userId,
             labNumber: 1,
             subject: 'maternalandchild',
-            videoPath: videoUrl,
+            fileUrl: fileUrl,
+            fileType: fileType,
             studentAnswer: transcription,
             studentScore: feedbackJson.totalScore,
             isPass: feedbackJson.totalScore >= 60,
@@ -237,7 +255,8 @@ router.post('/process-upload', authMiddleware, async (req, res) => {
             score: feedbackJson.totalScore,
             pros: feedbackJson.pros,
             recommendations: feedbackJson.recommendations,
-            videoUrl: videoUrl
+            fileUrl: fileUrl,
+            fileType: fileType
         });
 
     } catch (error) {
@@ -247,7 +266,7 @@ router.post('/process-upload', authMiddleware, async (req, res) => {
         // Cleanup
         console.log('Cleaning up local files');
         [finalFilePath, audioPath].forEach(path => {
-            if (path && fs.existsSync(path)) {
+            if (path && fs.existsSync(path) && path !== finalFilePath) {
                 try {
                     fs.unlinkSync(path);
                     console.log(`Successfully deleted: ${path}`);

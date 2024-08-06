@@ -55,11 +55,17 @@ const LabHistory = () => {
               <div className="mb-4">
                 <p className="mb-2"><strong>Pros:</strong> {selectedAttempt.pros}</p>
                 <p className="mb-2"><strong>Recommendations:</strong> {selectedAttempt.recommendations}</p>
-                {selectedAttempt.videoPath && (
+                {selectedAttempt.fileType === 'video' && (
                   <video width="100%" controls>
-                    <source src={`${selectedAttempt.videoPath}`} type="video/mp4" />
+                    <source src={selectedAttempt.fileUrl} type="video/mp4" />
                     Your browser does not support the video tag.
                   </video>
+                )}
+                {selectedAttempt.fileType === 'audio' && (
+                  <audio width="100%" controls>
+                    <source src={selectedAttempt.fileUrl} type="audio/mpeg" />
+                    Your browser does not support the audio tag.
+                  </audio>
                 )}
               </div>
             </div>

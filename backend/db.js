@@ -78,9 +78,13 @@ const labSubmissionSchema = new mongoose.Schema({
         ref: 'LabInfo',
         required: true
     },
-    videoPath: {
+    filePath: {
         type: String,
         required: true
+    },
+    fileType: {
+        type: String,
+        required: false
     },
     studentAnswer: {
         type: String,
