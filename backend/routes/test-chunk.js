@@ -244,7 +244,7 @@ router.post('/process-upload', authMiddleware, async (req, res) => {
         };
 
         console.time('Lab submission');
-        await axios.post('http://localhost:3000/api/v1/lab/submit-lab', labInfo);
+        await axios.post('http://localhost:3000/api/v1/test-chunk/submit-lab', labInfo);
         console.timeEnd('Lab submission');
 
         // Send response
