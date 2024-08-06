@@ -78,7 +78,7 @@ const labSubmissionSchema = new mongoose.Schema({
         ref: 'LabInfo',
         required: true
     },
-    filePath: {
+    fileUrl: {
         type: String,
         required: true
     },
