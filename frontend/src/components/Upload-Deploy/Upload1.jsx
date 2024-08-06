@@ -7,9 +7,9 @@ import 'react-circular-progressbar/dist/styles.css';
 import { useAuth } from '../context/AuthContext';
 
 const CHUNK_SIZE = 1024 * 1024 * 5; // 5MB chunks
-const MAX_FILE_SIZE = 1024 * 1024 * 1000; // 1GB max file size
+const MAX_FILE_SIZE = 1024 * 1024 * 500; // 500MB max file size
 
-const UploadChunk = () => {
+const Upload1 = () => {
     const [selectedFile, setSelectedFile] = useState(null);
     const [loading, setLoading] = useState(false);
     const [passFailStatus, setPassFailStatus] = useState('');
@@ -37,7 +37,7 @@ const UploadChunk = () => {
         formData.append('chunkIndex', chunkIndex);
         formData.append('totalChunks', totalChunks);
     
-        await axios.post('/api/v1/test-chunk/upload-chunk', formData, {
+        await axios.post('/api/v1/lab-deployed/upload-chunk', formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
                 'Authorization': `Bearer ${token}`
@@ -63,7 +63,7 @@ const UploadChunk = () => {
             }
 
             // After all chunks are uploaded, process the file
-            const response = await axios.post('/api/v1/test-chunk/process-upload', {
+            const response = await axios.post('/api/v1/lab-deployed/upload-1', {
                 fileName: selectedFile.name,
                 totalChunks
             }, {
@@ -247,4 +247,4 @@ const UploadChunk = () => {
     );
 };
 
-export default UploadChunk;
+export default Upload1;

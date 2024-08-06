@@ -49,6 +49,7 @@ function App() {
             <Route path="/sale" element={<Sale />} />
             <Route path="/library" element={<Library />} />
             <Route path="/library/:id" element={<BlogContent />} />
+            <Route path="/student/upload-chunk" element={<UploadChunk />} />
           </Route>
 
           {/* Private Routes */}
@@ -69,7 +70,6 @@ function App() {
               <Route path="/student/upload10" element={<Upload10 />} />
               <Route path="/test-upload" element={<UploadTest />} />
               <Route path="/student/upload-to-spaces" element={<UploadToSpace />} />
-              <Route path="/student/upload-chunk" element={<UploadChunk />} />
               <Route path="/student/lab/:labNumber/history" element={<LabHistory />} />
             </Route>
           </Route>
