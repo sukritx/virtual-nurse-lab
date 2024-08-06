@@ -15,6 +15,7 @@ router.use("/student", studentRouter);
 router.use("/professor", professorRouter);
 router.use("/admin", adminRouter);
 router.use("/lab", labRouter);
+router.use("/lab-deployed", labDeployedRouter);
 router.use("/test", testRouter);
 router.use("/test-chunk", testChunkRouter);
 
