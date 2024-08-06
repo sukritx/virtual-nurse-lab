@@ -6,6 +6,7 @@ const professorRouter = require("./professor");
 const adminRouter = require('./admin');
 const labRouter = require('./lab');
 const testRouter = require('./test');
+const labDeployedRouter = require('./lab-deployed');
 const testChunkRouter = require('./test-chunk');
 
 const router = express.Router();
