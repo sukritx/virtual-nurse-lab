@@ -9,7 +9,7 @@ import { useAuth } from '../../context/AuthContext';
 const CHUNK_SIZE = 1024 * 1024 * 5; // 5MB chunks
 const MAX_FILE_SIZE = 1024 * 1024 * 500; // 500MB max file size
 
-const Upload1 = () => {
+const Upload7 = () => {
     const [selectedFile, setSelectedFile] = useState(null);
     const [loading, setLoading] = useState(false);
     const [passFailStatus, setPassFailStatus] = useState('');
@@ -63,7 +63,7 @@ const Upload1 = () => {
             }
 
             // After all chunks are uploaded, process the file
-            const response = await axios.post('/api/v1/lab-deployed/upload-1', {
+            const response = await axios.post('/api/v1/lab-deployed/upload-7', {
                 fileName: selectedFile.name,
                 totalChunks
             }, {
@@ -103,14 +103,13 @@ const Upload1 = () => {
                 </a>
             </div>
 
-                <h1 className="text-2xl font-bold mb-2 text-center text-gray-800">Lab 1: การเลี้ยงลูกด้วยนมแม่</h1>
-                <h2 className="text-lg mb-6 text-center text-gray-600">มารดาเจ็บหัวนมด้านขวา</h2>
+                <h1 className="text-2xl font-bold mb-2 text-center text-gray-800">Lab 7: การอาบน้ำทารก</h1>
 
                 <div className="mb-6 rounded-3xl overflow-hidden border-4 border-purple-900 shadow-lg">
                     <video 
                         controls 
                         className="w-full"
-                        src="/questionVideos/situation1.mp4"
+                        src="/questionVideos/situation7.mp4"
                     >
                         Your browser does not support the video tag.
                     </video>
@@ -129,8 +128,7 @@ const Upload1 = () => {
                 </div>
                 
                 <div className="space-y-4 mb-8 text-gray-700">
-                    <p>1. ท่านจะให้คำแนะนำใดแก่มารดารายนี้ เช่น การดูดอย่างถูกวิธี 4 ดูด การแก้ไขปัญหา</p>
-                    <p>2. ท่านจะสาธิตท่าอุ้มที่ถูกต้อง และการบรรเทา/ป้องกันการเจ็บหัวนม ให้กับมารดารายนี้อย่างไร</p>
+                    <p>ท่านจะให้คำแนะนำวิธีการอาบน้ำทารกแก่มารดารายนี้อย่างไร (ครอบคลุมประเด็น การสังเกตร่างกายทารกก่อนอาบน้ำ สิ่งแวดล้อมบริเวณที่อาบน้ำ และการเตรียมน้ำอาบทารก)</p>
                 </div>
                 
                 <div className="mb-6">
@@ -247,4 +245,4 @@ const Upload1 = () => {
     );
 };
 
-export default Upload1;
+export default Upload7;

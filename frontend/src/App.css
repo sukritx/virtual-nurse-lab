@@ -8,9 +8,53 @@ body {
 h1, h2, h3, h4, h5, h6 {
     font-family: 'Sarabun', sans-serif;
     font-weight: 700;
+    line-height: 1.2;
+    margin-top: 1em;
+    margin-bottom: 0.5em;
 }
+
+h1 { font-size: 1.6rem; }
+h2 { font-size: 1.5rem; }
+h3 { font-size: 1.4rem; }
+h4 { font-size: 1.3rem; }
+h5 { font-size: 1.2rem; }
+h6 { font-size: 1.1rem; }
 
 p {
     font-family: 'Sarabun', sans-serif;
     font-weight: 400;
+    font-size: 1rem;
+    line-height: 1.5;
+    margin-bottom: 1em;
+}
+
+ul, ol {
+    margin: 0 0 1em 1.5em;
+    padding: 0;
+}
+
+li {
+    margin-bottom: 0.5em;
+    line-height: 1.6;
+}
+
+ul li {
+    list-style-type: disc;
+}
+
+ul li::marker {
+    color: #4a4a4a;
+}
+
+ol li {
+    list-style-type: decimal;
+}
+
+ul ul, ol ul {
+    margin-top: 0.5em;
+    margin-bottom: 0;
+}
+
+ul ul li {
+    list-style-type: circle;
 }

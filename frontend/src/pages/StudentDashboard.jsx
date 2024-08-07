@@ -67,7 +67,8 @@ export const StudentDashboard = () => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {labs.map((lab, index) => (
             <div key={lab.labInfo._id} className={`bg-white p-4 rounded-lg shadow-md flex flex-col items-center justify-between ${lab.isPass === null ? 'bg-gray-300' : lab.isPass ? 'bg-green-300' : 'bg-red-300'}`}>
-              <h2 className="text-lg font-semibold mb-4">Lab {lab.labInfo.labNumber}</h2>
+              <h2 className="text-xl font-semibold">Lab {lab.labInfo.labNumber}</h2>
+              <p className="text-sm text-gray-600">{lab.labInfo.labName}</p>
               <div className={`w-8 h-8 rounded-full flex items-center justify-center`}>
                 {lab.isPass === null ? ' ' : lab.isPass ? '✓' : '✗'}
               </div>
