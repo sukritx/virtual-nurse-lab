@@ -106,6 +106,12 @@ const Upload4 = () => {
                 <h1 className="text-2xl font-bold mb-2 text-center text-gray-800">Lab 4: การวางแผนครอบครัว</h1>
                 <h2 className="text-lg mb-6 text-center text-gray-600">ยาเม็ดคุมกำเนิด</h2>
 
+                <div className="mb-6 p-4 bg-gray-100 rounded-lg text-sm text-gray-700">
+                    <p>
+                    มารดาอายุ 30 ปี หลังคลอดบุตรคนแรกได้ 5 วัน ต้องการเลี้ยงลูกด้วยนมแม่อย่างเดียอย่างน้อย 6 เดือน แลมีความกังวลเกี่ยวกับการคุมกำเนิดหลังคลอดขณะให้นมบุตร หากมารดาหลังคลอดรายนี้ กำลังพิจารณาเลือกใช้ยาเม็ดคุมกำเนิดที่มีฮอร์โมนโปรเจสเตอโรนเพียงอย่างเดียว จะให้คำแนะนำอย่างไร
+                    </p>
+                </div>
+
                 <div className="mb-6 rounded-3xl overflow-hidden border-4 border-purple-900 shadow-lg">
                     <video 
                         controls 

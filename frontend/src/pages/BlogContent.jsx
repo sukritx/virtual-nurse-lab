@@ -6,7 +6,7 @@ import androidVoiceRecorder from '../assets/android-voice-recorder.jpg';
 const blogDetails = [
     {
         id: 1,
-        title: "คู่มือการใช้งานระบบ Virtual Nurse Lab สำหรับผู้ใช้ iOS",
+        title: "คู่มือการใช้งานระบบ Virtual Nurse Lab",
         date: "ธันวาคม 2024",
         content: `
 <h2><strong>การใช้งานระบบ Virtual Nurse Lab</strong></h2>
