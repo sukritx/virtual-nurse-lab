@@ -1,6 +1,6 @@
-import { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import axios from 'axios';
-import { FaVideo, FaStop } from 'react-icons/fa';
+import { FaVideo, FaStop, FaRedo, FaCheck } from 'react-icons/fa';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import { useAuth } from '../context/AuthContext';
@@ -8,7 +8,7 @@ import { useAuth } from '../context/AuthContext';
 const MAX_RECORDING_TIME = 180; // 3 minutes in seconds
 
 const Lab1Recording = () => {
-    const [isRecording, setIsRecording] = useState(false);
+    const [recordingState, setRecordingState] = useState('initial'); // 'initial', 'ready', 'recording', 'recorded'
     const [recordedBlob, setRecordedBlob] = useState(null);
     const [timeLeft, setTimeLeft] = useState(MAX_RECORDING_TIME);
     const [loading, setLoading] = useState(false);
@@ -20,55 +20,63 @@ const Lab1Recording = () => {
     const { token } = useAuth();
 
     const mediaRecorderRef = useRef(null);
-    const videoRef = useRef(null);
+    const liveVideoRef = useRef(null);
+    const recordedVideoRef = useRef(null);
     const streamRef = useRef(null);
     const timerRef = useRef(null);
 
-    const startRecording = useCallback(async () => {
+    const startCamera = useCallback(async () => {
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
             streamRef.current = stream;
-            videoRef.current.srcObject = stream;
-            
-            const mediaRecorder = new MediaRecorder(stream);
-            mediaRecorderRef.current = mediaRecorder;
-            
-            const chunks = [];
-            mediaRecorder.ondataavailable = (event) => chunks.push(event.data);
-            mediaRecorder.onstop = () => {
-                const blob = new Blob(chunks, { type: 'video/webm' });
-                setRecordedBlob(blob);
-            };
-            
-            mediaRecorder.start();
-            setIsRecording(true);
-            setTimeLeft(MAX_RECORDING_TIME);
-            
-            timerRef.current = setInterval(() => {
-                setTimeLeft((prevTime) => {
-                    if (prevTime <= 1) {
-                        clearInterval(timerRef.current);
-                        stopRecording();
-                        return 0;
-                    }
-                    return prevTime - 1;
-                });
-            }, 1000);
+            liveVideoRef.current.srcObject = stream;
+            setRecordingState('ready');
         } catch (err) {
             setError('Error accessing camera: ' + err.message);
         }
     }, []);
 
+    const startRecording = useCallback(() => {
+        const mediaRecorder = new MediaRecorder(streamRef.current);
+        mediaRecorderRef.current = mediaRecorder;
+        
+        const chunks = [];
+        mediaRecorder.ondataavailable = (event) => chunks.push(event.data);
+        mediaRecorder.onstop = () => {
+            const blob = new Blob(chunks, { type: 'video/webm' });
+            setRecordedBlob(blob);
+            recordedVideoRef.current.src = URL.createObjectURL(blob);
+        };
+        
+        mediaRecorder.start();
+        setRecordingState('recording');
+        setTimeLeft(MAX_RECORDING_TIME);
+        
+        timerRef.current = setInterval(() => {
+            setTimeLeft((prevTime) => {
+                if (prevTime <= 1) {
+                    clearInterval(timerRef.current);
+                    stopRecording();
+                    return 0;
+                }
+                return prevTime - 1;
+            });
+        }, 1000);
+    }, []);
+
     const stopRecording = useCallback(() => {
-        if (mediaRecorderRef.current && isRecording) {
+        if (mediaRecorderRef.current && recordingState === 'recording') {
             mediaRecorderRef.current.stop();
             clearInterval(timerRef.current);
-            setIsRecording(false);
-            if (streamRef.current) {
-                streamRef.current.getTracks().forEach(track => track.stop());
-            }
+            setRecordingState('recorded');
         }
-    }, [isRecording]);
+    }, [recordingState]);
+
+    const retakeRecording = useCallback(() => {
+        setRecordedBlob(null);
+        setTimeLeft(MAX_RECORDING_TIME);
+        setRecordingState('ready');
+    }, []);
 
     const onSubmit = useCallback(async () => {
         if (!recordedBlob) return;
@@ -103,6 +111,17 @@ const Lab1Recording = () => {
             setLoading(false);
         }
     }, [recordedBlob, token]);
+
+    useEffect(() => {
+        return () => {
+            if (streamRef.current) {
+                streamRef.current.getTracks().forEach(track => track.stop());
+            }
+            if (timerRef.current) {
+                clearInterval(timerRef.current);
+            }
+        };
+    }, []);
 
     return (
         <div className="bg-white min-h-screen flex flex-col items-center justify-center py-12">
@@ -162,8 +181,32 @@ const Lab1Recording = () => {
                         Record your response
                     </label>
                     <div className="mt-1 flex flex-col items-center justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
-                        <video ref={videoRef} className="w-full mb-4" autoPlay muted />
-                        {!isRecording && !recordedBlob && (
+                        {recordingState !== 'recorded' && (
+                            <video 
+                                ref={liveVideoRef} 
+                                className="w-full mb-4" 
+                                autoPlay 
+                                muted 
+                                style={{transform: 'scaleX(-1)'}}
+                            />
+                        )}
+                        {recordingState === 'recorded' && (
+                            <video 
+                                ref={recordedVideoRef} 
+                                className="w-full mb-4" 
+                                controls
+                            />
+                        )}
+                        {recordingState === 'initial' && (
+                            <button
+                                onClick={startCamera}
+                                className="bg-blue-500 text-white px-4 py-2 rounded-full flex items-center"
+                            >
+                                <FaVideo className="mr-2" />
+                                Ready
+                            </button>
+                        )}
+                        {recordingState === 'ready' && (
                             <button
                                 onClick={startRecording}
                                 className="bg-red-500 text-white px-4 py-2 rounded-full flex items-center"
@@ -172,7 +215,7 @@ const Lab1Recording = () => {
                                 Start Recording
                             </button>
                         )}
-                        {isRecording && (
+                        {recordingState === 'recording' && (
                             <button
                                 onClick={stopRecording}
                                 className="bg-gray-500 text-white px-4 py-2 rounded-full flex items-center"
@@ -181,28 +224,41 @@ const Lab1Recording = () => {
                                 Stop Recording
                             </button>
                         )}
-                        <div className="mt-2 w-16 h-16">
-                            <CircularProgressbar
-                                value={timeLeft}
-                                maxValue={MAX_RECORDING_TIME}
-                                text={`${timeLeft}s`}
-                                styles={buildStyles({
-                                    textColor: "#333",
-                                    pathColor: timeLeft > 30 ? "#22c55e" : "#ef4444",
-                                    trailColor: '#E5E7EB'
-                                })}
-                            />
-                        </div>
+                        {recordingState === 'recorded' && (
+                            <div className="flex space-x-2">
+                                <button
+                                    onClick={retakeRecording}
+                                    className="bg-yellow-500 text-white px-4 py-2 rounded-full flex items-center"
+                                >
+                                    <FaRedo className="mr-2" />
+                                    Retake
+                                </button>
+                                <button
+                                    onClick={onSubmit}
+                                    className="bg-green-500 text-white px-4 py-2 rounded-full flex items-center"
+                                >
+                                    <FaCheck className="mr-2" />
+                                    Submit
+                                </button>
+                            </div>
+                        )}
+                        {(recordingState === 'ready' || recordingState === 'recording') && (
+                            <div className="mt-2 w-16 h-16">
+                                <CircularProgressbar
+                                    value={timeLeft}
+                                    maxValue={MAX_RECORDING_TIME}
+                                    text={`${timeLeft}s`}
+                                    styles={buildStyles({
+                                        textColor: "#333",
+                                        pathColor: timeLeft > 30 ? "#22c55e" : "#ef4444",
+                                        trailColor: '#E5E7EB'
+                                    })}
+                                />
+                            </div>
+                        )}
                     </div>
                 </div>
                 
-                <button
-                    onClick={onSubmit}
-                    disabled={!recordedBlob}
-                    className={`bg-gradient-to-r from-purple-600 to-purple-800 text-white w-full py-3 rounded-full hover:from-purple-700 hover:to-purple-900 transition duration-300 flex items-center justify-center space-x-2 ${!recordedBlob ? 'opacity-50 cursor-not-allowed' : ''}`}
-                >
-                    <span>ส่งข้อมูล</span>
-                </button>
                 {loading && (
                     <div className="mt-4 text-gray-600 text-center">รอประมวลผลประมาณ 1-2 นาที...</div>
                 )}
