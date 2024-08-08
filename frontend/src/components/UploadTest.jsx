@@ -5,12 +5,12 @@ import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import { useAuth } from '../context/AuthContext';
 
-const MAX_RECORDING_TIME = 180; // 3 minutes in seconds
+const MAX_RECORDING_TIME = 180; // 3 minutes in seconds, now used only for the timer display
 
 const Lab1Recording = () => {
     const [recordingState, setRecordingState] = useState('initial');
     const [recordedBlob, setRecordedBlob] = useState(null);
-    const [timeLeft, setTimeLeft] = useState(MAX_RECORDING_TIME);
+    const [timeElapsed, setTimeElapsed] = useState(0);
     const [loading, setLoading] = useState(false);
     const [passFailStatus, setPassFailStatus] = useState('');
     const [score, setScore] = useState('');
@@ -26,8 +26,8 @@ const Lab1Recording = () => {
     const timerRef = useRef(null);
 
     const videoConstraints = {
-        width: 640,
-        height: 480
+        width: 1280,
+        height: 720
     };
 
     const startCamera = useCallback(async () => {
@@ -58,25 +58,11 @@ const Lab1Recording = () => {
         
         mediaRecorder.start();
         setRecordingState('recording');
-        setTimeLeft(MAX_RECORDING_TIME);
+        setTimeElapsed(0);
         
         timerRef.current = setInterval(() => {
-            setTimeLeft((prevTime) => {
-                if (prevTime <= 1) {
-                    clearInterval(timerRef.current);
-                    stopRecording();
-                    return 0;
-                }
-                return prevTime - 1;
-            });
+            setTimeElapsed((prevTime) => prevTime + 1);
         }, 1000);
-
-        // Ensure recording stops after 3 minutes
-        setTimeout(() => {
-            if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
-                stopRecording();
-            }
-        }, MAX_RECORDING_TIME * 1000);
     }, []);
 
     const stopRecording = useCallback(() => {
@@ -89,7 +75,7 @@ const Lab1Recording = () => {
 
     const retakeRecording = useCallback(() => {
         setRecordedBlob(null);
-        setTimeLeft(MAX_RECORDING_TIME);
+        setTimeElapsed(0);
         setRecordingState('ready');
     }, []);
 
@@ -193,7 +179,7 @@ const Lab1Recording = () => {
                 
                 <div className="mb-6">
                     <label className="block mb-2 text-sm font-medium text-gray-700">
-                        Record your response (480p)
+                        Record your response (720p)
                     </label>
                     <div className="mt-1 flex flex-col items-center justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
                         {recordingState !== 'recorded' && (
@@ -262,12 +248,12 @@ const Lab1Recording = () => {
                         {(recordingState === 'ready' || recordingState === 'recording') && (
                             <div className="mt-2 w-16 h-16">
                                 <CircularProgressbar
-                                    value={timeLeft}
+                                    value={timeElapsed}
                                     maxValue={MAX_RECORDING_TIME}
-                                    text={`${timeLeft}s`}
+                                    text={`${timeElapsed}s`}
                                     styles={buildStyles({
                                         textColor: "#333",
-                                        pathColor: timeLeft > 30 ? "#22c55e" : "#ef4444",
+                                        pathColor: timeElapsed <= MAX_RECORDING_TIME ? "#22c55e" : "#ef4444",
                                         trailColor: '#E5E7EB'
                                     })}
                                 />
