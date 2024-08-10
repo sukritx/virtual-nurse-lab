@@ -110,7 +110,7 @@ const Upload1 = () => {
                     <p>
                         มารดาอายุ 17 ปี หลังคลอดบุตรคนแรกเพศชายได้ 1 วัน บุตรสุขภาพแข็งแรงดี บุตรหนัก 2,800 กรัม 
                         มารดายังอุ้มบุตรดูดนมเองไม่ได้ น้ำนมเริ่มไหล มีอาการเจ็บหัวนมขณะที่บุตรดูดนม เจ็บข้างขวามากกว่าข้างซ้าย 
-                        ประเมิน LATCH score = 5 (latch on=1, audible=1, type of nipple=2, comfort=1, holding= 0)
+                        ประเมิน LATCH score = 5 (latch on=1, audible=1, type of nipple=1, comfort=1, holding= 0)
                     </p>
                 </div>
 

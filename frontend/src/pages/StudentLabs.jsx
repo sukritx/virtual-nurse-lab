@@ -22,7 +22,7 @@ const StudentLabs = () => {
           Authorization: `Bearer ${token}`
         }
       });
-      setLabs(response.data.labs);
+      setLabs(response.data.labs.sort((a, b) => a.labNumber - b.labNumber));
       setStudent(response.data.student);
     } catch (error) {
       console.error('Error fetching student labs:', error);

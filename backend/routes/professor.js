@@ -59,7 +59,7 @@ router.get('/labs', professorAuth, async (req, res) => {
 
     const students = university.students;
 
-    const allLabs = await LabInfo.find().exec();
+    const allLabs = await LabInfo.find().sort({ labNumber: 1 }).exec();
 
     const labStats = allLabs.map(lab => ({
       labNumber: lab.labNumber,
