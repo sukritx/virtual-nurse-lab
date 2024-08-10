@@ -20,7 +20,7 @@ export const StudentDashboard = () => {
           Authorization: `Bearer ${token}`,
         }
       });
-      setLabs(response.data.labs);
+      setLabs(response.data.labs.sort((a, b) => a.labInfo.labNumber - b.labInfo.labNumber));
     } catch (error) {
       console.error('Error fetching labs:', error);
     }
