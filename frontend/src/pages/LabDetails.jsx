@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { useParams } from 'react-router-dom';
@@ -32,6 +32,25 @@ const LabDetails = () => {
     return <div>Loading...</div>;
   }
 
+  const renderMediaElement = () => {
+    if (labDetails.fileType === 'audio') {
+      return (
+        <audio controls className="w-full mt-4">
+          <source src={labDetails.fileUrl} type="audio/mpeg" />
+          Your browser does not support the audio element.
+        </audio>
+      );
+    } else if (labDetails.fileType === 'video') {
+      return (
+        <video controls className="w-full mt-4">
+          <source src={labDetails.fileUrl} type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+      );
+    }
+    return null;
+  };
+
   return (
     <div className="min-h-screen flex flex-col items-center bg-slate-100">
       <header className="w-full">
@@ -48,34 +67,27 @@ const LabDetails = () => {
                 text={`${labDetails.studentScore}%`}
                 styles={buildStyles({
                   textColor: '#333',
-                  pathColor: labDetails.studentScore >= 50 ? 'green' : 'red',
+                  pathColor: labDetails.studentScore >= 60 ? 'green' : 'red',
                   trailColor: '#d6d6d6',
                 })}
               />
             </div>
           </div>
           <div className="flex items-center justify-center mt-4">
-            {labDetails.studentScore >= 50 ? (
+            {labDetails.studentScore >= 60 ? (
               <FaCheckCircle className="text-green-700 mr-2" />
             ) : (
               <FaTimesCircle className="text-red-700 mr-2" />
             )}
-            <h3 className={`text-lg font-bold ${labDetails.studentScore >= 50 ? 'text-green-700' : 'text-red-700'}`}>
-              Status: {labDetails.studentScore >= 50 ? 'Passed' : 'Failed'}
+            <h3 className={`text-lg font-bold ${labDetails.studentScore >= 60 ? 'text-green-700' : 'text-red-700'}`}>
+              Status: {labDetails.studentScore >= 60 ? 'Passed' : 'Failed'}
             </h3>
           </div>
-          <h3 className="text-lg font-bold mb-4">Pros:</h3>
+          <h3 className="text-lg font-bold mb-4 mt-6">Pros:</h3>
           <p className="mb-4">{labDetails.pros}</p>
           <h3 className="text-lg font-bold mb-4">Recommendations:</h3>
           <p className="mb-4">{labDetails.recommendations}</p>
-          {labDetails.videoPath && (
-            <div className="mb-4">
-              <video width="100%" controls>
-                <source src={`${labDetails.videoPath}`} type="video/mp4" />
-                Your browser does not support the video tag.
-              </video>
-            </div>
-          )}
+          {renderMediaElement()}
         </div>
       </main>
     </div>

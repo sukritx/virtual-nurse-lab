@@ -26,8 +26,9 @@ const Lab1Recording = () => {
     const timerRef = useRef(null);
 
     const videoConstraints = {
-        width: 1280,
-        height: 720
+        width: 640,
+        height: 480,
+        facingMode: "user"
     };
 
     const startCamera = useCallback(async () => {
