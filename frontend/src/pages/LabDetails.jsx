@@ -7,7 +7,8 @@ import 'react-circular-progressbar/dist/styles.css';
 import { FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
 
 const LabDetails = () => {
-  const [labDetails, setLabDetails] = useState(null);
+  const [labSubmissions, setLabSubmissions] = useState([]);
+  const [selectedAttempt, setSelectedAttempt] = useState(null);
   const { token } = useAuth();
   const { studentId, labNumber } = useParams();
 
@@ -22,28 +23,30 @@ const LabDetails = () => {
           Authorization: `Bearer ${token}`
         }
       });
-      setLabDetails(response.data.lab);
+      setLabSubmissions(response.data.labSubmissions);
+      setSelectedAttempt(response.data.labSubmissions[0]);
     } catch (error) {
       console.error('Error fetching lab details:', error);
     }
   };
 
-  if (!labDetails) {
-    return <div>Loading...</div>;
-  }
+  const handleAttemptChange = (event) => {
+    const attempt = labSubmissions.find(submission => submission.attempt === parseInt(event.target.value));
+    setSelectedAttempt(attempt);
+  };
 
-  const renderMediaElement = () => {
-    if (labDetails.fileType === 'audio') {
+  const renderMediaElement = (submission) => {
+    if (submission.fileType === 'audio') {
       return (
         <audio controls className="w-full mt-4">
-          <source src={labDetails.fileUrl} type="audio/mpeg" />
+          <source src={submission.fileUrl} type="audio/mpeg" />
           Your browser does not support the audio element.
         </audio>
       );
-    } else if (labDetails.fileType === 'video') {
+    } else if (submission.fileType === 'video') {
       return (
         <video controls className="w-full mt-4">
-          <source src={labDetails.fileUrl} type="video/mp4" />
+          <source src={submission.fileUrl} type="video/mp4" />
           Your browser does not support the video tag.
         </video>
       );
@@ -51,43 +54,55 @@ const LabDetails = () => {
     return null;
   };
 
+  if (labSubmissions.length === 0) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div className="min-h-screen flex flex-col items-center bg-slate-100">
-      <header className="w-full">
-      </header>
       <main className="w-full max-w-4xl px-4 py-10">
         <h1 className="text-4xl font-bold mb-8 text-center">Lab {labNumber} Details</h1>
         <div className="bg-white p-8 rounded-lg shadow-md">
-          <h2 className="text-2xl font-bold mb-4">Score: {labDetails.studentScore}</h2>
-          <div className="mb-6 flex justify-center">
-            <div style={{ width: '100px', height: '100px' }}>
-              <CircularProgressbar
-                value={labDetails.studentScore}
-                maxValue={100}
-                text={`${labDetails.studentScore}%`}
-                styles={buildStyles({
-                  textColor: '#333',
-                  pathColor: labDetails.studentScore >= 60 ? 'green' : 'red',
-                  trailColor: '#d6d6d6',
-                })}
-              />
-            </div>
-          </div>
-          <div className="flex items-center justify-center mt-4">
-            {labDetails.studentScore >= 60 ? (
-              <FaCheckCircle className="text-green-700 mr-2" />
-            ) : (
-              <FaTimesCircle className="text-red-700 mr-2" />
-            )}
-            <h3 className={`text-lg font-bold ${labDetails.studentScore >= 60 ? 'text-green-700' : 'text-red-700'}`}>
-              Status: {labDetails.studentScore >= 60 ? 'Passed' : 'Failed'}
-            </h3>
-          </div>
-          <h3 className="text-lg font-bold mb-4 mt-6">Pros:</h3>
-          <p className="mb-4">{labDetails.pros}</p>
-          <h3 className="text-lg font-bold mb-4">Recommendations:</h3>
-          <p className="mb-4">{labDetails.recommendations}</p>
-          {renderMediaElement()}
+          <label htmlFor="attempt-select" className="block text-lg font-bold mb-2">Select Attempt:</label>
+          <select id="attempt-select" className="mb-4 p-2 border rounded" onChange={handleAttemptChange}>
+            {labSubmissions.map((submission) => (
+              <option key={submission._id} value={submission.attempt}>Attempt {submission.attempt}</option>
+            ))}
+          </select>
+          {selectedAttempt && (
+            <>
+              <h2 className="text-2xl font-bold mb-4">Score: {selectedAttempt.studentScore}</h2>
+              <div className="mb-6 flex justify-center">
+                <div style={{ width: '100px', height: '100px' }}>
+                  <CircularProgressbar
+                    value={selectedAttempt.studentScore}
+                    maxValue={100}
+                    text={`${selectedAttempt.studentScore}%`}
+                    styles={buildStyles({
+                      textColor: '#333',
+                      pathColor: selectedAttempt.studentScore >= 60 ? 'green' : 'red',
+                      trailColor: '#d6d6d6',
+                    })}
+                  />
+                </div>
+              </div>
+              <div className="flex items-center justify-center mt-4">
+                {selectedAttempt.studentScore >= 60 ? (
+                  <FaCheckCircle className="text-green-700 mr-2" />
+                ) : (
+                  <FaTimesCircle className="text-red-700 mr-2" />
+                )}
+                <h3 className={`text-lg font-bold ${selectedAttempt.studentScore >= 60 ? 'text-green-700' : 'text-red-700'}`}>
+                  Status: {selectedAttempt.studentScore >= 60 ? 'Passed' : 'Failed'}
+                </h3>
+              </div>
+              <h3 className="text-lg font-bold mb-4 mt-6">Pros:</h3>
+              <p className="mb-4">{selectedAttempt.pros}</p>
+              <h3 className="text-lg font-bold mb-4">Recommendations:</h3>
+              <p className="mb-4">{selectedAttempt.recommendations}</p>
+              {renderMediaElement(selectedAttempt)}
+            </>
+          )}
         </div>
       </main>
     </div>

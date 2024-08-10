@@ -156,12 +156,15 @@ router.get('/student/:studentId/lab/:labNumber', professorAuth, async (req, res)
       return res.status(404).json({ message: 'Lab not found' });
     }
 
-    const labSubmission = await LabSubmission.findOne({ studentId: student._id, labInfo: labInfo._id });
-    if (!labSubmission) {
-      return res.status(404).json({ message: 'Lab submission not found' });
+    const labSubmissions = await LabSubmission.find({ studentId: student._id, labInfo: labInfo._id })
+      .sort({ attempt: 1 })
+      .exec();
+
+    if (labSubmissions.length === 0) {
+      return res.status(404).json({ message: 'No lab submissions found' });
     }
 
-    res.json({ lab: labSubmission });
+    res.json({ labSubmissions });
   } catch (error) {
     console.error('Error fetching lab details:', error);
     res.status(500).json({ message: 'Internal server error' });
