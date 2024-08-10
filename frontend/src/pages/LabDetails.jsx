@@ -35,18 +35,20 @@ const LabDetails = () => {
     setSelectedAttempt(attempt);
   };
 
-  const renderMediaElement = (submission) => {
-    if (submission.fileType === 'audio') {
+  const renderMediaElement = () => {
+    if (!selectedAttempt) return null;
+
+    if (selectedAttempt.fileType === 'audio') {
       return (
-        <audio controls className="w-full mt-4">
-          <source src={submission.fileUrl} type="audio/mpeg" />
+        <audio key={selectedAttempt._id} controls className="w-full mt-4">
+          <source src={selectedAttempt.fileUrl} type="audio/mpeg" />
           Your browser does not support the audio element.
         </audio>
       );
-    } else if (submission.fileType === 'video') {
+    } else if (selectedAttempt.fileType === 'video') {
       return (
-        <video controls className="w-full mt-4">
-          <source src={submission.fileUrl} type="video/mp4" />
+        <video key={selectedAttempt._id} controls className="w-full mt-4">
+          <source src={selectedAttempt.fileUrl} type="video/mp4" />
           Your browser does not support the video tag.
         </video>
       );
@@ -64,9 +66,16 @@ const LabDetails = () => {
         <h1 className="text-4xl font-bold mb-8 text-center">Lab {labNumber} Details</h1>
         <div className="bg-white p-8 rounded-lg shadow-md">
           <label htmlFor="attempt-select" className="block text-lg font-bold mb-2">Select Attempt:</label>
-          <select id="attempt-select" className="mb-4 p-2 border rounded" onChange={handleAttemptChange}>
+          <select 
+            id="attempt-select" 
+            className="mb-4 p-2 border rounded" 
+            onChange={handleAttemptChange}
+            value={selectedAttempt ? selectedAttempt.attempt : ''}
+          >
             {labSubmissions.map((submission) => (
-              <option key={submission._id} value={submission.attempt}>Attempt {submission.attempt}</option>
+              <option key={submission._id} value={submission.attempt}>
+                Attempt {submission.attempt}
+              </option>
             ))}
           </select>
           {selectedAttempt && (
@@ -100,7 +109,7 @@ const LabDetails = () => {
               <p className="mb-4">{selectedAttempt.pros}</p>
               <h3 className="text-lg font-bold mb-4">Recommendations:</h3>
               <p className="mb-4">{selectedAttempt.recommendations}</p>
-              {renderMediaElement(selectedAttempt)}
+              {renderMediaElement()}
             </>
           )}
         </div>
