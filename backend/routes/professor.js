@@ -166,9 +166,9 @@ router.get('/student/:userId/labs', professorAuth, async (req, res) => {
 });
 
 // Get details of a specific lab for a specific student
-router.get('/student/:studentId/lab/:labNumber', professorAuth, async (req, res) => {
+router.get('/student/:userId/lab/:labNumber', professorAuth, async (req, res) => {
   try {
-    const student = await User.findOne({ studentId: req.params.studentId });
+    const student = await User.findOne({ _id: req.params.userId });
     if (!student) {
       return res.status(404).json({ message: 'Student not found' });
     }
