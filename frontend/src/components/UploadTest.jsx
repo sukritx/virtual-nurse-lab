@@ -5,7 +5,8 @@ import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import { useAuth } from '../context/AuthContext';
 
-const MAX_RECORDING_TIME = 180; // 3 minutes in seconds, now used only for the timer display
+const MAX_RECORDING_TIME = 180; // 3 minutes in seconds
+const CHUNK_SIZE = 1024 * 1024; // 1MB chunks
 
 const Lab1Recording = () => {
     const [recordingState, setRecordingState] = useState('initial');
@@ -18,6 +19,7 @@ const Lab1Recording = () => {
     const [recommendations, setRecommendations] = useState('');
     const [error, setError] = useState('');
     const { token } = useAuth();
+    const [uploadProgress, setUploadProgress] = useState(0);
 
     const mediaRecorderRef = useRef(null);
     const liveVideoRef = useRef(null);
@@ -26,8 +28,8 @@ const Lab1Recording = () => {
     const timerRef = useRef(null);
 
     const videoConstraints = {
-        width: 640,
-        height: 480,
+        width: { ideal: 640 },
+        height: { ideal: 480 },
         facingMode: "user"
     };
 
@@ -46,7 +48,10 @@ const Lab1Recording = () => {
     }, []);
 
     const startRecording = useCallback(() => {
-        const mediaRecorder = new MediaRecorder(streamRef.current, {mimeType: 'video/webm'});
+        const mediaRecorder = new MediaRecorder(streamRef.current, {
+            mimeType: 'video/webm;codecs=vp8,opus',
+            videoBitsPerSecond: 600000 // Lowered to 600 Kbps
+        });
         mediaRecorderRef.current = mediaRecorder;
         
         const chunks = [];
@@ -57,7 +62,7 @@ const Lab1Recording = () => {
             recordedVideoRef.current.src = URL.createObjectURL(blob);
         };
         
-        mediaRecorder.start();
+        mediaRecorder.start(1000); // Capture in 1-second intervals
         setRecordingState('recording');
         setTimeElapsed(0);
         
@@ -85,16 +90,38 @@ const Lab1Recording = () => {
 
         setLoading(true);
         setError('');
+        setUploadProgress(0);
 
         try {
-            const formData = new FormData();
-            formData.append('video', recordedBlob, 'recorded_video.webm');
+            const totalChunks = Math.ceil(recordedBlob.size / CHUNK_SIZE);
+            const fileName = `lab1_recording_${Date.now()}.webm`;
 
-            const response = await axios.post('/api/v1/lab-deployed/upload-1', formData, {
-                headers: { 
-                    'Content-Type': 'multipart/form-data',
-                    'Authorization': `Bearer ${token}`
-                }
+            for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
+                const start = chunkIndex * CHUNK_SIZE;
+                const end = Math.min(start + CHUNK_SIZE, recordedBlob.size);
+                const chunk = recordedBlob.slice(start, end);
+
+                const formData = new FormData();
+                formData.append('chunk', chunk);
+                formData.append('fileName', fileName);
+                formData.append('chunkIndex', chunkIndex);
+                formData.append('totalChunks', totalChunks);
+
+                await axios.post('/api/v1/lab-deployed/upload-chunk', formData, {
+                    headers: { 
+                        'Content-Type': 'multipart/form-data',
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                setUploadProgress(((chunkIndex + 1) / totalChunks) * 100);
+            }
+
+            const response = await axios.post('/api/v1/lab-deployed/upload-test', {
+                fileName,
+                totalChunks
+            }, {
+                headers: { 'Authorization': `Bearer ${token}` }
             });
 
             setPassFailStatus(response.data.passFailStatus);
@@ -180,7 +207,7 @@ const Lab1Recording = () => {
                 
                 <div className="mb-6">
                     <label className="block mb-2 text-sm font-medium text-gray-700">
-                        Record your response (720p)
+                        Record your response (480p)
                     </label>
                     <div className="mt-1 flex flex-col items-center justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
                         {recordingState !== 'recorded' && (
@@ -264,7 +291,10 @@ const Lab1Recording = () => {
                 </div>
                 
                 {loading && (
-                    <div className="mt-4 text-gray-600 text-center">รอประมวลผลประมาณ 1-2 นาที...</div>
+                    <div className="mt-4 text-gray-600 text-center">
+                        <p>Upload Progress: {uploadProgress.toFixed(2)}%</p>
+                        <p>รอประมวลผลประมาณ 1-2 นาที...</p>
+                    </div>
                 )}
                 {error && (
                     <div className="mt-4 p-2 bg-gray-100 text-gray-700">
