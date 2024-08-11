@@ -77,7 +77,7 @@ function App() {
             <Route element={<MainLayout />}>
               <Route path="/professor/dashboard" element={<ProfessorDashboard />} />
               <Route path="/professor/view-labs/:userId" element={<StudentLabs />} />
-              <Route path="/professor/view-lab/:studentId/:labNumber" element={<LabDetails />} />
+              <Route path="/professor/view-lab/:userId/:labNumber" element={<LabDetails />} />
             </Route>
           </Route>
 
