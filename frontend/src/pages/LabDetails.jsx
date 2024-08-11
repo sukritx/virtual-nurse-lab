@@ -10,15 +10,15 @@ const LabDetails = () => {
   const [labSubmissions, setLabSubmissions] = useState([]);
   const [selectedAttempt, setSelectedAttempt] = useState(null);
   const { token } = useAuth();
-  const { studentId, labNumber } = useParams();
+  const { userId, labNumber } = useParams();
 
   useEffect(() => {
     fetchLabDetails();
-  }, [token, studentId, labNumber]);
+  }, [token, userId, labNumber]);
 
   const fetchLabDetails = async () => {
     try {
-      const response = await axios.get(`/api/v1/professor/student/${studentId}/lab/${labNumber}`, {
+      const response = await axios.get(`/api/v1/professor/student/${userId}/lab/${labNumber}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
