@@ -92,7 +92,7 @@ export const ProfessorDashboard = () => {
                     </div>
                   </td>
                   <td className="py-3 px-6 text-center">
-                    <Button onClick={() => navigate(`/professor/view-labs/${student.studentId}`)} label={"View Labs"} />
+                    <Button onClick={() => navigate(`/professor/view-labs/${student._id}`)} label={"View Labs"} />
                   </td>
                 </tr>
               ))}

@@ -8,16 +8,16 @@ const StudentLabs = () => {
   const [labs, setLabs] = useState([]);
   const [student, setStudent] = useState(null);
   const { token } = useAuth();
-  const { studentId } = useParams();
+  const { userId } = useParams();
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchStudentLabs();
-  }, [token, studentId]);
+  }, [token, userId]);
 
   const fetchStudentLabs = async () => {
     try {
-      const response = await axios.get(`/api/v1/professor/student/${studentId}/labs`, {
+      const response = await axios.get(`/api/v1/professor/student/${userId}/labs`, {
         headers: {
           Authorization: `Bearer ${token}`
         }

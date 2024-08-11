@@ -70,18 +70,36 @@ router.get('/labs', professorAuth, async (req, res) => {
     const studentLabStatuses = [];
 
     for (const student of students) {
-      const studentLabs = await LabSubmission.find({ studentId: student._id }).populate('labInfo').exec();
+      const studentLabs = await LabSubmission.aggregate([
+        { $match: { studentId: student._id } },
+        { $sort: { timestamp: -1 } },
+        {
+          $group: {
+            _id: "$labInfo",
+            latestSubmission: { $first: "$$ROOT" }
+          }
+        },
+        {
+          $lookup: {
+            from: "labinfos",
+            localField: "_id",
+            foreignField: "_id",
+            as: "labInfo"
+          }
+        },
+        { $unwind: "$labInfo" }
+      ]);
 
       const labsStatus = allLabs.map(lab => {
-        const studentLab = studentLabs.find(sl => sl.labInfo._id.equals(lab._id));
+        const studentLab = studentLabs.find(sl => sl._id.equals(lab._id));
         if (studentLab) {
-          if (studentLab.isPass) {
+          if (studentLab.latestSubmission.isPass) {
             labStats.find(stat => stat.labNumber === lab.labNumber).completed++;
           }
           return {
             labNumber: lab.labNumber,
-            isPass: studentLab.isPass,
-            attempt: studentLab.attempt
+            isPass: studentLab.latestSubmission.isPass,
+            attempt: studentLab.latestSubmission.attempt
           };
         } else {
           return {
@@ -108,9 +126,9 @@ router.get('/labs', professorAuth, async (req, res) => {
 });
 
 // Get all labs for a specific student
-router.get('/student/:studentId/labs', professorAuth, async (req, res) => {
+router.get('/student/:userId/labs', professorAuth, async (req, res) => {
   try {
-    const student = await User.findOne({ studentId: req.params.studentId });
+    const student = await User.findOne({ _id: req.params.userId });
     if (!student) {
       return res.status(404).json({ message: 'Student not found' });
     }
@@ -118,13 +136,16 @@ router.get('/student/:studentId/labs', professorAuth, async (req, res) => {
     const university = student.university ? await University.findOne({ universityName: student.university }) : null;
 
     const labInfos = await LabInfo.find().select('labNumber');
-    const labSubmissions = await LabSubmission.find({ studentId: student._id }).select('labInfo isPass');
+    const labSubmissions = await LabSubmission.find({ studentId: student._id })
+      .sort({ timestamp: -1 }) // Sort by timestamp in descending order
+      .select('labInfo isPass timestamp');
 
     const labs = labInfos.map(labInfo => {
-      const submission = labSubmissions.find(sub => sub.labInfo.equals(labInfo._id));
+      const submissions = labSubmissions.filter(sub => sub.labInfo.equals(labInfo._id));
+      const latestSubmission = submissions[0]; // Get the latest submission
       return {
         labNumber: labInfo.labNumber,
-        isPass: submission ? submission.isPass : null
+        isPass: latestSubmission ? latestSubmission.isPass : null
       };
     });
 
