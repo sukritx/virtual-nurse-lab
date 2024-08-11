@@ -1,6 +1,6 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import axios from 'axios';
-import { FaVideo, FaStop, FaRedo, FaCheck } from 'react-icons/fa';
+import { FaVideo, FaStop, FaRedo, FaCheck, FaUpload } from 'react-icons/fa';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import { useAuth } from '../context/AuthContext';
@@ -18,6 +18,7 @@ const Lab1Recording = () => {
     const [pros, setPros] = useState('');
     const [recommendations, setRecommendations] = useState('');
     const [error, setError] = useState('');
+    const [isMediaRecorderSupported, setIsMediaRecorderSupported] = useState(true);
     const { token } = useAuth();
     const [uploadProgress, setUploadProgress] = useState(0);
 
@@ -26,11 +27,30 @@ const Lab1Recording = () => {
     const recordedVideoRef = useRef(null);
     const streamRef = useRef(null);
     const timerRef = useRef(null);
+    const fileInputRef = useRef(null);
+
+    useEffect(() => {
+        setIsMediaRecorderSupported(typeof MediaRecorder !== 'undefined');
+    }, []);
 
     const videoConstraints = {
-        width: { ideal: 640 },
-        height: { ideal: 480 },
+        width: { ideal: 640, max: 1280 },
+        height: { ideal: 480, max: 720 },
         facingMode: "user"
+    };
+
+    const getMimeType = () => {
+        const types = [
+            'video/webm;codecs=vp8,opus',
+            'video/webm',
+            'video/mp4',
+        ];
+        for (let type of types) {
+            if (MediaRecorder.isTypeSupported(type)) {
+                return type;
+            }
+        }
+        return '';
     };
 
     const startCamera = useCallback(async () => {
@@ -40,26 +60,37 @@ const Lab1Recording = () => {
                 audio: true
             });
             streamRef.current = stream;
-            liveVideoRef.current.srcObject = stream;
+            if (liveVideoRef.current) {
+                liveVideoRef.current.srcObject = stream;
+            }
             setRecordingState('ready');
         } catch (err) {
             setError('Error accessing camera: ' + err.message);
+            setIsMediaRecorderSupported(false);
         }
     }, []);
 
     const startRecording = useCallback(() => {
+        const mimeType = getMimeType();
+        if (!mimeType) {
+            setError('No supported MIME type found for this browser');
+            return;
+        }
+
         const mediaRecorder = new MediaRecorder(streamRef.current, {
-            mimeType: 'video/webm;codecs=vp8,opus',
-            videoBitsPerSecond: 600000 // Lowered to 600 Kbps
+            mimeType,
+            videoBitsPerSecond: 600000 // 600 Kbps
         });
         mediaRecorderRef.current = mediaRecorder;
         
         const chunks = [];
         mediaRecorder.ondataavailable = (event) => chunks.push(event.data);
         mediaRecorder.onstop = () => {
-            const blob = new Blob(chunks, { type: 'video/webm' });
+            const blob = new Blob(chunks, { type: mimeType });
             setRecordedBlob(blob);
-            recordedVideoRef.current.src = URL.createObjectURL(blob);
+            if (recordedVideoRef.current) {
+                recordedVideoRef.current.src = URL.createObjectURL(blob);
+            }
         };
         
         mediaRecorder.start(1000); // Capture in 1-second intervals
@@ -67,7 +98,13 @@ const Lab1Recording = () => {
         setTimeElapsed(0);
         
         timerRef.current = setInterval(() => {
-            setTimeElapsed((prevTime) => prevTime + 1);
+            setTimeElapsed((prevTime) => {
+                if (prevTime >= MAX_RECORDING_TIME) {
+                    stopRecording();
+                    return MAX_RECORDING_TIME;
+                }
+                return prevTime + 1;
+            });
         }, 1000);
     }, []);
 
@@ -85,6 +122,17 @@ const Lab1Recording = () => {
         setRecordingState('ready');
     }, []);
 
+    const handleFileUpload = (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            setRecordedBlob(file);
+            setRecordingState('recorded');
+            if (recordedVideoRef.current) {
+                recordedVideoRef.current.src = URL.createObjectURL(file);
+            }
+        }
+    };
+
     const onSubmit = useCallback(async () => {
         if (!recordedBlob) return;
 
@@ -94,7 +142,7 @@ const Lab1Recording = () => {
 
         try {
             const totalChunks = Math.ceil(recordedBlob.size / CHUNK_SIZE);
-            const fileName = `lab1_recording_${Date.now()}.webm`;
+            const fileName = `lab1_recording_${Date.now()}.${recordedBlob.type.split('/')[1]}`;
 
             for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
                 const start = chunkIndex * CHUNK_SIZE;
@@ -207,15 +255,16 @@ const Lab1Recording = () => {
                 
                 <div className="mb-6">
                     <label className="block mb-2 text-sm font-medium text-gray-700">
-                        Record your response (480p)
+                        {isMediaRecorderSupported ? "Record your response (480p)" : "Upload your response"}
                     </label>
                     <div className="mt-1 flex flex-col items-center justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
-                        {recordingState !== 'recorded' && (
+                        {recordingState !== 'recorded' && isMediaRecorderSupported && (
                             <video 
                                 ref={liveVideoRef} 
                                 className="w-full mb-4" 
                                 autoPlay 
                                 muted 
+                                playsInline
                                 style={{transform: 'scaleX(-1)'}}
                             />
                         )}
@@ -224,34 +273,47 @@ const Lab1Recording = () => {
                                 ref={recordedVideoRef} 
                                 className="w-full mb-4" 
                                 controls
+                                playsInline
                             />
                         )}
                         <div className="flex space-x-2 mb-4">
-                            {recordingState === 'initial' && (
+                            {isMediaRecorderSupported ? (
+                                <>
+                                    {recordingState === 'initial' && (
+                                        <button
+                                            onClick={startCamera}
+                                            className="bg-blue-500 text-white px-4 py-2 rounded-full flex items-center"
+                                        >
+                                            <FaVideo className="mr-2" />
+                                            Ready
+                                        </button>
+                                    )}
+                                    {recordingState === 'ready' && (
+                                        <button
+                                            onClick={startRecording}
+                                            className="bg-red-500 text-white px-4 py-2 rounded-full flex items-center"
+                                        >
+                                            <FaVideo className="mr-2" />
+                                            Start Recording
+                                        </button>
+                                    )}
+                                    {recordingState === 'recording' && (
+                                        <button
+                                            onClick={stopRecording}
+                                            className="bg-gray-500 text-white px-4 py-2 rounded-full flex items-center"
+                                        >
+                                            <FaStop className="mr-2" />
+                                            Stop Recording
+                                        </button>
+                                    )}
+                                </>
+                            ) : (
                                 <button
-                                    onClick={startCamera}
+                                    onClick={() => fileInputRef.current.click()}
                                     className="bg-blue-500 text-white px-4 py-2 rounded-full flex items-center"
                                 >
-                                    <FaVideo className="mr-2" />
-                                    Ready
-                                </button>
-                            )}
-                            {recordingState === 'ready' && (
-                                <button
-                                    onClick={startRecording}
-                                    className="bg-red-500 text-white px-4 py-2 rounded-full flex items-center"
-                                >
-                                    <FaVideo className="mr-2" />
-                                    Start Recording
-                                </button>
-                            )}
-                            {recordingState === 'recording' && (
-                                <button
-                                    onClick={stopRecording}
-                                    className="bg-gray-500 text-white px-4 py-2 rounded-full flex items-center"
-                                >
-                                    <FaStop className="mr-2" />
-                                    Stop Recording
+                                    <FaUpload className="mr-2" />
+                                    Upload Video
                                 </button>
                             )}
                             {recordingState === 'recorded' && (
@@ -273,6 +335,13 @@ const Lab1Recording = () => {
                                 </>
                             )}
                         </div>
+                        <input 
+                            type="file" 
+                            ref={fileInputRef} 
+                            onChange={handleFileUpload} 
+                            accept="video/*" 
+                            className="hidden" 
+                        />
                         {(recordingState === 'ready' || recordingState === 'recording') && (
                             <div className="mt-2 w-16 h-16">
                                 <CircularProgressbar
