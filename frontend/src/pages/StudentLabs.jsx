@@ -65,7 +65,7 @@ const StudentLabs = () => {
               </div>
               {lab.isPass !== null && (
                 <button
-                  onClick={() => navigate(`/professor/view-lab/${studentId}/${lab.labNumber}`)}
+                  onClick={() => navigate(`/professor/view-lab/${userId}/${lab.labNumber}`)}
                   className="py-2 px-4 bg-purple-600 text-white rounded hover:bg-purple-700 transition duration-200"
                 >
                   View Details
