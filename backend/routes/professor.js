@@ -50,7 +50,7 @@ router.get('/students', professorAuth, async (req, res) => {
 router.get('/labs', professorAuth, async (req, res) => {
   try {
     const university = await University.findOne({ professor: { $in: [req.userId] } })
-      .populate('students', 'firstName lastName studentId')
+      .populate('students', '_id firstName lastName studentId')
       .select('students');
 
     if (!university) {
@@ -111,6 +111,7 @@ router.get('/labs', professorAuth, async (req, res) => {
       });
 
       studentLabStatuses.push({
+        _id: student._id,
         studentId: student.studentId,
         firstName: student.firstName,
         lastName: student.lastName,
