@@ -3,7 +3,7 @@ import axios from 'axios';
 import { FaVideo, FaStop, FaRedo, FaCheck, FaUpload } from 'react-icons/fa';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 
 const MAX_RECORDING_TIME = 180; // 3 minutes in seconds
 const CHUNK_SIZE = 1024 * 1024; // 1MB chunks
