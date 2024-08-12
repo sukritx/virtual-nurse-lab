@@ -1,7 +1,7 @@
 import { useAuth } from '../context/AuthContext';
 import { useState } from 'react';
 import { FaBars, FaTimes } from 'react-icons/fa';
-import logo from '../assets/virtual-nurse-lab-logo.png';
+import logo from '../assets/virtual-nurse-lab-logo-2.png';
 
 export const NavigationMenu = () => {
   const { token, user, logout } = useAuth();
@@ -17,7 +17,7 @@ export const NavigationMenu = () => {
         <div className="flex justify-between items-center py-4">
           <div className="flex items-center space-x-4">
             <a href="/" className="flex items-center">
-              <img src={logo} alt="Virtual Nurse Lab Logo" className="h-10" />
+              <img src={logo} alt="Virtual Nurse Lab Logo" className="h-12" />
             </a>
             <div className="hidden md:flex items-center space-x-4">
               {/*<a href="/library" className="py-5 px-3 text-gray-700 hover:text-gray-900">Library</a>*/}
