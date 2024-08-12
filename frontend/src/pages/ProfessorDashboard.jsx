@@ -5,12 +5,15 @@ import CircularProgressBar from '../components/CircularProgressBar';
 import { SearchBar } from '../components/SearchBar';
 import { Button } from '../components/Button';
 import { useNavigate } from 'react-router-dom';
+import { Toast } from '../components/Toast';
 
 export const ProfessorDashboard = () => {
   const [university, setUniversity] = useState(null);
   const [labStats, setLabStats] = useState([]);
   const [studentLabStatuses, setStudentLabStatuses] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
   const { token } = useAuth();
   const navigate = useNavigate();
 
@@ -39,6 +42,32 @@ export const ProfessorDashboard = () => {
     }
   };
 
+  const downloadScores = async () => {
+    setIsDownloading(true);
+    try {
+      const response = await axios.get('/api/v1/professor/download-scores', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        },
+        responseType: 'blob'
+      });
+      
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'student_scores.csv');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setToastMessage('Scores downloaded successfully!');
+    } catch (error) {
+      console.error('Error downloading scores:', error);
+      setToastMessage('Error downloading scores. Please try again.');
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
   const filteredStudents = studentLabStatuses.filter(student =>
     student.studentId.includes(searchQuery) || 
     `${student.firstName} ${student.lastName}`.toLowerCase().includes(searchQuery.toLowerCase())
@@ -54,6 +83,15 @@ export const ProfessorDashboard = () => {
       </header>
       <main className="w-full max-w-7xl px-4 text-center">
         <h1 className="text-4xl font-bold mb-8">Professor Dashboard</h1>
+        <div className="flex flex-wrap justify-between items-center mb-8">
+          <div className="text-lg">Statistics</div>
+          <div className="text-lg">Registered students: {university.students.length}/{university.numberOfStudents}</div>
+          <Button 
+            onClick={downloadScores} 
+            label={isDownloading ? "Downloading..." : "Download Scores"} 
+            disabled={isDownloading}
+          />
+        </div>
         <div className="flex flex-wrap justify-between items-center mb-8">
           <div className="text-lg">Statistics</div>
           <div className="text-lg">Registered students: {university.students.length}/{university.numberOfStudents}</div>
@@ -100,6 +138,7 @@ export const ProfessorDashboard = () => {
           </table>
         </div>
       </main>
+      {toastMessage && <Toast message={toastMessage} onClose={() => setToastMessage('')} />}
     </div>
   );
 };

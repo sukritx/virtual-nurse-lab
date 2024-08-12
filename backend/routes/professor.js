@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { User, University, LabSubmission, LabInfo } = require('../db');
 const { professorAuth } = require('../middleware');
+const { createObjectCsvStringifier } = require('csv-writer');
 
 router.get('/university', professorAuth, async (req, res) => {
   try {
@@ -190,6 +191,66 @@ router.get('/student/:userId/lab/:labNumber', professorAuth, async (req, res) =>
   } catch (error) {
     console.error('Error fetching lab details:', error);
     res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+router.get('/download-scores', professorAuth, async (req, res) => {
+  try {
+    // Get the professor's university
+    const professor = await User.findById(req.userId);
+    if (!professor || !professor.isProfessor) {
+      return res.status(403).json({ message: 'Not authorized' });
+    }
+
+    const university = await University.findOne({ professor: professor._id });
+    if (!university) {
+      return res.status(404).json({ message: 'University not found' });
+    }
+
+    // Fetch all students from the professor's university
+    const students = await User.find({ 
+      _id: { $in: university.students },
+      isProfessor: false, 
+      isAdmin: false 
+    });
+
+    // Fetch all lab infos
+    const labInfos = await LabInfo.find().sort('labNumber');
+
+    // Prepare data for CSV
+    const data = await Promise.all(students.map(async (student) => {
+      const scores = await Promise.all(labInfos.map(async (labInfo) => {
+        const submission = await LabSubmission.findOne({
+          studentId: student._id,
+          labInfo: labInfo._id
+        }).sort('-attempt');
+        return submission ? submission.studentScore : 'N/A';
+      }));
+
+      return {
+        StudentID: student.studentId,
+        FullName: `${student.firstName} ${student.lastName}`,
+        ...Object.fromEntries(scores.map((score, index) => [`Score_${(index + 1).toString().padStart(2, '0')}`, score]))
+      };
+    }));
+
+    // Create CSV
+    const csvStringifier = createObjectCsvStringifier({
+      header: [
+        { id: 'StudentID', title: 'Student ID' },
+        { id: 'FullName', title: 'Full Name' },
+        ...labInfos.map((_, index) => ({ id: `Score_${(index + 1).toString().padStart(2, '0')}`, title: `Score_${(index + 1).toString().padStart(2, '0')}` }))
+      ]
+    });
+
+    const csvString = csvStringifier.getHeaderString() + csvStringifier.stringifyRecords(data);
+
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', 'attachment; filename=student_scores.csv');
+    res.send(csvString);
+  } catch (error) {
+    console.error('Error generating CSV:', error);
+    res.status(500).json({ message: 'Error generating CSV' });
   }
 });
 
