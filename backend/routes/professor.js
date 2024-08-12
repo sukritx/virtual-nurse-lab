@@ -224,7 +224,7 @@ router.get('/download-scores', professorAuth, async (req, res) => {
           studentId: student._id,
           labInfo: labInfo._id
         }).sort('-attempt');
-        return submission ? submission.studentScore : 'N/A';
+        return submission ? submission.studentScore : '0';
       }));
 
       return {

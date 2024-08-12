@@ -86,15 +86,13 @@ export const ProfessorDashboard = () => {
         <div className="flex flex-wrap justify-between items-center mb-8">
           <div className="text-lg">Statistics</div>
           <div className="text-lg">Registered students: {university.students.length}/{university.numberOfStudents}</div>
+        </div>
+        <div className="flex flex-wrap justify-between items-center mb-8">
           <Button 
             onClick={downloadScores} 
             label={isDownloading ? "Downloading..." : "Download Scores"} 
             disabled={isDownloading}
           />
-        </div>
-        <div className="flex flex-wrap justify-between items-center mb-8">
-          <div className="text-lg">Statistics</div>
-          <div className="text-lg">Registered students: {university.students.length}/{university.numberOfStudents}</div>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-8">
           {labStats.map(stat => (
