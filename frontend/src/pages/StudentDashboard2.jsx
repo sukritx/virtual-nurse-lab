@@ -20,15 +20,15 @@ export const StudentDashboard = () => {
           Authorization: `Bearer ${token}`,
         }
       });
-      const allLabs = response.data.labs;
-      const filteredLabs = allLabs.filter(lab => lab.labInfo.labNumber === 1 || lab.labInfo.labNumber === 4);
-      setLabs(filteredLabs.sort((a, b) => a.labInfo.labNumber - b.labInfo.labNumber));
+      setLabs(response.data.labs.sort((a, b) => a.labInfo.labNumber - b.labInfo.labNumber));
     } catch (error) {
       console.error('Error fetching labs:', error);
     }
   };
 
-  const completedPercentage = Math.floor((labs.filter(lab => lab.isPass !== null && lab.isPass).length / labs.length) * 100);
+  const isLabAvailable = (labNumber) => [1, 4].includes(labNumber);
+
+  const completedPercentage = Math.floor((labs.filter(lab => lab.isPass !== null && lab.isPass && isLabAvailable(lab.labInfo.labNumber)).length / labs.filter(lab => isLabAvailable(lab.labInfo.labNumber)).length) * 100);
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -37,31 +37,65 @@ export const StudentDashboard = () => {
         <div className="flex flex-col items-center mb-6">
           <CircularProgressBar percentage={completedPercentage} label={`${completedPercentage}%`} />
         </div>
-        <div className="grid grid-cols-2 gap-4">
-          {labs.map((lab) => (
-            <div key={lab.labInfo._id} className={`bg-white p-4 rounded-lg shadow-md flex flex-col items-center justify-between ${lab.isPass === null ? 'bg-gray-300' : lab.isPass ? 'bg-green-300' : 'bg-red-300'}`}>
-              <h2 className="text-xl font-semibold">Lab {lab.labInfo.labNumber}</h2>
-              <p className="text-sm text-gray-600">{lab.labInfo.labName}</p>
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center`}>
-                {lab.isPass === null ? ' ' : lab.isPass ? '✓' : '✗'}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {labs.map((lab) => {
+            const isAvailable = isLabAvailable(lab.labInfo.labNumber);
+            return (
+              <div key={lab.labInfo._id} className={`relative bg-white p-4 rounded-lg shadow-md flex flex-col items-center justify-between ${
+                isAvailable
+                  ? lab.isPass === null
+                    ? 'bg-gray-100'
+                    : lab.isPass
+                    ? 'bg-green-100'
+                    : 'bg-red-100'
+                  : 'bg-gray-300 opacity-50'
+              }`}>
+                {isAvailable && (
+                  <span className="absolute top-2 right-2 bg-blue-500 text-white text-xs font-bold px-2 py-1 rounded">
+                    Demo
+                  </span>
+                )}
+                <h2 className="text-xl font-semibold">Lab {lab.labInfo.labNumber}</h2>
+                <p className="text-sm text-gray-600">{lab.labInfo.labName}</p>
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center`}>
+                  {isAvailable
+                    ? lab.isPass === null
+                      ? ' '
+                      : lab.isPass
+                      ? '✓'
+                      : '✗'
+                    : '-'}
+                </div>
+                <p className="mt-4">
+                  {isAvailable
+                    ? lab.isPass === null
+                      ? 'Not attempted'
+                      : lab.isPass
+                      ? 'Passed'
+                      : 'Try again'
+                    : 'Unavailable'}
+                </p>
+                {isAvailable && (
+                  <>
+                    <button
+                      onClick={() => navigate(`/student/upload${lab.labInfo.labNumber}`)}
+                      className="mt-4 bg-purple-600 text-white py-2 px-4 rounded hover:bg-purple-700 transition duration-200"
+                    >
+                      View
+                    </button>
+                    {lab.isPass !== null && (
+                      <button
+                        onClick={() => navigate(`/student/lab/${lab.labInfo.labNumber}/history`)}
+                        className="mt-4 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition duration-200"
+                      >
+                        View Lab History
+                      </button>
+                    )}
+                  </>
+                )}
               </div>
-              <p className="mt-4">{lab.isPass === null ? 'Not attempted' : lab.isPass ? 'Passed' : 'Try again'}</p>
-              <button
-                onClick={() => navigate(`/student/upload${lab.labInfo.labNumber}`)}
-                className="mt-4 bg-purple-600 text-white py-2 px-4 rounded hover:bg-purple-700 transition duration-200"
-              >
-                View
-              </button>
-              {lab.isPass !== null && (
-                <button
-                  onClick={() => navigate(`/student/lab/${lab.labInfo.labNumber}/history`)}
-                  className="mt-4 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition duration-200"
-                >
-                  View Lab History
-                </button>
-              )}
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>
