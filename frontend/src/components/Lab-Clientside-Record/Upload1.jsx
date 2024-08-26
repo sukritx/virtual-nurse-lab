@@ -1,9 +1,10 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import axios from 'axios';
-import { FaVideo, FaStop, FaRedo, FaCheck, FaUpload } from 'react-icons/fa';
+import { FaVideo, FaStop, FaRedo, FaCheck, FaUpload, FaLanguage } from 'react-icons/fa';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import { useAuth } from '../../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const MAX_RECORDING_TIME = 180; // 3 minutes in seconds
 const CHUNK_SIZE = 1024 * 1024; // 1MB chunks
@@ -23,6 +24,8 @@ const Lab1Recording = () => {
     const { token } = useAuth();
     const [uploadProgress, setUploadProgress] = useState(0);
     const [attemptsLeft, setAttemptsLeft] = useState(MAX_ATTEMPTS);
+    const [language, setLanguage] = useState('th'); // Default to Thai
+    const navigate = useNavigate();
 
     const mediaRecorderRef = useRef(null);
     const liveVideoRef = useRef(null);
@@ -30,6 +33,19 @@ const Lab1Recording = () => {
     const streamRef = useRef(null);
     const timerRef = useRef(null);
     const fileInputRef = useRef(null);
+
+    const handleLanguageChange = (event) => {
+        const newLanguage = event.target.value;
+        setLanguage(newLanguage);
+        
+        // Redirect based on the selected language
+        if (newLanguage === 'zh') {
+            navigate('/student/upload1cn');
+        } else if (newLanguage === 'en') {
+            navigate('/student/upload1en');
+        }
+        // For Thai, we stay on the current page
+    };
 
     useEffect(() => {
         setIsMediaRecorderSupported(typeof MediaRecorder !== 'undefined');
@@ -253,6 +269,21 @@ const Lab1Recording = () => {
                             attemptsLeft === 1 ? 'Last attempt' : 
                             `${attemptsLeft} attempts left`}
                         </span>
+                    </div>
+                </div>
+
+                <div className="mb-6 flex justify-end">
+                    <div className="flex items-center">
+                        <FaLanguage className="mr-2 text-gray-600" />
+                        <select
+                            value={language}
+                            onChange={handleLanguageChange}
+                            className="bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                            <option value="th">ภาษาไทย</option>
+                            <option value="zh">中文</option>
+                            <option value="en">English</option>
+                        </select>
                     </div>
                 </div>
     

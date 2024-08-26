@@ -7,6 +7,7 @@ import { useAuth } from '../../context/AuthContext';
 
 const MAX_RECORDING_TIME = 180; // 3 minutes in seconds
 const CHUNK_SIZE = 1024 * 1024; // 1MB chunks
+const MAX_ATTEMPTS = 3;
 
 const Lab1Recording = () => {
     const [recordingState, setRecordingState] = useState('initial');
@@ -21,6 +22,7 @@ const Lab1Recording = () => {
     const [isMediaRecorderSupported, setIsMediaRecorderSupported] = useState(true);
     const { token } = useAuth();
     const [uploadProgress, setUploadProgress] = useState(0);
+    const [attemptsLeft, setAttemptsLeft] = useState(MAX_ATTEMPTS);
 
     const mediaRecorderRef = useRef(null);
     const liveVideoRef = useRef(null);
@@ -32,6 +34,24 @@ const Lab1Recording = () => {
     useEffect(() => {
         setIsMediaRecorderSupported(typeof MediaRecorder !== 'undefined');
     }, []);
+
+    useEffect(() => {
+        const fetchLabInfo = async () => {
+            try {
+                const response = await axios.get('/api/v1/student/labs', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const lab1 = response.data.labs.find(lab => lab.labInfo.labNumber === 1);
+                if (lab1) {
+                    setAttemptsLeft(lab1.attemptsLeft);
+                }
+            } catch (error) {
+                console.error('Error fetching lab info:', error);
+            }
+        };
+
+        fetchLabInfo();
+    }, [token]);
 
     const videoConstraints = {
         width: { ideal: 640, max: 1280 },
@@ -134,7 +154,7 @@ const Lab1Recording = () => {
     };
 
     const onSubmit = useCallback(async () => {
-        if (!recordedBlob) return;
+        if (!recordedBlob || attemptsLeft === 0) return;
 
         setLoading(true);
         setError('');
@@ -176,6 +196,8 @@ const Lab1Recording = () => {
             setScore(response.data.score);
             setPros(response.data.pros);
             setRecommendations(response.data.recommendations);
+            // After successful submission
+            setAttemptsLeft(prevAttempts => Math.max(0, prevAttempts - 1));
         } catch (error) {
             if (error.response) {
                 setError(`Error uploading video: ${error.response.data.msg || error.response.statusText}`);
@@ -187,7 +209,7 @@ const Lab1Recording = () => {
         } finally {
             setLoading(false);
         }
-    }, [recordedBlob, token]);
+    }, [recordedBlob, token, attemptsLeft]);
 
     useEffect(() => {
         return () => {
@@ -214,18 +236,35 @@ const Lab1Recording = () => {
                         <span>Back to Dashboard</span>
                     </a>
                 </div>
-
+    
+                <div className="mb-6">
+                    <div className={`
+                        px-4 py-2 rounded-full inline-flex items-center
+                        ${attemptsLeft > 1 ? 'bg-green-100 text-green-800' : 
+                        attemptsLeft === 1 ? 'bg-yellow-100 text-yellow-800' : 
+                        'bg-red-100 text-red-800'}
+                        transition-colors duration-300
+                    `}>
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+                        </svg>
+                        <span className="font-semibold">
+                            {attemptsLeft === 0 ? 'No attempts left' : 
+                            attemptsLeft === 1 ? 'Last attempt' : 
+                            `${attemptsLeft} attempts left`}
+                        </span>
+                    </div>
+                </div>
+    
                 <h1 className="text-2xl font-bold mb-2 text-center text-gray-800">Lab 1: การเลี้ยงลูกด้วยนมแม่</h1>
                 <h2 className="text-lg mb-6 text-center text-gray-600">มารดาเจ็บหัวนมด้านขวา</h2>
-
+    
                 <div className="mb-6 p-4 bg-gray-100 rounded-lg text-sm text-gray-700">
                     <p>
-                        มารดาอายุ 17 ปี หลังคลอดบุตรคนแรกเพศชายได้ 1 วัน บุตรสุขภาพแข็งแรงดี บุตรหนัก 2,800 กรัม 
-                        มารดายังอุ้มบุตรดูดนมเองไม่ได้ น้ำนมเริ่มไหล มีอาการเจ็บหัวนมขณะที่บุตรดูดนม เจ็บข้างขวามากกว่าข้างซ้าย 
-                        ประเมิน LATCH score = 5 (latch on=1, audible=1, type of nipple=2, comfort=1, holding= 0)
+                    A 17-year-old primiparous mother, one day postpartum, has given birth to a healthy male infant weighing 2800 grams. The mother reports difficulty in independently positioning the infant for breastfeeding. Lactation has commenced; however, she experiences nipple pain during breastfeeding, with more intense discomfort on the right side compared to the left. The LATCH score is 5 (latch on = 1, audible = 1, type of nipple = 2, comfort = 1, holding = 0).
                     </p>
                 </div>
-
+    
                 <div className="mb-6 rounded-3xl overflow-hidden border-4 border-purple-900 shadow-lg">
                     <video 
                         controls 
@@ -235,13 +274,13 @@ const Lab1Recording = () => {
                         Your browser does not support the video tag.
                     </video>
                 </div>
-
+    
                 <div className="flex justify-center mb-4">
                     <a 
                         href="/library/1" 
                         className="inline-flex items-center justify-center space-x-2 bg-gradient-to-r from-blue-700 to-blue-900 text-white text-lg font-semibold px-8 py-3 rounded-full hover:from-blue-800 hover:to-blue-950 transition duration-300 shadow-lg"
                     >
-                        <span>ขั้นตอนการใช้งาน</span>
+                        <span>How to use</span>
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                             <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
                         </svg>
@@ -249,8 +288,8 @@ const Lab1Recording = () => {
                 </div>
                 
                 <div className="space-y-4 mb-8 text-gray-700">
-                    <p>1. ท่านจะให้คำแนะนำใดแก่มารดารายนี้ เช่น การดูดอย่างถูกวิธี 4 ดูด การแก้ไขปัญหา</p>
-                    <p>2. ท่านจะสาธิตท่าอุ้มที่ถูกต้อง และการบรรเทา/ป้องกันการเจ็บหัวนม ให้กับมารดารายนี้อย่างไร</p>
+                    <p>1. What guidance would you provide to this mother?</p>
+                    <p>2. How would you demonstrate proper breastfeeding positions and techniques to prevent nipple sore for this mother?</p>
                 </div>
                 
                 <div className="mb-6">
@@ -282,7 +321,8 @@ const Lab1Recording = () => {
                                     {recordingState === 'initial' && (
                                         <button
                                             onClick={startCamera}
-                                            className="bg-blue-500 text-white px-4 py-2 rounded-full flex items-center"
+                                            className={`bg-blue-500 text-white px-4 py-2 rounded-full flex items-center ${attemptsLeft === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                            disabled={attemptsLeft === 0}
                                         >
                                             <FaVideo className="mr-2" />
                                             Ready
@@ -291,7 +331,8 @@ const Lab1Recording = () => {
                                     {recordingState === 'ready' && (
                                         <button
                                             onClick={startRecording}
-                                            className="bg-red-500 text-white px-4 py-2 rounded-full flex items-center"
+                                            className={`bg-red-500 text-white px-4 py-2 rounded-full flex items-center ${attemptsLeft === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                            disabled={attemptsLeft === 0}
                                         >
                                             <FaVideo className="mr-2" />
                                             Start Recording
@@ -310,7 +351,8 @@ const Lab1Recording = () => {
                             ) : (
                                 <button
                                     onClick={() => fileInputRef.current.click()}
-                                    className="bg-blue-500 text-white px-4 py-2 rounded-full flex items-center"
+                                    className={`bg-blue-500 text-white px-4 py-2 rounded-full flex items-center ${attemptsLeft === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                    disabled={attemptsLeft === 0}
                                 >
                                     <FaUpload className="mr-2" />
                                     Upload Video
@@ -327,7 +369,8 @@ const Lab1Recording = () => {
                                     </button>
                                     <button
                                         onClick={onSubmit}
-                                        className="bg-green-500 text-white px-4 py-2 rounded-full flex items-center"
+                                        className={`bg-green-500 text-white px-4 py-2 rounded-full flex items-center ${attemptsLeft === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                        disabled={attemptsLeft === 0}
                                     >
                                         <FaCheck className="mr-2" />
                                         Submit
@@ -359,10 +402,14 @@ const Lab1Recording = () => {
                     </div>
                 </div>
                 
+                {attemptsLeft === 0 && (
+                    <p className="text-red-500 mt-4 text-center">You have used all your attempts for this lab.</p>
+                )}
+                
                 {loading && (
                     <div className="mt-4 text-gray-600 text-center">
                         <p>Upload Progress: {uploadProgress.toFixed(2)}%</p>
-                        <p>รอประมวลผลประมาณ 1-2 นาที...</p>
+                        <p>Processing 1-2 minutes...</p>
                     </div>
                 )}
                 {error && (

@@ -633,44 +633,82 @@ router.post('/upload-1-cn', authMiddleware, async (req, res) => {
 });
 async function processTranscriptionLab1cn(transcription) {
     const answerKey = `
-Lab 1: การเลี้ยงลูกด้วยนมแม่ กรณีมารดาเจ็บหัวนม
-1.	ท่านจะให้คำแนะนำใดแก่มารดารายนี้ เช่น การดูดอย่างถูกวิธี  4 ดูด การแก้ไขปัญหา
-เฉลย (50 คะแนน)
-•	อธิบายการดูดอย่างถูกวิธี โดยเน้น การอุ้มบุตรกระชับแนบลำตัวมารดา ท้องมารดาชิดท้องบุตร หน้าบุตรเงยเล็กน้อย ลำตัวบุตรอยู่ในแนวตรง บุตรอมลึกถึงลานนม (10 คะแนน)
-•	อธิบายรายละเอียดของการดูดบ่อย เช่น ดูดทุก 2-3 ชั่วโมง หรือ ดูดเมื่อบุตรต้องการ ดูดแต่ละครั้งนาน 20 นาที (10 คะแนน)
-•	ให้นำบุตรดูดนมข้างที่เจ็บน้อยกว่าก่อน ในรายนี้ เริ่มจากดูดข้างซ้าย หากบุตรไม่อิ่มให้ดูดต่อที่ด้านขวา มื้อต่อไปให้ลูกดูดจากเต้าด้านขวาที่ดูดค้างไว้ (10 คะแนน)
-•	เมื่อลูกอิ่ม ลูกจะคายหัวนมออก หากลูกยังดูดนมอยู่ อย่าดึงหัวนมออกจะทำให้หัวนมแตก ถ้าแม่ต้องการเอานมออกจากปากลูก ให้กดคาง หรือใช้นิ้วก้อยสอดเข้าไปในปากลูกเพื่อให้ลูกอ้าปาก แล้วคายหัวนมออก (10 คะแนน)
-•	ลักษณะการกลืนอย่างถูกวิธี เช่น สังเกตการกลืนอย่างเป็นจังหวะ ไม่มีเสียงดูด ได้แต่เสียงลม (เสียงจ๊วบ จ๊วบ) (10 คะแนน)
-•	อธิบายการสังเกตความเพียงพอของน้ำนม เช่น การพักหลับของบุตร จำนวนครั้งของปัสสาวะอุจจาระของบุตร สีของปัสสาวะ เป็นต้น หรือ แนะนำหลักการ 4 6 8 (5 คะแนน)
-•	แนะนำการเพิ่มปริมาณน้ำนมโดยการประคบร้อนก่อนให้บุตรดูด/เข้าเต้า (5 คะแนน)
-•	แนะนำการดื่มน้ำอุ่นบ่อยครั้ง (5 คะแนน)
-•	อธิบายประโยชน์ของนมมารดาต่อมารดาและบุตร (5 คะแนน)
-•	แนะนำอาหารประเภทเรียกน้ำนม เช่น ขิง กระเพรา ใบแมงลัก นมถั่วเหลือง เป็นต้น (5 คะแนน)
+情境一：哺乳期间的乳头疼痛**
 
-2.	ท่านจะสาธิตท่าอุ้มที่ถูกต้อง และการบรรเทา/ป้องกันการเจ็บหัวนม ให้กับมารดารายนี้อย่างไร 
-เฉลย  (50 คะแนน)
-•	สาธิตการอุ้มบุตรเข้าเต้าอย่างถูกต้อง ขณะนำลูกเข้าเต้า ลูกจะมีลำตัวตรง คอไม่บิด ท้องลูกแนบชิดกับท้องแม่ ลูกหันหน้าเข้าหาเต้านมแม่  มือแม่รองรับลำตัวลูกไว้  หากลูกดูดได้ถูกต้อง แม่จะไม่เจ็บหัวนม หัวนมไม่แตก จังหวะการดูดของลูก สม่ำเสมอ (30 คะแนน)
-•	หลังจากดูดนม แนะนำให้มารดานำน้ำนมทาบริเวณหัวนม (10  คะแนน)
-•	ท่าอุ้มที่ใช้มีได้หลายท่า ได้แก่
-o	ท่าอุ้มขวางตัก (cradle hold) ลูกนอนขวางบนตัก ตะแคงเข้าหาตัวแม่ ท้องลูกแนบชิดท้องแม่ ใช้แขนพาดด้านหลังของลูก ฝ่ามือจับช้อนบริเวณก้นและต้นขา ปากลูกอยู่ตรงหัวนมพอดี ศีรษะและลำตัวลูกอยู่ในแนวตรง ศีรษะสูงกว่าลำตัวเล็กน้อย (10 คะแนน)
-o	ท่าอุ้มขวางตักประยุกต์ (modified cradle hold) เปลี่ยนมือจากท่าอุ้มขวางตัก ใช้มือข้างเดียวกับที่ลูกดูดประคองเต้านม มืออีกข้างรองรับต้นคอและท้ายทอยลูก (10 คะแนน)
-o	ท่าฟุตบอล (football hold) จับลูกกึ่งตะแคงกึ่งนอนหงาย มือจับที่ต้นคอและท้ายทอยลูก กอดตัวลูก กระชับกับสีข้างแม่ ให้ขาของลูกชี้ไปทางด้านหลังของแม่ ลูกดูดนมจากเต้านมข้างเดียวกับฝ่ามือที่ถูกจับ (10 คะแนน)
-o	ท่านอน (side lying) แม่ลูกนอนตะแคงเข้าหากันแม่นอนศีรษะสูง หลังและสะโพกตรงให้มากที่สุด ให้ปากลูกอยู่ตรงกับหัวนมแม่ มือที่อยู่ด้านล่างประคองหลังลูก มือที่อยู่ด้นบนประคองเต้านมในช่วงแรกที่เริ่มเอาหัวนมเข้าปาก (10 คะแนน)
+一名17岁的初产妇在产后一天分娩了一名健康的男婴，体重为2800克。母亲报告自己在哺乳时无法独立调整婴儿的正确姿势。尽管乳汁已经开始分泌，但她在哺乳过程中感到乳头疼痛，尤其是右侧比左侧更加疼痛。LATCH评分为5分（吸吮=1，吞咽声=1，乳头类型=2，舒适度=1，持握姿势=0）。
 
-คะแนนเต็มเท่ากับ 100 คะแนน
+您会为这位母亲提供哪些建议？
+
+可以考虑提供有关正确含乳哺乳的技术指导及解决她担忧的策略。
+
+**建议指导（50分）
+
+1. 教授正确的哺乳技术：（10分）
+   - 强调正确姿势的重要性，确保婴儿的腹部与母亲的腹部对齐，以促进紧密接触。
+   - 婴儿的头部应稍微后仰，身体保持笔直，并应深含乳晕以确保有效的含乳。
+
+2.强调频繁哺乳的重要性：（10分）
+   - 建议母亲每2-3小时或按需哺乳，每次哺乳大约持续20分钟，以确保婴儿摄入足够的乳汁。
+
+3. 通过哺乳顺序进行疼痛管理：（10分）
+   - 指导母亲从较不疼痛的乳房（此情况下为左侧）开始哺乳。如果婴儿仍感到饥饿，可以转向右侧乳房。在下一次哺乳时，从之前未完全排空的右侧乳房开始。
+
+4. 防止乳头创伤：（10分）
+   - 指教导母亲婴儿在吃饱后会自然松开乳头。避免在婴儿仍在吸吮时强行拔出乳头，因为这会导致乳头创伤。如有必要，母亲可以轻轻按压婴儿的下巴或用小指轻轻打开婴儿的嘴巴，以安全地解除吸力。
+
+5. 有效吞咽模式的指导：（10分）
+   - 指教导母亲观察婴儿有节奏的吞咽声，且没有任何吸吮声，这表明乳汁转移正常。
+
+6. 评估乳汁摄入量的充足性：（5分）
+   - 指导母亲通过观察婴儿的睡眠模式、排尿和排便的频率以及尿液的颜色来监测婴儿的乳汁摄入量。可以介绍“4 6 8规则 ”以进一步评估。
+
+7. 促进乳汁分泌的技术：（5分）
+   - 建议在哺乳前对乳房进行热敷，以促进乳汁流动并减轻不适。
+
+8. 水分摄入建议：（5分）
+   - 鼓励母亲经常喝温水，以维持水分摄入和促进乳汁分泌。
+
+9. 讨论母乳喂养的益处：（5分）
+   - 解释母乳喂养对母亲和婴儿的多方面益处，包括健康、情感联系和促进母婴关系等。
+
+10. 促进泌乳的饮食建议：（5分）
+    - 建议含有食用催乳作用的食物，如姜、罗勒、圣罗勒和豆浆，以支持和增加乳汁分泌。
+
+
+您将如何演示正确的哺乳姿势和技术，以防止这位母亲的乳头疼痛？
+
+建议演示（50分）
+
+1. 演示最佳的哺乳姿势：（30分）
+   - 在调整婴儿姿势时，确保婴儿的身体保持笔直，不扭曲颈部，腹部与母亲的腹部紧密接触。婴儿的脸应对准母亲的乳房，母亲应支撑支持婴儿的身体。正确的含乳应确保哺乳过程中无疼痛，乳头保持完好，吸吮模式一致且有效。
+
+2. 哺乳后的护理：（10分）
+   - 建议母亲在哺乳后将少量挤出的母乳涂抹在乳头上，以促进愈合并防止进一步刺激。
+
+常见的哺乳姿势包括：
+
+- 摇篮抱：婴儿横躺在母亲的腿上，面朝母亲。婴儿的腹部应与母亲的腹部接触。母亲用一只手支撑婴儿的身体，同时用另一只手托住婴儿的臀部和大腿。婴儿的嘴巴应对准乳头，头部应稍高于身体（10分）。
+
+- 改良摇篮抱：母亲用哺乳侧的手支撑乳房，另一只手支撑婴儿的颈部和头部后方。这种姿势是摇篮抱的变体（10分）。
+
+-橄榄球抱：母亲将婴儿半躺着抱起，支撑婴儿的颈部和头部后方。婴儿的身体靠近母亲的侧面，双腿朝后。婴儿从与母亲手同侧的乳房吸吮吸奶（10分）。
+
+-侧卧位：母亲和婴儿都侧卧，面对面。母亲应保持头部略微抬高，背部和臀部保持直立。婴儿的嘴巴应与母亲的乳头对齐。母亲用下一只手支撑婴儿的背部，并用上另一只手支撑乳房以帮助婴儿含乳（10分）。
+
+
+满分为100分。
 `;
 
     const checkContent = `
-นี่คือคำตอบของนักศึกษา: "${transcription}".
-ที่คือเฉลย: "${answerKey}".
-
-โปรดเปรียบเทียบคำตอบของนักศึกษากับเฉลย ตรงประเด็นหรือไม่ พร้อมทั้งอธิบายรายละเอียดสิ่งที่นักศึกษาทำได้ดีอย่างละเอียดและข้อเสนอแนะ โดยไม่ต้องชี้แจงคะแนนย่อย ตอบเป็นภาษาไทย
-ไม่ต้องติในเรื่องไวยกรณ์หรือเรื่องที่ไม่เกี่ยวข้อง
-โปรดแปลงผลการประเมินเป็น JSON รูปแบบดังนี้เท่านั้น:
+学生的答案是："${transcription}"。
+标准答案是："${answerKey}"。
+请比较学生的答案和标准答案，评估是否切中要点，并详细解释学生做得好的地方，同时给出建议。不需要列出部分分数。请用泰语回答。
+不要批评语法或无关的问题。
+请将评估结果转换为以下JSON格式：
     {
-      "totalScore": <คะแนนนักศึกษาได้>,
-      "pros": "<จุดที่นักศึกษาทำได้ดี>",
-      "recommendations": "<ข้อเสนอแนะ>"
+    "totalScore": <学生获得的分数>,
+    "pros": "<学生做得好的方面>",
+    "recommendations": "<建议>"
     }
 `;
 
@@ -804,44 +842,65 @@ router.post('/upload-1-en', authMiddleware, async (req, res) => {
 });
 async function processTranscriptionLab1en(transcription) {
     const answerKey = `
-Lab 1: การเลี้ยงลูกด้วยนมแม่ กรณีมารดาเจ็บหัวนม
-1.	ท่านจะให้คำแนะนำใดแก่มารดารายนี้ เช่น การดูดอย่างถูกวิธี  4 ดูด การแก้ไขปัญหา
-เฉลย (50 คะแนน)
-•	อธิบายการดูดอย่างถูกวิธี โดยเน้น การอุ้มบุตรกระชับแนบลำตัวมารดา ท้องมารดาชิดท้องบุตร หน้าบุตรเงยเล็กน้อย ลำตัวบุตรอยู่ในแนวตรง บุตรอมลึกถึงลานนม (10 คะแนน)
-•	อธิบายรายละเอียดของการดูดบ่อย เช่น ดูดทุก 2-3 ชั่วโมง หรือ ดูดเมื่อบุตรต้องการ ดูดแต่ละครั้งนาน 20 นาที (10 คะแนน)
-•	ให้นำบุตรดูดนมข้างที่เจ็บน้อยกว่าก่อน ในรายนี้ เริ่มจากดูดข้างซ้าย หากบุตรไม่อิ่มให้ดูดต่อที่ด้านขวา มื้อต่อไปให้ลูกดูดจากเต้าด้านขวาที่ดูดค้างไว้ (10 คะแนน)
-•	เมื่อลูกอิ่ม ลูกจะคายหัวนมออก หากลูกยังดูดนมอยู่ อย่าดึงหัวนมออกจะทำให้หัวนมแตก ถ้าแม่ต้องการเอานมออกจากปากลูก ให้กดคาง หรือใช้นิ้วก้อยสอดเข้าไปในปากลูกเพื่อให้ลูกอ้าปาก แล้วคายหัวนมออก (10 คะแนน)
-•	ลักษณะการกลืนอย่างถูกวิธี เช่น สังเกตการกลืนอย่างเป็นจังหวะ ไม่มีเสียงดูด ได้แต่เสียงลม (เสียงจ๊วบ จ๊วบ) (10 คะแนน)
-•	อธิบายการสังเกตความเพียงพอของน้ำนม เช่น การพักหลับของบุตร จำนวนครั้งของปัสสาวะอุจจาระของบุตร สีของปัสสาวะ เป็นต้น หรือ แนะนำหลักการ 4 6 8 (5 คะแนน)
-•	แนะนำการเพิ่มปริมาณน้ำนมโดยการประคบร้อนก่อนให้บุตรดูด/เข้าเต้า (5 คะแนน)
-•	แนะนำการดื่มน้ำอุ่นบ่อยครั้ง (5 คะแนน)
-•	อธิบายประโยชน์ของนมมารดาต่อมารดาและบุตร (5 คะแนน)
-•	แนะนำอาหารประเภทเรียกน้ำนม เช่น ขิง กระเพรา ใบแมงลัก นมถั่วเหลือง เป็นต้น (5 คะแนน)
+Scenario 1: Breastfeeding with Nipple sore
+A 17-year-old primiparous mother, one day postpartum, has given birth to a healthy male infant weighing 2800 grams. The mother reports difficulty in independently positioning the infant for breastfeeding. Lactation has commenced; however, she experiences nipple pain during breastfeeding, with more intense discomfort on the right side compared to the left. The LATCH score is 5 (latch on = 1, audible = 1, type of nipple = 2, comfort = 1, holding = 0).
 
-2.	ท่านจะสาธิตท่าอุ้มที่ถูกต้อง และการบรรเทา/ป้องกันการเจ็บหัวนม ให้กับมารดารายนี้อย่างไร 
-เฉลย  (50 คะแนน)
-•	สาธิตการอุ้มบุตรเข้าเต้าอย่างถูกต้อง ขณะนำลูกเข้าเต้า ลูกจะมีลำตัวตรง คอไม่บิด ท้องลูกแนบชิดกับท้องแม่ ลูกหันหน้าเข้าหาเต้านมแม่  มือแม่รองรับลำตัวลูกไว้  หากลูกดูดได้ถูกต้อง แม่จะไม่เจ็บหัวนม หัวนมไม่แตก จังหวะการดูดของลูก สม่ำเสมอ (30 คะแนน)
-•	หลังจากดูดนม แนะนำให้มารดานำน้ำนมทาบริเวณหัวนม (10  คะแนน)
-•	ท่าอุ้มที่ใช้มีได้หลายท่า ได้แก่
-o	ท่าอุ้มขวางตัก (cradle hold) ลูกนอนขวางบนตัก ตะแคงเข้าหาตัวแม่ ท้องลูกแนบชิดท้องแม่ ใช้แขนพาดด้านหลังของลูก ฝ่ามือจับช้อนบริเวณก้นและต้นขา ปากลูกอยู่ตรงหัวนมพอดี ศีรษะและลำตัวลูกอยู่ในแนวตรง ศีรษะสูงกว่าลำตัวเล็กน้อย (10 คะแนน)
-o	ท่าอุ้มขวางตักประยุกต์ (modified cradle hold) เปลี่ยนมือจากท่าอุ้มขวางตัก ใช้มือข้างเดียวกับที่ลูกดูดประคองเต้านม มืออีกข้างรองรับต้นคอและท้ายทอยลูก (10 คะแนน)
-o	ท่าฟุตบอล (football hold) จับลูกกึ่งตะแคงกึ่งนอนหงาย มือจับที่ต้นคอและท้ายทอยลูก กอดตัวลูก กระชับกับสีข้างแม่ ให้ขาของลูกชี้ไปทางด้านหลังของแม่ ลูกดูดนมจากเต้านมข้างเดียวกับฝ่ามือที่ถูกจับ (10 คะแนน)
-o	ท่านอน (side lying) แม่ลูกนอนตะแคงเข้าหากันแม่นอนศีรษะสูง หลังและสะโพกตรงให้มากที่สุด ให้ปากลูกอยู่ตรงกับหัวนมแม่ มือที่อยู่ด้านล่างประคองหลังลูก มือที่อยู่ด้นบนประคองเต้านมในช่วงแรกที่เริ่มเอาหัวนมเข้าปาก (10 คะแนน)
+1.	What guidance would you provide to this mother?
+Consider providing advice on proper latching techniques and strategies to address her concerns.
+1. Educate on Proper Breastfeeding Technique: (10 points).
+   - Emphasize the importance of correct positioning, ensuring that the infant's abdomen is aligned with the mother’s abdomen, facilitating close contact.
+   - The infant’s head should be slightly extended, with the body in a straight alignment, and the infant should latch onto the areola deeply to achieve an effective latch 
+  
+2. Highlight the Significance of Frequent Feeding: (10 points).
+   - Advise the mother to breastfeed every 2-3 hours or on-demand, with each session lasting approximately 20 minutes to ensure adequate milk intake 
+3. Pain Management through Feeding Sequence: (10 points).
+   - Instruct the mother to initiate feeding on the less painful breast (left side in this case). If the infant remains hungry, switch to the right breast. In subsequent feedings, begin with the right breast that was previously left unemptied 
+4. Prevention of Nipple Trauma: (10 points).
+   - Educate the mother that the infant will naturally release the nipple once satiated. Advise against forcibly removing the nipple while the infant is still latched, as this can cause nipple trauma. If necessary, the mother can gently press the infant's chin or use her pinky finger to break the suction safely 
+5. Instruction on Effective Swallowing Patterns: (10 points).
+   - Teach the mother to observe rhythmic and audible swallowing sounds without any smacking noises, indicating proper milk transfer 
+6. Assessment of Milk Intake Adequacy:
+   - Guide the mother on monitoring the infant’s milk intake by observing sleep patterns, frequency of urination and defecation, and urine color. Introduce the "4 6 8 rule" for further assessment (5 points).
 
-คะแนนเต็มเท่ากับ 100 คะแนน
+7. Milk Production Enhancement Techniques: (5 points).
+   - Recommend the application of a warm compress to the breasts before feeding to enhance milk flow and reduce discomfort 
+8. Hydration Advice: (5 points).
+   - Encourage the mother to drink warm water frequently to support hydration and milk production 
+9. Discuss the Benefits of Breastfeeding: (5 points).
+   - Explain the multifaceted benefits of breastfeeding for both the mother and the infant, including health, emotional, and bonding aspects 
+10. Dietary Recommendations for Lactation Support: (5 points).
+    - Suggest lactogenic foods such as ginger, basil, holy basil, and soy milk to support and increase milk production.
+
+
+2.	How would you demonstrate proper breastfeeding positions and techniques to prevent nipple sore for this mother?
+Suggested Demonstration (50 points)
+1. Demonstration of Optimal Breastfeeding Positions: (30 points).
+   - While positioning the infant, ensure that the infant’s body is aligned without neck twisting, with the abdomen in close contact with the mother’s abdomen. The infant’s face should face the breast, and the mother should provide support to the infant’s body. Correct latching should result in pain-free breastfeeding, with intact nipples and consistent, effective suckling patterns 
+
+2. Post-Feeding Care: (10 points).
+   - Advise the mother to apply a small amount of expressed breast milk to her nipples post-feeding to promote healing and prevent further irritation 
+Common Breastfeeding Positions Include: 
+- Cradle Hold: The infant lies across the mother’s lap, facing her. The infant’s abdomen should be in contact with the mother’s abdomen. The mother supports the infant’s body with one arm while cupping the infant’s bottom and thighs with her hand. The infant’s mouth should align with the nipple, and the head should be slightly elevated above the body (10 points).
+
+- Modified Cradle Hold: The mother uses the same hand as the breastfeeding side to support the breast, while the opposite hand supports the infant’s neck and back of the head. This position is a variation of the cradle hold (10 points).
+- Football Hold: The mother holds the infant in a semi-reclined position, supporting the infant’s neck and back of the head. The infant’s body is positioned against the mother’s side, with the legs pointing backward. The infant feeds from the breast on the same side as the mother’s hand (10 points).
+- Side-Lying Position: Both the mother and infant lie on their sides, facing each other. The mother should maintain a slightly elevated head position, with a straight back and hips. The infant’s mouth should be aligned with the mother’s nipple. The mother uses her lower hand to support the infant’s back and the upper hand to support the breast during latching (10 points).
+
+
+full-score = 100 points
 `;
 
     const checkContent = `
-นี่คือคำตอบของนักศึกษา: "${transcription}".
-ที่คือเฉลย: "${answerKey}".
+this is student's answer: "${transcription}".
+this is the answer key: "${answerKey}".
 
-โปรดเปรียบเทียบคำตอบของนักศึกษากับเฉลย ตรงประเด็นหรือไม่ พร้อมทั้งอธิบายรายละเอียดสิ่งที่นักศึกษาทำได้ดีอย่างละเอียดและข้อเสนอแนะ โดยไม่ต้องชี้แจงคะแนนย่อย ตอบเป็นภาษาไทย
-ไม่ต้องติในเรื่องไวยกรณ์หรือเรื่องที่ไม่เกี่ยวข้อง
-โปรดแปลงผลการประเมินเป็น JSON รูปแบบดังนี้เท่านั้น:
+Please compare the student's answer with the solution. Evaluate if it addresses the key points, and provide a detailed explanation of what the student did well along with recommendations. Do not break down partial scores. Answer in English.
+Do not critique grammar or unrelated issues.
+Please convert the evaluation results into JSON format as follows:
     {
-      "totalScore": <คะแนนนักศึกษาได้>,
-      "pros": "<จุดที่นักศึกษาทำได้ดี>",
-      "recommendations": "<ข้อเสนอแนะ>"
+    "totalScore": <score the student received>,
+    "pros": "<points the student did well>",
+    "recommendations": "<recommendations>"
     }
 `;
 
