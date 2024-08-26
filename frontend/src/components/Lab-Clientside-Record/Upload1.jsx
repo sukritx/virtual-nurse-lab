@@ -238,7 +238,22 @@ const Lab1Recording = () => {
                 </div>
     
                 <div className="mb-6">
-                    <p className="text-gray-700 font-semibold">Attempts left: {attemptsLeft}</p>
+                    <div className={`
+                        px-4 py-2 rounded-full inline-flex items-center
+                        ${attemptsLeft > 1 ? 'bg-green-100 text-green-800' : 
+                        attemptsLeft === 1 ? 'bg-yellow-100 text-yellow-800' : 
+                        'bg-red-100 text-red-800'}
+                        transition-colors duration-300
+                    `}>
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+                        </svg>
+                        <span className="font-semibold">
+                            {attemptsLeft === 0 ? 'No attempts left' : 
+                            attemptsLeft === 1 ? 'Last attempt' : 
+                            `${attemptsLeft} attempts left`}
+                        </span>
+                    </div>
                 </div>
     
                 <h1 className="text-2xl font-bold mb-2 text-center text-gray-800">Lab 1: การเลี้ยงลูกด้วยนมแม่</h1>
