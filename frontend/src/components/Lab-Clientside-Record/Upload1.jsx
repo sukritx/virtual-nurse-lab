@@ -7,6 +7,7 @@ import { useAuth } from '../../context/AuthContext';
 
 const MAX_RECORDING_TIME = 180; // 3 minutes in seconds
 const CHUNK_SIZE = 1024 * 1024; // 1MB chunks
+const MAX_ATTEMPTS = 3;
 
 const Lab1Recording = () => {
     const [recordingState, setRecordingState] = useState('initial');
@@ -21,6 +22,7 @@ const Lab1Recording = () => {
     const [isMediaRecorderSupported, setIsMediaRecorderSupported] = useState(true);
     const { token } = useAuth();
     const [uploadProgress, setUploadProgress] = useState(0);
+    const [attemptsLeft, setAttemptsLeft] = useState(MAX_ATTEMPTS);
 
     const mediaRecorderRef = useRef(null);
     const liveVideoRef = useRef(null);
@@ -32,6 +34,24 @@ const Lab1Recording = () => {
     useEffect(() => {
         setIsMediaRecorderSupported(typeof MediaRecorder !== 'undefined');
     }, []);
+
+    useEffect(() => {
+        const fetchLabInfo = async () => {
+            try {
+                const response = await axios.get('/api/v1/student/labs', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const lab1 = response.data.labs.find(lab => lab.labInfo.labNumber === 1);
+                if (lab1) {
+                    setAttemptsLeft(lab1.attemptsLeft);
+                }
+            } catch (error) {
+                console.error('Error fetching lab info:', error);
+            }
+        };
+
+        fetchLabInfo();
+    }, [token]);
 
     const videoConstraints = {
         width: { ideal: 640, max: 1280 },
@@ -134,7 +154,7 @@ const Lab1Recording = () => {
     };
 
     const onSubmit = useCallback(async () => {
-        if (!recordedBlob) return;
+        if (!recordedBlob || attemptsLeft === 0) return;
 
         setLoading(true);
         setError('');
@@ -176,6 +196,8 @@ const Lab1Recording = () => {
             setScore(response.data.score);
             setPros(response.data.pros);
             setRecommendations(response.data.recommendations);
+            // After successful submission
+            setAttemptsLeft(prevAttempts => Math.max(0, prevAttempts - 1));
         } catch (error) {
             if (error.response) {
                 setError(`Error uploading video: ${error.response.data.msg || error.response.statusText}`);
@@ -187,7 +209,7 @@ const Lab1Recording = () => {
         } finally {
             setLoading(false);
         }
-    }, [recordedBlob, token]);
+    }, [recordedBlob, token, attemptsLeft]);
 
     useEffect(() => {
         return () => {
@@ -214,10 +236,14 @@ const Lab1Recording = () => {
                         <span>Back to Dashboard</span>
                     </a>
                 </div>
-
+    
+                <div className="mb-6">
+                    <p className="text-gray-700 font-semibold">Attempts left: {attemptsLeft}</p>
+                </div>
+    
                 <h1 className="text-2xl font-bold mb-2 text-center text-gray-800">Lab 1: การเลี้ยงลูกด้วยนมแม่</h1>
                 <h2 className="text-lg mb-6 text-center text-gray-600">มารดาเจ็บหัวนมด้านขวา</h2>
-
+    
                 <div className="mb-6 p-4 bg-gray-100 rounded-lg text-sm text-gray-700">
                     <p>
                         มารดาอายุ 17 ปี หลังคลอดบุตรคนแรกเพศชายได้ 1 วัน บุตรสุขภาพแข็งแรงดี บุตรหนัก 2,800 กรัม 
@@ -225,7 +251,7 @@ const Lab1Recording = () => {
                         ประเมิน LATCH score = 5 (latch on=1, audible=1, type of nipple=2, comfort=1, holding= 0)
                     </p>
                 </div>
-
+    
                 <div className="mb-6 rounded-3xl overflow-hidden border-4 border-purple-900 shadow-lg">
                     <video 
                         controls 
@@ -235,7 +261,7 @@ const Lab1Recording = () => {
                         Your browser does not support the video tag.
                     </video>
                 </div>
-
+    
                 <div className="flex justify-center mb-4">
                     <a 
                         href="/library/1" 
@@ -282,7 +308,8 @@ const Lab1Recording = () => {
                                     {recordingState === 'initial' && (
                                         <button
                                             onClick={startCamera}
-                                            className="bg-blue-500 text-white px-4 py-2 rounded-full flex items-center"
+                                            className={`bg-blue-500 text-white px-4 py-2 rounded-full flex items-center ${attemptsLeft === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                            disabled={attemptsLeft === 0}
                                         >
                                             <FaVideo className="mr-2" />
                                             Ready
@@ -291,7 +318,8 @@ const Lab1Recording = () => {
                                     {recordingState === 'ready' && (
                                         <button
                                             onClick={startRecording}
-                                            className="bg-red-500 text-white px-4 py-2 rounded-full flex items-center"
+                                            className={`bg-red-500 text-white px-4 py-2 rounded-full flex items-center ${attemptsLeft === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                            disabled={attemptsLeft === 0}
                                         >
                                             <FaVideo className="mr-2" />
                                             Start Recording
@@ -310,7 +338,8 @@ const Lab1Recording = () => {
                             ) : (
                                 <button
                                     onClick={() => fileInputRef.current.click()}
-                                    className="bg-blue-500 text-white px-4 py-2 rounded-full flex items-center"
+                                    className={`bg-blue-500 text-white px-4 py-2 rounded-full flex items-center ${attemptsLeft === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                    disabled={attemptsLeft === 0}
                                 >
                                     <FaUpload className="mr-2" />
                                     Upload Video
@@ -327,7 +356,8 @@ const Lab1Recording = () => {
                                     </button>
                                     <button
                                         onClick={onSubmit}
-                                        className="bg-green-500 text-white px-4 py-2 rounded-full flex items-center"
+                                        className={`bg-green-500 text-white px-4 py-2 rounded-full flex items-center ${attemptsLeft === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                        disabled={attemptsLeft === 0}
                                     >
                                         <FaCheck className="mr-2" />
                                         Submit
@@ -358,6 +388,10 @@ const Lab1Recording = () => {
                         )}
                     </div>
                 </div>
+                
+                {attemptsLeft === 0 && (
+                    <p className="text-red-500 mt-4 text-center">You have used all your attempts for this lab.</p>
+                )}
                 
                 {loading && (
                     <div className="mt-4 text-gray-600 text-center">
