@@ -36,7 +36,16 @@ export const ProfessorDashboard = () => {
         }
       });
       setLabStats(labsResponse.data.labStats);
-      setStudentLabStatuses(labsResponse.data.studentLabStatuses);
+      
+      // Process student lab statuses
+      const processedStatuses = labsResponse.data.studentLabStatuses.map(student => ({
+        ...student,
+        labsStatus: student.labsStatus.map(lab => ({
+          ...lab,
+          isPass: lab.attempts.some(attempt => attempt.isPass)
+        }))
+      }));
+      setStudentLabStatuses(processedStatuses);
     } catch (error) {
       console.error('Error fetching data:', error);
     }
@@ -123,12 +132,24 @@ export const ProfessorDashboard = () => {
                   <td className="py-3 px-6 text-center">
                     <div className="flex justify-center space-x-2">
                       {student.labsStatus.map((labStatus, index) => (
-                        <div key={index} className={`w-4 h-4 rounded-full ${labStatus.isPass === null ? 'bg-gray-500' : labStatus.isPass ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                        <div 
+                          key={index} 
+                          className={`w-4 h-4 rounded-full ${
+                            labStatus.isPass ? 'bg-green-500' : 
+                            (labStatus.attempts && labStatus.attempts.length > 0) ? 'bg-red-500' : 
+                            'bg-gray-500'
+                          }`}
+                          title={`Lab ${index + 1}: ${
+                            labStatus.isPass ? 'Passed' : 
+                            (labStatus.attempts && labStatus.attempts.length > 0) ? 'Attempted but not passed' : 
+                            'Not attempted'
+                          }`}
+                        ></div>
                       ))}
                     </div>
                   </td>
                   <td className="py-3 px-6 text-center">
-                    <Button onClick={() => navigate(`/professor/view-labs/${student._id}`)} label={"View Labs"} />
+                    <Button onClick={() => navigate(`/professor/view-labs/${student._id}`)} label="View Labs" />
                   </td>
                 </tr>
               ))}

@@ -49,7 +49,6 @@ function App() {
             <Route path="/library" element={<Library />} />
             <Route path="/library/:id" element={<BlogContent />} />
             <Route path="/student/test-upload" element={<UploadTest />} />
-            <Route path="/professor/dashboard" element={<ProfessorDashboard />} />
           </Route>
 
           {/* Private Routes */}
@@ -76,7 +75,7 @@ function App() {
           {/* Professor Routes */}
           <Route element={<PrivateRoute role="professor" />}>
             <Route element={<MainLayout />}>
-              
+              <Route path="/professor/dashboard" element={<ProfessorDashboard />} />
               <Route path="/professor/view-labs/:userId" element={<StudentLabs />} />
               <Route path="/professor/view-lab/:userId/:labNumber" element={<LabDetails />} />
             </Route>
