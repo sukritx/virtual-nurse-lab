@@ -702,7 +702,7 @@ async function processTranscriptionLab1cn(transcription) {
     const checkContent = `
 学生的答案是："${transcription}"。
 标准答案是："${answerKey}"。
-请比较学生的答案和标准答案，评估是否切中要点，并详细解释学生做得好的地方，同时给出建议。不需要列出部分分数。请用泰语回答。
+请比较学生的答案和标准答案，评估是否切中要点，并详细解释学生做得好的地方，同时给出建议。不需要列出部分分数。请用中文回答。
 不要批评语法或无关的问题。
 请将评估结果转换为以下JSON格式：
     {
