@@ -59,6 +59,7 @@ router.get('/labs', professorAuth, async (req, res) => {
     }
 
     const students = university.students;
+
     const allLabs = await LabInfo.find().sort({ labNumber: 1 }).exec();
 
     const labStats = allLabs.map(lab => ({
@@ -76,7 +77,7 @@ router.get('/labs', professorAuth, async (req, res) => {
         {
           $group: {
             _id: "$labInfo",
-            submissions: { $push: "$$ROOT" }
+            latestSubmission: { $first: "$$ROOT" }
           }
         },
         {
@@ -93,19 +94,18 @@ router.get('/labs', professorAuth, async (req, res) => {
       const labsStatus = allLabs.map(lab => {
         const studentLab = studentLabs.find(sl => sl._id.equals(lab._id));
         if (studentLab) {
-          const hasPassed = studentLab.submissions.some(submission => submission.isPass);
-          if (hasPassed) {
+          if (studentLab.latestSubmission.isPass) {
             labStats.find(stat => stat.labNumber === lab.labNumber).completed++;
           }
           return {
             labNumber: lab.labNumber,
-            isPass: hasPassed,
-            attempt: studentLab.submissions.length
+            isPass: studentLab.latestSubmission.isPass,
+            attempt: studentLab.latestSubmission.attempt
           };
         } else {
           return {
             labNumber: lab.labNumber,
-            isPass: false,
+            isPass: null,
             attempt: 0
           };
         }
@@ -138,17 +138,39 @@ router.get('/student/:userId/labs', professorAuth, async (req, res) => {
     const university = student.university ? await University.findOne({ universityName: student.university }) : null;
 
     const labInfos = await LabInfo.find().select('labNumber');
-    const labSubmissions = await LabSubmission.find({ studentId: student._id })
-      .sort({ timestamp: -1 }) // Sort by timestamp in descending order
-      .select('labInfo isPass timestamp');
+    const labSubmissions = await LabSubmission.aggregate([
+      { $match: { studentId: student._id } },
+      { $sort: { timestamp: -1 } },
+      {
+        $group: {
+          _id: "$labInfo",
+          submissions: { $push: "$$ROOT" },
+          latestSubmission: { $first: "$$ROOT" }
+        }
+      }
+    ]);
 
     const labs = labInfos.map(labInfo => {
-      const submissions = labSubmissions.filter(sub => sub.labInfo.equals(labInfo._id));
-      const latestSubmission = submissions[0]; // Get the latest submission
-      return {
-        labNumber: labInfo.labNumber,
-        isPass: latestSubmission ? latestSubmission.isPass : null
-      };
+      const labSubmission = labSubmissions.find(sub => sub._id.equals(labInfo._id));
+      if (labSubmission) {
+        const hasPassed = labSubmission.submissions.some(sub => sub.isPass);
+        return {
+          labNumber: labInfo.labNumber,
+          isPass: hasPassed,
+          latestAttempt: {
+            isPass: labSubmission.latestSubmission.isPass,
+            timestamp: labSubmission.latestSubmission.timestamp
+          },
+          attemptCount: labSubmission.submissions.length
+        };
+      } else {
+        return {
+          labNumber: labInfo.labNumber,
+          isPass: null,
+          latestAttempt: null,
+          attemptCount: 0
+        };
+      }
     });
 
     res.json({
