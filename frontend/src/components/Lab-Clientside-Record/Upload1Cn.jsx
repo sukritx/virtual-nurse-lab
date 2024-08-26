@@ -257,7 +257,7 @@ const Lab1Recording = () => {
                 </div>
     
                 <h1 className="text-2xl font-bold mb-2 text-center text-gray-800">情境一：哺乳期间的乳头疼痛</h1>
-                <h2 className="text-lg mb-6 text-center text-gray-600">มารดาเจ็บหัวนมด้านขวา</h2>
+                <h2 className="text-lg mb-6 text-center text-gray-600">母亲右侧乳头疼痛</h2>
     
                 <div className="mb-6 p-4 bg-gray-100 rounded-lg text-sm text-gray-700">
                     <p>
@@ -280,7 +280,7 @@ const Lab1Recording = () => {
                         href="/library/1" 
                         className="inline-flex items-center justify-center space-x-2 bg-gradient-to-r from-blue-700 to-blue-900 text-white text-lg font-semibold px-8 py-3 rounded-full hover:from-blue-800 hover:to-blue-950 transition duration-300 shadow-lg"
                     >
-                        <span>ขั้นตอนการใช้งาน</span>
+                        <span>使用步骤</span>
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                             <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
                         </svg>
