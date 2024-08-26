@@ -36,16 +36,7 @@ export const ProfessorDashboard = () => {
         }
       });
       setLabStats(labsResponse.data.labStats);
-      
-      // Process student lab statuses
-      const processedStatuses = labsResponse.data.studentLabStatuses.map(student => ({
-        ...student,
-        labsStatus: student.labsStatus.map(lab => ({
-          ...lab,
-          isPass: lab.attempts.some(attempt => attempt.isPass)
-        }))
-      }));
-      setStudentLabStatuses(processedStatuses);
+      setStudentLabStatuses(labsResponse.data.studentLabStatuses);
     } catch (error) {
       console.error('Error fetching data:', error);
     }
@@ -136,13 +127,11 @@ export const ProfessorDashboard = () => {
                           key={index} 
                           className={`w-4 h-4 rounded-full ${
                             labStatus.isPass ? 'bg-green-500' : 
-                            (labStatus.attempts && labStatus.attempts.length > 0) ? 'bg-red-500' : 
-                            'bg-gray-500'
+                            (labStatus.attempt > 0 ? 'bg-red-500' : 'bg-gray-500')
                           }`}
-                          title={`Lab ${index + 1}: ${
+                          title={`Lab ${labStatus.labNumber}: ${
                             labStatus.isPass ? 'Passed' : 
-                            (labStatus.attempts && labStatus.attempts.length > 0) ? 'Attempted but not passed' : 
-                            'Not attempted'
+                            (labStatus.attempt > 0 ? 'Attempted' : 'Not Attempted')
                           }`}
                         ></div>
                       ))}

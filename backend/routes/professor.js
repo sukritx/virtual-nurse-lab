@@ -59,7 +59,6 @@ router.get('/labs', professorAuth, async (req, res) => {
     }
 
     const students = university.students;
-
     const allLabs = await LabInfo.find().sort({ labNumber: 1 }).exec();
 
     const labStats = allLabs.map(lab => ({
@@ -77,7 +76,7 @@ router.get('/labs', professorAuth, async (req, res) => {
         {
           $group: {
             _id: "$labInfo",
-            latestSubmission: { $first: "$$ROOT" }
+            submissions: { $push: "$$ROOT" }
           }
         },
         {
@@ -94,18 +93,19 @@ router.get('/labs', professorAuth, async (req, res) => {
       const labsStatus = allLabs.map(lab => {
         const studentLab = studentLabs.find(sl => sl._id.equals(lab._id));
         if (studentLab) {
-          if (studentLab.latestSubmission.isPass) {
+          const hasPassed = studentLab.submissions.some(submission => submission.isPass);
+          if (hasPassed) {
             labStats.find(stat => stat.labNumber === lab.labNumber).completed++;
           }
           return {
             labNumber: lab.labNumber,
-            isPass: studentLab.latestSubmission.isPass,
-            attempt: studentLab.latestSubmission.attempt
+            isPass: hasPassed,
+            attempt: studentLab.submissions.length
           };
         } else {
           return {
             labNumber: lab.labNumber,
-            isPass: null,
+            isPass: false,
             attempt: 0
           };
         }
