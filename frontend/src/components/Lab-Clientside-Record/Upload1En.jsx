@@ -256,8 +256,8 @@ const Lab1Recording = () => {
                     </div>
                 </div>
     
-                <h1 className="text-2xl font-bold mb-2 text-center text-gray-800">Lab 1: การเลี้ยงลูกด้วยนมแม่</h1>
-                <h2 className="text-lg mb-6 text-center text-gray-600">มารดาเจ็บหัวนมด้านขวา</h2>
+                <h1 className="text-2xl font-bold mb-2 text-center text-gray-800">Scenario 1: Breastfeeding with Nipple sore</h1>
+                <h2 className="text-lg mb-6 text-center text-gray-600">Mother has sore nipple on the right side</h2>
     
                 <div className="mb-6 p-4 bg-gray-100 rounded-lg text-sm text-gray-700">
                     <p>
