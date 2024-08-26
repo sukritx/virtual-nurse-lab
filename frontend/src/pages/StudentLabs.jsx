@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { useParams, useNavigate } from 'react-router-dom';
-import { FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
+import { FaCheckCircle, FaTimesCircle, FaQuestionCircle } from 'react-icons/fa';
 
 const StudentLabs = () => {
   const [labs, setLabs] = useState([]);
@@ -48,22 +48,29 @@ const StudentLabs = () => {
           {labs.map((lab) => (
             <div
               key={lab.labNumber}
-              className={`flex flex-col items-center bg-white p-4 rounded-lg shadow-md ${lab.isPass === null ? 'border-gray-500' : lab.isPass ? 'border-green-500' : 'border-red-500'}`}
+              className={`flex flex-col items-center bg-white p-4 rounded-lg shadow-md ${
+                lab.isPass === null ? 'border-gray-500' : lab.isPass ? 'border-green-500' : 'border-red-500'
+              }`}
             >
               <h2 className="text-xl font-bold mb-2">Lab {lab.labNumber}</h2>
               <div className="flex items-center mb-2">
                 {lab.isPass === null ? (
-                  <div className="w-4 h-4 rounded-full bg-gray-500 mr-2"></div>
+                  <FaQuestionCircle className="text-gray-500 mr-2" />
                 ) : lab.isPass ? (
                   <FaCheckCircle className="text-green-700 mr-2" />
                 ) : (
                   <FaTimesCircle className="text-red-700 mr-2" />
                 )}
                 <span className="text-lg font-semibold">
-                  {lab.isPass === null ? 'Not Done' : lab.isPass ? 'Passed' : 'Failed'}
+                  {lab.isPass === null ? 'Not Attempted' : lab.isPass ? 'Passed' : 'Not Passed'}
                 </span>
               </div>
-              {lab.isPass !== null && (
+              {lab.attemptCount > 0 && (
+                <p className="text-sm mb-2">
+                  Attempts: {lab.attemptCount} | Latest: {lab.latestAttempt.isPass ? 'Pass' : 'Fail'}
+                </p>
+              )}
+              {lab.attemptCount > 0 && (
                 <button
                   onClick={() => navigate(`/professor/view-lab/${userId}/${lab.labNumber}`)}
                   className="py-2 px-4 bg-purple-600 text-white rounded hover:bg-purple-700 transition duration-200"
