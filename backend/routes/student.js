@@ -8,13 +8,20 @@ router.get('/labs', authMiddleware, async (req, res) => {
         const studentLabs = await LabSubmission.find({ studentId: req.userId }).populate('labInfo').exec();
         const allLabs = await LabInfo.find().sort({ labNumber: 1 });
 
+        const MAX_ATTEMPTS = 3; // Define max attempts
+
         // Map to hold lab status
         const labsStatus = allLabs.map(lab => {
-            const studentLab = studentLabs.find(sl => sl.labInfo._id.equals(lab._id));
+            const studentLabSubmissions = studentLabs.filter(sl => sl.labInfo._id.equals(lab._id));
+            const attemptsMade = studentLabSubmissions.length;
+            const attemptsLeft = Math.max(0, MAX_ATTEMPTS - attemptsMade);
+            const latestSubmission = studentLabSubmissions[studentLabSubmissions.length - 1];
+            
             return {
                 labInfo: lab,
-                isPass: studentLab ? studentLab.isPass : null,
-                attempt: studentLab ? studentLab.attempt : 0,
+                isPass: latestSubmission ? latestSubmission.isPass : null,
+                attempt: attemptsMade,
+                attemptsLeft: attemptsLeft
             };
         });
 
