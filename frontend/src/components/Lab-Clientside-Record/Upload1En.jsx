@@ -1,9 +1,10 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import axios from 'axios';
-import { FaVideo, FaStop, FaRedo, FaCheck, FaUpload } from 'react-icons/fa';
+import { FaVideo, FaStop, FaRedo, FaCheck, FaUpload, FaLanguage } from 'react-icons/fa';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import { useAuth } from '../../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const MAX_RECORDING_TIME = 180; // 3 minutes in seconds
 const CHUNK_SIZE = 1024 * 1024; // 1MB chunks
@@ -23,6 +24,8 @@ const Lab1Recording = () => {
     const { token } = useAuth();
     const [uploadProgress, setUploadProgress] = useState(0);
     const [attemptsLeft, setAttemptsLeft] = useState(MAX_ATTEMPTS);
+    const [language, setLanguage] = useState('en'); // Default to English
+    const navigate = useNavigate();
 
     const mediaRecorderRef = useRef(null);
     const liveVideoRef = useRef(null);
@@ -211,6 +214,21 @@ const Lab1Recording = () => {
         }
     }, [recordedBlob, token, attemptsLeft]);
 
+    const handleLanguageChange = (event) => {
+        const newLanguage = event.target.value;
+        setLanguage(newLanguage);
+        
+        // Redirect based on the selected language
+        if (newLanguage === 'jp') {
+            navigate('/student/upload1jp');
+        } else if (newLanguage === 'zh') {
+            navigate('/student/upload1cn');
+        } else if (newLanguage === 'th') {
+            navigate('/student/upload1');
+        }
+        // For English, we stay on the current page
+    };
+
     useEffect(() => {
         return () => {
             if (streamRef.current) {
@@ -235,6 +253,22 @@ const Lab1Recording = () => {
                         </svg>
                         <span>Back to Dashboard</span>
                     </a>
+                </div>
+    
+                <div className="mb-6 flex justify-end">
+                    <div className="flex items-center">
+                        <FaLanguage className="mr-2 text-gray-600" />
+                        <select
+                            value={language}
+                            onChange={handleLanguageChange}
+                            className="bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                            <option value="th">ภาษาไทย</option>
+                            <option value="zh">中文</option>
+                            <option value="en">English</option>
+                            <option value="jp">日本語</option>
+                        </select>
+                    </div>
                 </div>
     
                 <div className="mb-6">
