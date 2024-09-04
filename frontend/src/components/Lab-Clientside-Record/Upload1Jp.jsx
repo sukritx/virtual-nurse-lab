@@ -203,7 +203,7 @@ const Lab1Recording = () => {
                 setUploadProgress(((chunkIndex + 1) / totalChunks) * 100);
             }
 
-            const response = await axios.post('/api/v1/lab-deployed/upload-1', {
+            const response = await axios.post('/api/v1/lab-deployed/upload-1-jp', {
                 fileName,
                 totalChunks
             }, {
