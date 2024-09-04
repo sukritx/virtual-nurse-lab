@@ -17,6 +17,7 @@ import UploadTest from './components/UploadTest';
 import Upload1 from './components/Lab-Clientside-Record/Upload1';
 import Upload1Cn from './components/Lab-Clientside-Record/Upload1Cn';
 import Upload1En from './components/Lab-Clientside-Record/Upload1En';
+import UploadJp from './components/Lab-Clientside-Record/Upload1Jp';
 import Upload2 from './components/Lab-Clientside-Record/Upload2';
 import Upload3 from './components/Lab-Clientside-Record/Upload3';
 import Upload4 from './components/Lab-Clientside-Record/Upload4';
@@ -62,6 +63,7 @@ function App() {
               <Route path="/student/upload1" element={<Upload1 />} />
               <Route path="/student/upload1cn" element={<Upload1Cn />} />
               <Route path="/student/upload1en" element={<Upload1En />} />
+              <Route path="/student/upload1jp" element={<UploadJp />} />
 
               <Route path="/student/upload2" element={<Upload2 />} />
               <Route path="/student/upload3" element={<Upload3 />} />

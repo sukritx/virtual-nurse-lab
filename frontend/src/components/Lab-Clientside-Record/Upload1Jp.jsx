@@ -24,7 +24,7 @@ const Lab1Recording = () => {
     const { token } = useAuth();
     const [uploadProgress, setUploadProgress] = useState(0);
     const [attemptsLeft, setAttemptsLeft] = useState(MAX_ATTEMPTS);
-    const [language, setLanguage] = useState('th'); // Default to Thai
+    const [language, setLanguage] = useState('jp'); // Default to Japanese
     const navigate = useNavigate();
 
     const mediaRecorderRef = useRef(null);
@@ -43,10 +43,10 @@ const Lab1Recording = () => {
             navigate('/student/upload1cn');
         } else if (newLanguage === 'en') {
             navigate('/student/upload1en');
-        } else if (newLanguage === 'jp') {
-            navigate('/student/upload1jp');
+        } else if (newLanguage === 'th') {
+            navigate('/student/upload1');
         }
-        // For Thai, we stay on the current page
+        // For Japanese, we stay on the current page
     };
 
     useEffect(() => {
@@ -251,7 +251,7 @@ const Lab1Recording = () => {
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                             <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
                         </svg>
-                        <span>Back to Dashboard</span>
+                        <span>ダッシュボードに戻る</span>
                     </a>
                 </div>
     
@@ -267,9 +267,9 @@ const Lab1Recording = () => {
                             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
                         </svg>
                         <span className="font-semibold">
-                            {attemptsLeft === 0 ? 'No attempts left' : 
-                            attemptsLeft === 1 ? 'Last attempt' : 
-                            `${attemptsLeft} attempts left`}
+                            {attemptsLeft === 0 ? '残りの試行回数はありません' : 
+                            attemptsLeft === 1 ? '最後の試行' : 
+                            `${attemptsLeft} 回の試行回数が残っています`}
                         </span>
                     </div>
                 </div>
@@ -290,14 +290,12 @@ const Lab1Recording = () => {
                     </div>
                 </div>
     
-                <h1 className="text-2xl font-bold mb-2 text-center text-gray-800">Lab 1: 母乳喂养</h1>
-                <h2 className="text-lg mb-6 text-center text-gray-600">母亲右侧乳头疼痛</h2>
+                <h1 className="text-2xl font-bold mb-2 text-center text-gray-800">ラボ1：母乳育児</h1>
+                <h2 className="text-lg mb-6 text-center text-gray-600">母親の右乳頭の痛み</h2>
     
                 <div className="mb-6 p-4 bg-gray-100 rounded-lg text-sm text-gray-700">
                     <p>
-                        母亲17岁，生完第一个儿子1天，儿子健康，体重2,800克，
-                        母亲无法自行喂奶，母乳开始流出，喂奶时右侧乳头疼痛，右侧比左侧更疼，
-                        LATCH评分=5（latch on=1, audible=1, type of nipple=2, comfort=1, holding= 0）
+                        17歳の初産婦が出産1日後、2800グラムの健康な男児を出産しました。母親は授乳時に赤ちゃんの位置を自分で調整するのが難しいと報告しています。母乳分泌は始まっていますが、授乳中に乳頭痛を感じ、左側よりも右側の方が強い不快感があります。LATCHスコアは5（吸着=1、聞こえる音=1、乳頭の種類=2、快適さ=1、抱き方=0）です。
                     </p>
                 </div>
     
@@ -316,7 +314,7 @@ const Lab1Recording = () => {
                         href="/library/1" 
                         className="inline-flex items-center justify-center space-x-2 bg-gradient-to-r from-blue-700 to-blue-900 text-white text-lg font-semibold px-8 py-3 rounded-full hover:from-blue-800 hover:to-blue-950 transition duration-300 shadow-lg"
                     >
-                        <span>使用说明</span>
+                        <span>使用方法</span>
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                             <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
                         </svg>
@@ -324,13 +322,13 @@ const Lab1Recording = () => {
                 </div>
                 
                 <div className="space-y-4 mb-8 text-gray-700">
-                    <p>1. 您会给这位母亲什么建议？例如正确吸吮4个动作，解决问题</p>
-                    <p>2. 您会如何向这位母亲示范正确的抱姿势和缓解/预防乳头疼痛？</p>
+                    <p>1. この母親にどのようなアドバイスをしますか？例えば、正しい授乳方法、4回の授乳、問題の解決方法など。</p>
+                    <p>2. この母親に対して、正しい抱き方と乳頭痛の緩和/予防方法をどのように実演しますか？</p>
                 </div>
                 
                 <div className="mb-6">
                     <label className="block mb-2 text-sm font-medium text-gray-700">
-                        {isMediaRecorderSupported ? "Record your response (480p)" : "Upload your response"}
+                        {isMediaRecorderSupported ? "回答を録音する (480p)" : "回答をアップロードする"}
                     </label>
                     <div className="mt-1 flex flex-col items-center justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
                         {recordingState !== 'recorded' && isMediaRecorderSupported && (
@@ -361,7 +359,7 @@ const Lab1Recording = () => {
                                             disabled={attemptsLeft === 0}
                                         >
                                             <FaVideo className="mr-2" />
-                                            Ready
+                                            準備完了
                                         </button>
                                     )}
                                     {recordingState === 'ready' && (
@@ -371,7 +369,7 @@ const Lab1Recording = () => {
                                             disabled={attemptsLeft === 0}
                                         >
                                             <FaVideo className="mr-2" />
-                                            Start Recording
+                                            録画開始
                                         </button>
                                     )}
                                     {recordingState === 'recording' && (
@@ -380,7 +378,7 @@ const Lab1Recording = () => {
                                             className="bg-gray-500 text-white px-4 py-2 rounded-full flex items-center"
                                         >
                                             <FaStop className="mr-2" />
-                                            Stop Recording
+                                            録画停止
                                         </button>
                                     )}
                                 </>
@@ -391,7 +389,7 @@ const Lab1Recording = () => {
                                     disabled={attemptsLeft === 0}
                                 >
                                     <FaUpload className="mr-2" />
-                                    Upload Video
+                                    ビデオをアップロード
                                 </button>
                             )}
                             {recordingState === 'recorded' && (
@@ -401,7 +399,7 @@ const Lab1Recording = () => {
                                         className="bg-yellow-500 text-white px-4 py-2 rounded-full flex items-center"
                                     >
                                         <FaRedo className="mr-2" />
-                                        Retake
+                                        再撮影
                                     </button>
                                     <button
                                         onClick={onSubmit}
@@ -409,7 +407,7 @@ const Lab1Recording = () => {
                                         disabled={attemptsLeft === 0}
                                     >
                                         <FaCheck className="mr-2" />
-                                        Submit
+                                        送信
                                     </button>
                                 </>
                             )}
@@ -439,13 +437,13 @@ const Lab1Recording = () => {
                 </div>
                 
                 {attemptsLeft === 0 && (
-                    <p className="text-red-500 mt-4 text-center">You have used all your attempts for this lab.</p>
+                    <p className="text-red-500 mt-4 text-center">このラボの試行回数をすべて使い果たしました。</p>
                 )}
                 
                 {loading && (
                     <div className="mt-4 text-gray-600 text-center">
-                        <p>Upload Progress: {uploadProgress.toFixed(2)}%</p>
-                        <p>処理中、お待ちください（約1-2分）...</p>
+                        <p>アップロード進捗: {uploadProgress.toFixed(2)}%</p>
+                        <p>処理に1～2分かかります...</p>
                     </div>
                 )}
                 {error && (
@@ -467,20 +465,20 @@ const Lab1Recording = () => {
                         />
                         <div className="mt-4 text-center">
                             <h3 className="text-lg font-bold text-gray-800">
-                                Status: {passFailStatus}
+                                ステータス: {passFailStatus}
                             </h3>
                         </div>
                     </div>
                 )}
                 {pros && (
                     <div className="mt-6 text-gray-700">
-                        <h3 className="text-lg font-bold text-gray-800">学生表现良好:</h3>
+                        <h3 className="text-lg font-bold text-gray-800">学生の良い点:</h3>
                         <p>{pros}</p>
                     </div>
                 )}
                 {recommendations && (
                     <div className="mt-6 text-gray-700">
-                        <h3 className="text-lg font-bold text-gray-800">建议:</h3>
+                        <h3 className="text-lg font-bold text-gray-800">提案:</h3>
                         <p>{recommendations}</p>
                     </div>
                 )}
