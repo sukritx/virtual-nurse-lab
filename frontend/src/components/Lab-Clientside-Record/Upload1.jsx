@@ -43,8 +43,6 @@ const Lab1Recording = () => {
             navigate('/student/upload1cn');
         } else if (newLanguage === 'en') {
             navigate('/student/upload1en');
-        } else if (newLanguage === 'jp') {
-            navigate('/student/upload1jp');
         }
         // For Thai, we stay on the current page
     };
@@ -285,19 +283,18 @@ const Lab1Recording = () => {
                             <option value="th">ภาษาไทย</option>
                             <option value="zh">中文</option>
                             <option value="en">English</option>
-                            <option value="jp">日本語</option>
                         </select>
                     </div>
                 </div>
     
-                <h1 className="text-2xl font-bold mb-2 text-center text-gray-800">Lab 1: 母乳喂养</h1>
-                <h2 className="text-lg mb-6 text-center text-gray-600">母亲右侧乳头疼痛</h2>
+                <h1 className="text-2xl font-bold mb-2 text-center text-gray-800">Lab 1: การเลี้ยงลูกด้วยนมแม่</h1>
+                <h2 className="text-lg mb-6 text-center text-gray-600">มารดาเจ็บหัวนมด้านขวา</h2>
     
                 <div className="mb-6 p-4 bg-gray-100 rounded-lg text-sm text-gray-700">
                     <p>
-                        母亲17岁，生完第一个儿子1天，儿子健康，体重2,800克，
-                        母亲无法自行喂奶，母乳开始流出，喂奶时右侧乳头疼痛，右侧比左侧更疼，
-                        LATCH评分=5（latch on=1, audible=1, type of nipple=2, comfort=1, holding= 0）
+                        มารดาอายุ 17 ปี หลังคลอดบุตรคนแรกเพศชายได้ 1 วัน บุตรสุขภาพแข็งแรงดี บุตรหนัก 2,800 กรัม 
+                        มารดายังอุ้มบุตรดูดนมเองไม่ได้ น้ำนมเริ่มไหล มีอาการเจ็บหัวนมขณะที่บุตรดูดนม เจ็บข้างขวามากกว่าข้างซ้าย 
+                        ประเมิน LATCH score = 5 (latch on=1, audible=1, type of nipple=2, comfort=1, holding= 0)
                     </p>
                 </div>
     
@@ -316,7 +313,7 @@ const Lab1Recording = () => {
                         href="/library/1" 
                         className="inline-flex items-center justify-center space-x-2 bg-gradient-to-r from-blue-700 to-blue-900 text-white text-lg font-semibold px-8 py-3 rounded-full hover:from-blue-800 hover:to-blue-950 transition duration-300 shadow-lg"
                     >
-                        <span>使用说明</span>
+                        <span>ขั้นตอนการใช้งาน</span>
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                             <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
                         </svg>
@@ -324,8 +321,8 @@ const Lab1Recording = () => {
                 </div>
                 
                 <div className="space-y-4 mb-8 text-gray-700">
-                    <p>1. 您会给这位母亲什么建议？例如正确吸吮4个动作，解决问题</p>
-                    <p>2. 您会如何向这位母亲示范正确的抱姿势和缓解/预防乳头疼痛？</p>
+                    <p>1. ท่านจะให้คำแนะนำใดแก่มารดารายนี้ เช่น การดูดอย่างถูกวิธี 4 ดูด การแก้ไขปัญหา</p>
+                    <p>2. ท่านจะสาธิตท่าอุ้มที่ถูกต้อง และการบรรเทา/ป้องกันการเจ็บหัวนม ให้กับมารดารายนี้อย่างไร</p>
                 </div>
                 
                 <div className="mb-6">
@@ -445,7 +442,7 @@ const Lab1Recording = () => {
                 {loading && (
                     <div className="mt-4 text-gray-600 text-center">
                         <p>Upload Progress: {uploadProgress.toFixed(2)}%</p>
-                        <p>処理中、お待ちください（約1-2分）...</p>
+                        <p>รอประมวลผลประมาณ 1-2 นาที...</p>
                     </div>
                 )}
                 {error && (
@@ -474,13 +471,13 @@ const Lab1Recording = () => {
                 )}
                 {pros && (
                     <div className="mt-6 text-gray-700">
-                        <h3 className="text-lg font-bold text-gray-800">学生表现良好:</h3>
+                        <h3 className="text-lg font-bold text-gray-800">นักศึกษาทำได้ดี:</h3>
                         <p>{pros}</p>
                     </div>
                 )}
                 {recommendations && (
                     <div className="mt-6 text-gray-700">
-                        <h3 className="text-lg font-bold text-gray-800">建议:</h3>
+                        <h3 className="text-lg font-bold text-gray-800">ข้อเสนอแนะ:</h3>
                         <p>{recommendations}</p>
                     </div>
                 )}
