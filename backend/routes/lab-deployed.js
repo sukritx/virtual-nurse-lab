@@ -915,6 +915,184 @@ Please convert the evaluation results into JSON format as follows:
     return feedbackJson;
 }
 
+// english version
+router.post('/upload-1-jp', authMiddleware, async (req, res) => {
+    const { fileName, totalChunks } = req.body;
+    const tempDir = path.join(__dirname, '../temp');
+    const finalFilePath = path.join(__dirname, '../public/uploads', fileName);
+    let audioPath = null;
+    let fileUrl = null;
+    let fileType = null;
+
+    try {
+        // Reassemble the file from chunks
+        await new Promise((resolve, reject) => {
+            const writeStream = fs.createWriteStream(finalFilePath);
+            writeStream.on('finish', resolve);
+            writeStream.on('error', reject);
+
+            (async () => {
+                for (let i = 0; i < totalChunks; i++) {
+                    const chunkPath = path.join(tempDir, `${req.userId}_${i}`);
+                    const chunkBuffer = await fs.promises.readFile(chunkPath);
+                    writeStream.write(chunkBuffer);
+                    await fs.promises.unlink(chunkPath);
+                }
+                writeStream.end();
+            })();
+        });
+
+        // console.log('File reassembled successfully');
+        const uploadTimestamp = Date.now();
+
+        fileType = getFileType(fileName);
+
+        // Upload the original file to Spaces
+        // console.time('Spaces upload');
+        fileUrl = await uploadToSpaces(finalFilePath, `lab1/${req.userId}/${uploadTimestamp}${path.extname(fileName)}`);
+        // console.timeEnd('Spaces upload');
+
+        if (fileType === 'video') {
+            // Audio extraction for transcription
+            // console.time('Audio extraction');
+            audioPath = `./public/uploads/audio-${uploadTimestamp}.mp3`;
+            await new Promise((resolve, reject) => {
+                ffmpeg(finalFilePath)
+                    .output(audioPath)
+                    .audioCodec('libmp3lame')
+                    .on('end', resolve)
+                    .on('error', reject)
+                    .run();
+            });
+            // console.timeEnd('Audio extraction');
+        } else {
+            // For audio files, use the uploaded file directly
+            audioPath = finalFilePath;
+        }
+
+        // Transcription
+        // console.time('Transcription');
+        const transcriptionResult = await transcribeAudioIApp(audioPath);
+        // console.timeEnd('Transcription');
+
+        const transcription = concatenateTranscriptionText(transcriptionResult.output);
+
+        // GPT processing (same as before)
+        // console.time('GPT processing');
+        const feedbackJson = await processTranscriptionLab1jp(transcription);
+        // console.timeEnd('GPT processing');
+
+        // Prepare and submit lab info
+        const labInfo = {
+            studentId: req.userId,
+            labNumber: 1,
+            subject: 'maternalandchild',
+            fileUrl: fileUrl,
+            fileType: fileType,
+            studentAnswer: transcription,
+            studentScore: feedbackJson.totalScore,
+            isPass: feedbackJson.totalScore >= 60,
+            pros: feedbackJson.pros,
+            recommendations: feedbackJson.recommendations,
+        };
+
+        // console.time('Lab submission');
+        await axios.post('http://localhost:3000/api/v1/lab-deployed/submit-lab', labInfo);
+        // console.timeEnd('Lab submission');
+
+        // Send response
+        res.json({
+            feedback: feedbackJson,
+            transcription,
+            passFailStatus: feedbackJson.totalScore >= 60 ? 'Passed' : 'Failed',
+            score: feedbackJson.totalScore,
+            pros: feedbackJson.pros,
+            recommendations: feedbackJson.recommendations,
+            fileUrl: fileUrl,
+            fileType: fileType
+        });
+
+    } catch (error) {
+        console.error('Error processing the file:', error);
+        res.status(500).json({ msg: 'Error processing the file', error: error.message });
+    } finally {
+        // Cleanup
+        // console.log('Cleaning up local files');
+        [finalFilePath, audioPath].forEach(path => {
+            if (path && fs.existsSync(path)) {
+                try {
+                    fs.unlinkSync(path);
+                    // console.log(`Successfully deleted: ${path}`);
+                } catch (deleteError) {
+                    if (deleteError.code !== 'ENOENT') {
+                        console.error(`Failed to delete file: ${path}`, deleteError);
+                    }
+                }
+            }
+        });
+    }
+});
+async function processTranscriptionLab1jp(transcription) {
+    const answerKey = `
+実習1：母乳育児 - 乳頭痛のケース
+
+この母親にどのようなアドバイスをしますか？例えば、正しい授乳方法、4回の授乳、問題解決など。
+
+解答（50点）
+
+正しい授乳方法を説明し、赤ちゃんを母親の体に密着させ、赤ちゃんのお腹と母親のお腹を密着させ、赤ちゃんの顔をわずかに上向きにし、赤ちゃんの体をまっすぐにして、乳輪まで深く含ませることを強調する（10点）
+頻繁な授乳の詳細を説明する。例えば、2-3時間ごと、または赤ちゃんが求めるときに授乳し、各授乳は20分程度続ける（10点）
+痛みの少ない方の乳房から始める。この場合、左側から始め、赤ちゃんがまだ満足していない場合は右側に移る。次の授乳では、前回途中で終わった右側から始める（10点）
+赤ちゃんが満足したら、自然に乳首を離す。まだ吸っている場合は、乳首を引っ張らないこと（乳首を傷つける可能性がある）。授乳を中止したい場合は、赤ちゃんの顎を軽く押すか、小指を赤ちゃんの口に入れて口を開けさせ、乳首を離す（10点）
+正しい嚥下の特徴を説明する。例えば、リズミカルな嚥下音を観察し、吸う音ではなく空気の音（チュパチュパ音）がすること（10点）
+母乳の十分さを観察する方法を説明する。例えば、赤ちゃんの睡眠パターン、排尿・排便の回数、尿の色など。または「4 6 8ルール」を紹介する（5点）
+授乳前に温湿布を行い、母乳の量を増やす方法を勧める（5点）
+温かい水を頻繁に飲むことを勧める（5点）
+母乳の母子両方への利点を説明する（5点）
+母乳の分泌を促進する食品を勧める。例えば、生姜、バジル、ホーリーバジル、豆乳など（5点）
+
+
+この母親に正しい抱き方と乳頭痛の緩和/予防をどのように実演しますか？
+
+解答（50点）
+
+正しい授乳姿勢を実演する。授乳時、赤ちゃんの体をまっすぐに保ち、首をねじらず、赤ちゃんのお腹を母親のお腹に密着させ、赤ちゃんの顔を乳房に向け、母親の手で赤ちゃんの体を支える。正しく吸着できれば、母親は乳頭痛を感じず、乳首も傷つかず、赤ちゃんの吸啜リズムも一定になる（30点）
+授乳後、母乳を乳頭に塗るよう勧める（10点）
+使用できる授乳姿勢には以下がある：
+
+クレードルホールド：赤ちゃんを横抱きにし、母親の体に向けて横向きにする。赤ちゃんのお腹を母親のお腹に密着させ、腕で赤ちゃんの背中を支え、手のひらでお尻と太ももを支える。赤ちゃんの口が乳首の位置に来るようにし、頭と体をまっすぐに保ち、頭を少し高くする（10点）
+モディファイドクレードルホールド：クレードルホールドから手を変え、授乳する側の手で乳房を支え、もう一方の手で赤ちゃんの首と後頭部を支える（10点）
+フットボールホールド：赤ちゃんを半横向き半仰向けに抱き、首と後頭部を手で支え、赤ちゃんを母親の脇に密着させる。赤ちゃんの足を母親の背中の方に向け、母親の手と同じ側の乳房から授乳する（10点）
+横向き授乳：母子ともに横向きに寝て向かい合う。母親は頭を少し高くし、背中と腰をできるだけまっすぐにする。赤ちゃんの口が母親の乳首の位置に来るようにする。下側の手で赤ちゃんの背中を支え、上側の手で最初に乳首を赤ちゃんの口に入れる際に乳房を支える（10点）
+
+満点は 100 点です。
+`;
+
+    const checkContent = `
+これは学生の回答です： "${transcription}".
+これは模範解答です： "${answerKey}".
+
+学生の回答と模範解答を比較し、回答が的確かどうかを評価してください。また、学生が上手くできた点を詳細に説明し、改善のための提案も行ってください。各小項目の得点については言及せず、日本語で回答してください。
+文法や関係のない事項については指摘しないでください。
+評価結果を以下のJSON形式に変換してください：
+    {
+        "totalScore": <学生の得点>,
+        "pros": "<学生が上手くできた点>",
+        "recommendations": "<改善のための提案>"
+    }
+`;
+
+    const response = await openai.chat.completions.create({
+        messages: [{ role: "system", content: checkContent }],
+        model: "gpt-4o",
+        response_format: { "type": "json_object" }
+    });
+
+    const feedbackJson = JSON.parse(response.choices[0].message.content.trim());
+    console.log(feedbackJson);
+    return feedbackJson;
+}
+
 router.post('/upload-2', authMiddleware, async (req, res) => {
     const { fileName, totalChunks } = req.body;
     const tempDir = path.join(__dirname, '../temp');
