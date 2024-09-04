@@ -98,6 +98,21 @@ async function transcribeAudioIApp(audioPath) {
     }
 }
 
+async function transcribeAudioOpenAI(audioPath) {
+    try {
+        const transcription = await openai.audio.transcriptions.create({
+            file: fs.createReadStream(audioPath),
+            model: "whisper-1",
+            response_format: "text",
+        });
+
+        return transcription;
+    } catch (error) {
+        console.error('Error transcribing audio with OpenAI:', error);
+        throw new Error(`Transcription failed: ${error.message}`);
+    }
+}
+
 function concatenateTranscriptionText(transcriptionOutput) {
     return transcriptionOutput.map(segment => segment.text).join(' ');
 }
@@ -219,10 +234,8 @@ router.post('/upload-test', authMiddleware, async (req, res) => {
 
         // Transcription
         // console.time('Transcription');
-        const transcriptionResult = await transcribeAudioIApp(audioPath);
+        const transcription = await transcribeAudioOpenAI(audioPath);
         // console.timeEnd('Transcription');
-
-        const transcription = concatenateTranscriptionText(transcriptionResult.output);
 
         // GPT processing (same as before)
         // console.time('GPT processing');
@@ -571,10 +584,8 @@ router.post('/upload-1-cn', authMiddleware, async (req, res) => {
 
         // Transcription
         // console.time('Transcription');
-        const transcriptionResult = await transcribeAudioIApp(audioPath);
+        const transcription = await transcribeAudioOpenAI(audioPath);
         // console.timeEnd('Transcription');
-
-        const transcription = concatenateTranscriptionText(transcriptionResult.output);
 
         // GPT processing (same as before)
         // console.time('GPT processing');
@@ -780,10 +791,8 @@ router.post('/upload-1-en', authMiddleware, async (req, res) => {
 
         // Transcription
         // console.time('Transcription');
-        const transcriptionResult = await transcribeAudioIApp(audioPath);
+        const transcription = await transcribeAudioOpenAI(audioPath);
         // console.timeEnd('Transcription');
-
-        const transcription = concatenateTranscriptionText(transcriptionResult.output);
 
         // GPT processing (same as before)
         // console.time('GPT processing');
@@ -972,10 +981,8 @@ router.post('/upload-1-jp', authMiddleware, async (req, res) => {
 
         // Transcription
         // console.time('Transcription');
-        const transcriptionResult = await transcribeAudioIApp(audioPath);
+        const transcription = await transcribeAudioOpenAI(audioPath);
         // console.timeEnd('Transcription');
-
-        const transcription = concatenateTranscriptionText(transcriptionResult.output);
 
         // GPT processing (same as before)
         // console.time('GPT processing');
