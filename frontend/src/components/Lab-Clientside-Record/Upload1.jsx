@@ -43,6 +43,8 @@ const Lab1Recording = () => {
             navigate('/student/upload1cn');
         } else if (newLanguage === 'en') {
             navigate('/student/upload1en');
+        } else if (newLanguage === 'jp') {
+            navigate('/student/upload1jp');
         }
         // For Thai, we stay on the current page
     };
@@ -283,6 +285,7 @@ const Lab1Recording = () => {
                             <option value="th">ภาษาไทย</option>
                             <option value="zh">中文</option>
                             <option value="en">English</option>
+                            <option value="jp">日本語</option>
                         </select>
                     </div>
                 </div>
