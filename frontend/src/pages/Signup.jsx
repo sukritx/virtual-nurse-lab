@@ -19,6 +19,7 @@ export const Signup = () => {
   const { login } = useAuth();
   const [errors, setErrors] = useState({});
   const [generalError, setGeneralError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const validateInput = (name, value) => {
     let errorMessage = '';
@@ -116,6 +117,7 @@ export const Signup = () => {
       return;
     }
 
+    setIsLoading(true);
     try {
       const response = await axios.post("/api/v1/user/signup", {
         username,
@@ -143,6 +145,8 @@ export const Signup = () => {
       } else {
         setGeneralError("An unexpected error occurred. Please try again.");
       }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -165,7 +169,7 @@ export const Signup = () => {
           <InputBox onChange={handleInputChange} name="studentId" value={studentId} placeholder="12345678" label={"Student ID*"} error={errors.studentId} />
           <InputBox onChange={handleInputChange} name="registerCode" value={registerCode} placeholder="registercode123" label={"Register Code*"} error={errors.registerCode} />
           <div className="pt-4">
-            <Button onClick={handleSignup} label={"Sign up"} />
+            <Button onClick={handleSignup} label={"Sign up"} disabled={isLoading} />
           </div>
           <BottomWarning label={"Already have an account?"} buttonText={"Sign in"} to={"/signin"} />
         </div>
