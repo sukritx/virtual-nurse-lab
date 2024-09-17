@@ -52,12 +52,6 @@ export const Signup = () => {
         break;
     }
 
-    if (errorMessage) {
-      setErrors(prev => ({ ...prev, [name]: errorMessage }));
-    } else {
-      setErrors(prev => ({ ...prev, [name]: undefined }));
-    }
-
     return errorMessage;
   };
 
@@ -103,16 +97,19 @@ export const Signup = () => {
 
     // Validate all fields
     const fieldsToValidate = ['username', 'firstName', 'lastName', 'password', 'studentId', 'registerCode'];
-    let hasErrors = false;
+    let newErrors = {};
     
     fieldsToValidate.forEach(field => {
-      validateInput(field, eval(field));
-      if (errors[field]) {
-        hasErrors = true;
+      const errorMessage = validateInput(field, eval(field));
+      if (errorMessage) {
+        newErrors[field] = errorMessage;
       }
     });
 
-    if (hasErrors) {
+    // Set all errors at once
+    setErrors(newErrors);
+
+    if (Object.keys(newErrors).length > 0) {
       setGeneralError("Please fix the highlighted errors before submitting.");
       return;
     }
