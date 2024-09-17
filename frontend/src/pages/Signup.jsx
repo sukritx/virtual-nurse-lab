@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { BottomWarning } from "../components/BottomWarning";
 import { Button } from "../components/Button";
 import { Heading } from "../components/Heading";
@@ -87,7 +87,9 @@ export const Signup = () => {
         setRegisterCode(value); // Keep original input for register code
         break;
     }
-    validateInput(name, processedValue);
+
+    const errorMessage = validateInput(name, processedValue);
+    setErrors(prev => ({ ...prev, [name]: errorMessage }));
   };
 
   const handleSignup = async () => {
@@ -144,6 +146,11 @@ export const Signup = () => {
     }
   };
 
+  // Debug: Log errors whenever they change
+  useEffect(() => {
+    console.log("Current errors:", errors);
+  }, [errors]);
+
   return (
     <div className="bg-slate-300 h-screen flex justify-center">
       <div className="flex flex-col justify-center">
@@ -151,12 +158,12 @@ export const Signup = () => {
           <Heading label={"Sign up"} />
           <SubHeading label={"ใส่ข้อมูลของตนเองเพื่อลงทะเบียน"} />
           {generalError && <div className="text-red-500 mb-2">{generalError}</div>}
-          <InputBox onChange={handleInputChange} name="firstName" placeholder="supassara" label={"First Name*"} error={errors.firstName} />
-          <InputBox onChange={handleInputChange} name="lastName" placeholder="jaidee" label={"Last Name*"} error={errors.lastName} />
-          <InputBox onChange={handleInputChange} name="username" placeholder="username" label={"Username*"} error={errors.username} />
-          <InputBox onChange={handleInputChange} name="password" type="password" placeholder="password123" label={"Password*"} error={errors.password} />
-          <InputBox onChange={handleInputChange} name="studentId" placeholder="12345678" label={"Student ID*"} error={errors.studentId} />
-          <InputBox onChange={handleInputChange} name="registerCode" placeholder="registercode123" label={"Register Code*"} error={errors.registerCode} />
+          <InputBox onChange={handleInputChange} name="firstName" value={firstName} placeholder="supassara" label={"First Name*"} error={errors.firstName} />
+          <InputBox onChange={handleInputChange} name="lastName" value={lastName} placeholder="jaidee" label={"Last Name*"} error={errors.lastName} />
+          <InputBox onChange={handleInputChange} name="username" value={username} placeholder="username" label={"Username*"} error={errors.username} />
+          <InputBox onChange={handleInputChange} name="password" value={password} type="password" placeholder="password123" label={"Password*"} error={errors.password} />
+          <InputBox onChange={handleInputChange} name="studentId" value={studentId} placeholder="12345678" label={"Student ID*"} error={errors.studentId} />
+          <InputBox onChange={handleInputChange} name="registerCode" value={registerCode} placeholder="registercode123" label={"Register Code*"} error={errors.registerCode} />
           <div className="pt-4">
             <Button onClick={handleSignup} label={"Sign up"} />
           </div>
