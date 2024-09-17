@@ -33,7 +33,7 @@ export const Signup = () => {
       case 'firstName':
       case 'lastName':
         if (!/^[a-zA-Z]+$/.test(value)) {
-          errorMessage = `${name} must contain only letters`;
+          errorMessage = `${name === 'firstName' ? 'First' : 'Last'} name must contain only letters`;
         }
         break;
       case 'password':
