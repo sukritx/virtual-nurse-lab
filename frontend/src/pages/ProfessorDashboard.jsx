@@ -127,7 +127,7 @@ export const ProfessorDashboard = () => {
                           key={index} 
                           className={`w-4 h-4 rounded-full ${
                             labStatus.isPass ? 'bg-green-500' : 
-                            (labStatus.attempt > 0 ? 'bg-red-500' : 'bg-gray-500')
+                            (labStatus.attempt > 0 ? 'bg-yellow-500' : 'bg-gray-500')
                           }`}
                           title={`Lab ${labStatus.labNumber}: ${
                             labStatus.isPass ? 'Passed' : 

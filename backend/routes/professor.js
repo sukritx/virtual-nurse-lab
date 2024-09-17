@@ -77,6 +77,7 @@ router.get('/labs', professorAuth, async (req, res) => {
         {
           $group: {
             _id: "$labInfo",
+            submissions: { $push: "$$ROOT" },
             latestSubmission: { $first: "$$ROOT" }
           }
         },
@@ -94,18 +95,19 @@ router.get('/labs', professorAuth, async (req, res) => {
       const labsStatus = allLabs.map(lab => {
         const studentLab = studentLabs.find(sl => sl._id.equals(lab._id));
         if (studentLab) {
-          if (studentLab.latestSubmission.isPass) {
+          const hasPassed = studentLab.submissions.some(sub => sub.isPass);
+          if (hasPassed) {
             labStats.find(stat => stat.labNumber === lab.labNumber).completed++;
           }
           return {
             labNumber: lab.labNumber,
-            isPass: studentLab.latestSubmission.isPass,
-            attempt: studentLab.latestSubmission.attempt
+            isPass: hasPassed,
+            attempt: studentLab.submissions.length
           };
         } else {
           return {
             labNumber: lab.labNumber,
-            isPass: null,
+            isPass: false,
             attempt: 0
           };
         }
