@@ -18,6 +18,7 @@ export const Signup = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
   const [errors, setErrors] = useState({});
+  const [generalError, setGeneralError] = useState("");
 
   const validateInput = (name, value) => {
     let isValid = true;
@@ -91,7 +92,7 @@ export const Signup = () => {
 
   const handleSignup = async () => {
     if (Object.values(errors).some(error => error)) {
-      alert("Please fix the errors before submitting");
+      setGeneralError("Please fix the errors before submitting");
       return;
     }
 
@@ -116,10 +117,11 @@ export const Signup = () => {
           newErrors[err.field] = err.message;
         });
         setErrors(prevErrors => ({ ...prevErrors, ...newErrors }));
+        setGeneralError(error.response.data.message || "An error occurred during signup.");
       } else if (error.response?.data?.message) {
-        alert(error.response.data.message);
+        setGeneralError(error.response.data.message);
       } else {
-        alert("An error occurred during signup. Please try again.");
+        setGeneralError("An unexpected error occurred. Please try again.");
       }
     }
   };
@@ -130,6 +132,7 @@ export const Signup = () => {
         <div className="rounded-lg bg-white w-80 text-center p-2 h-max px-4">
           <Heading label={"Sign up"} />
           <SubHeading label={"ใส่ข้อมูลของตนเองเพื่อลงทะเบียน"} />
+          {generalError && <div className="text-red-500 mb-2">{generalError}</div>}
           <InputBox onChange={handleInputChange} name="firstName" placeholder="supassara" label={"First Name*"} error={errors.firstName} />
           <InputBox onChange={handleInputChange} name="lastName" placeholder="jaidee" label={"Last Name*"} error={errors.lastName} />
           <InputBox onChange={handleInputChange} name="username" placeholder="username" label={"Username*"} error={errors.username} />
