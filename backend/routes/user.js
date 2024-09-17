@@ -10,19 +10,20 @@ const dotenv = require('dotenv').config();
 const JWT_SECRET = process.env.JWT_SECRET
 
 const signupBody = zod.object({
-    username: zod.string(),
-	firstName: zod.string(),
-	lastName: zod.string(),
-	password: zod.string(),
-    studentId: zod.string(),
-    registerCode: zod.string()
+    username: zod.string().min(1).regex(/^[a-z0-9]+$/, { message: "Username must contain only lowercase letters and numbers" }),
+    firstName: zod.string().min(1).regex(/^[a-zA-Z]+$/, { message: "First name must contain only letters" }),
+    lastName: zod.string().min(1).regex(/^[a-zA-Z]+$/, { message: "Last name must contain only letters" }),
+    password: zod.string().min(6, { message: "Password must be at least 6 characters long" }),
+    studentId: zod.string().regex(/^[0-9]+$/, { message: "Student ID must contain only numbers" }),
+    registerCode: zod.string().min(1)
 })
 
 router.post("/signup", async (req, res) => {
-    const { success } = signupBody.safeParse(req.body)
-    if (!success) {
-        return res.status(411).json({
-            message: "Username already taken / Incorrect inputs"
+    const result = signupBody.safeParse(req.body)
+    if (!result.success) {
+        return res.status(400).json({
+            message: "Invalid input",
+            errors: result.error.errors.map(err => err.message)
         })
     }
 
@@ -31,25 +32,25 @@ router.post("/signup", async (req, res) => {
     })
 
     if (existingUser) {
-        return res.status(411).json({
-            message: "Email already taken/Incorrect inputs"
+        return res.status(409).json({
+            message: "Username already taken"
         })
     }
 
     // verify registerCode
     const registerCode = req.body.registerCode
     const university = await University.findOne({registerCode})
-    if (university) {
-        const numberOfStudents = university.numberOfStudents;
-        const students = university.students;
-        if (students.length >= numberOfStudents) {
-            return res.status(411).json({
-                message: "University is full"
-            })
-        }
-    } else {
-        return res.status(411).json({
+    if (!university) {
+        return res.status(400).json({
             message: "Invalid register code"
+        })
+    }
+
+    const numberOfStudents = university.numberOfStudents;
+    const students = university.students;
+    if (students.length >= numberOfStudents) {
+        return res.status(400).json({
+            message: "University is full"
         })
     }
 
