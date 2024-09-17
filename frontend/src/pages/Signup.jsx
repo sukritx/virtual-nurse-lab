@@ -116,8 +116,10 @@ export const Signup = () => {
           newErrors[err.field] = err.message;
         });
         setErrors(prevErrors => ({ ...prevErrors, ...newErrors }));
+      } else if (error.response?.data?.message) {
+        alert(error.response.data.message);
       } else {
-        alert(error.response?.data?.message || "Signup failed");
+        alert("An error occurred during signup. Please try again.");
       }
     }
   };
