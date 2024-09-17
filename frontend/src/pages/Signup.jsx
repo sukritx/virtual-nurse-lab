@@ -156,12 +156,12 @@ export const Signup = () => {
   }, [errors]);
 
   return (
-    <div className="bg-slate-300 h-screen flex justify-center">
-      <div className="flex flex-col justify-center">
-        <div className="rounded-lg bg-white w-80 text-center p-2 h-max px-4">
+    <div className="bg-slate-300 min-h-screen flex justify-center items-center py-8">
+      <div className="w-full max-w-md">
+        <div className="rounded-lg bg-white text-center p-6 shadow-md">
           <Heading label={"Sign up"} />
           <SubHeading label={"ใส่ข้อมูลของตนเองเพื่อลงทะเบียน"} />
-          {generalError && <div className="text-red-500 mb-2">{generalError}</div>}
+          {generalError && <div className="text-red-500 mb-4">{generalError}</div>}
           <InputBox onChange={handleInputChange} name="firstName" value={firstName} placeholder="supassara" label={"First Name*"} error={errors.firstName} />
           <InputBox onChange={handleInputChange} name="lastName" value={lastName} placeholder="jaidee" label={"Last Name*"} error={errors.lastName} />
           <InputBox onChange={handleInputChange} name="username" value={username} placeholder="username" label={"Username*"} error={errors.username} />
