@@ -109,7 +109,16 @@ export const Signup = () => {
       navigate("/student/dashboard");
     } catch (error) {
       console.error("Error during signup:", error);
-      alert(error.response?.data?.message || "Signup failed");
+      if (error.response?.data?.errors) {
+        const serverErrors = error.response.data.errors;
+        const newErrors = {};
+        serverErrors.forEach(err => {
+          newErrors[err.field] = err.message;
+        });
+        setErrors(prevErrors => ({ ...prevErrors, ...newErrors }));
+      } else {
+        alert(error.response?.data?.message || "Signup failed");
+      }
     }
   };
 

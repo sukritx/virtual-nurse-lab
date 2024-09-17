@@ -23,7 +23,10 @@ router.post("/signup", async (req, res) => {
     if (!result.success) {
         return res.status(400).json({
             message: "Invalid input",
-            errors: result.error.errors.map(err => err.message)
+            errors: result.error.errors.map(err => ({
+                field: err.path[0],
+                message: err.message
+            }))
         })
     }
 
@@ -33,7 +36,8 @@ router.post("/signup", async (req, res) => {
 
     if (existingUser) {
         return res.status(409).json({
-            message: "Username already taken"
+            message: "Username already taken",
+            errors: [{ field: "username", message: "Username already taken" }]
         })
     }
 
@@ -42,7 +46,8 @@ router.post("/signup", async (req, res) => {
     const university = await University.findOne({registerCode})
     if (!university) {
         return res.status(400).json({
-            message: "Invalid register code"
+            message: "Invalid register code",
+            errors: [{ field: "registerCode", message: "Invalid register code" }]
         })
     }
 
@@ -50,7 +55,8 @@ router.post("/signup", async (req, res) => {
     const students = university.students;
     if (students.length >= numberOfStudents) {
         return res.status(400).json({
-            message: "University is full"
+            message: "University is full",
+            errors: [{ field: "registerCode", message: "University is full" }]
         })
     }
 
