@@ -21,38 +21,44 @@ export const Signup = () => {
   const [generalError, setGeneralError] = useState("");
 
   const validateInput = (name, value) => {
-    let isValid = true;
     let errorMessage = '';
 
     switch (name) {
       case 'username':
-        isValid = /^[a-z0-9]+$/.test(value);
-        errorMessage = "Username must contain only lowercase letters and numbers";
+        if (!/^[a-z0-9]+$/.test(value)) {
+          errorMessage = "Username must contain only lowercase letters and numbers";
+        }
         break;
       case 'firstName':
       case 'lastName':
-        isValid = /^[a-zA-Z]+$/.test(value);
-        errorMessage = `${name} must contain only letters`;
+        if (!/^[a-zA-Z]+$/.test(value)) {
+          errorMessage = `${name} must contain only letters`;
+        }
         break;
       case 'password':
-        isValid = value.length >= 6;
-        errorMessage = "Password must be at least 6 characters long";
+        if (value.length < 6) {
+          errorMessage = "Password must be at least 6 characters long";
+        }
         break;
       case 'studentId':
-        isValid = /^[0-9]+$/.test(value);
-        errorMessage = "Student ID must contain only numbers";
+        if (!/^[0-9]+$/.test(value)) {
+          errorMessage = "Student ID must contain only numbers";
+        }
         break;
       case 'registerCode':
-        isValid = value.length > 0;
-        errorMessage = "Register code cannot be empty";
+        if (value.length === 0) {
+          errorMessage = "Register code cannot be empty";
+        }
         break;
     }
 
-    if (!isValid) {
+    if (errorMessage) {
       setErrors(prev => ({ ...prev, [name]: errorMessage }));
     } else {
       setErrors(prev => ({ ...prev, [name]: undefined }));
     }
+
+    return errorMessage;
   };
 
   const handleInputChange = (e) => {
@@ -91,8 +97,23 @@ export const Signup = () => {
   };
 
   const handleSignup = async () => {
-    if (Object.values(errors).some(error => error)) {
-      setGeneralError("Please fix the errors before submitting");
+    // Clear previous errors
+    setErrors({});
+    setGeneralError("");
+
+    // Validate all fields
+    const fieldsToValidate = ['username', 'firstName', 'lastName', 'password', 'studentId', 'registerCode'];
+    let hasErrors = false;
+    
+    fieldsToValidate.forEach(field => {
+      validateInput(field, eval(field));
+      if (errors[field]) {
+        hasErrors = true;
+      }
+    });
+
+    if (hasErrors) {
+      setGeneralError("Please fix the highlighted errors before submitting.");
       return;
     }
 
@@ -117,7 +138,7 @@ export const Signup = () => {
           newErrors[err.field] = err.message;
         });
         setErrors(prevErrors => ({ ...prevErrors, ...newErrors }));
-        setGeneralError(error.response.data.message || "An error occurred during signup.");
+        setGeneralError("Please correct the errors and try again.");
       } else if (error.response?.data?.message) {
         setGeneralError(error.response.data.message);
       } else {
