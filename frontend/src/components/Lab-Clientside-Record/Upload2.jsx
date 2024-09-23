@@ -320,7 +320,8 @@ const Lab2Recording = () => {
                                     {recordingState === 'initial' && (
                                         <button
                                             onClick={startCamera}
-                                            className="bg-blue-500 text-white px-4 py-2 rounded-full flex items-center"
+                                            className={`bg-blue-500 text-white px-4 py-2 rounded-full flex items-center ${attemptsLeft === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                            disabled={attemptsLeft === 0}
                                         >
                                             <FaVideo className="mr-2" />
                                             Ready
@@ -329,7 +330,8 @@ const Lab2Recording = () => {
                                     {recordingState === 'ready' && (
                                         <button
                                             onClick={startRecording}
-                                            className="bg-red-500 text-white px-4 py-2 rounded-full flex items-center"
+                                            className={`bg-red-500 text-white px-4 py-2 rounded-full flex items-center ${attemptsLeft === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                            disabled={attemptsLeft === 0}
                                         >
                                             <FaVideo className="mr-2" />
                                             Start Recording
@@ -348,7 +350,8 @@ const Lab2Recording = () => {
                             ) : (
                                 <button
                                     onClick={() => fileInputRef.current.click()}
-                                    className="bg-blue-500 text-white px-4 py-2 rounded-full flex items-center"
+                                    className={`bg-blue-500 text-white px-4 py-2 rounded-full flex items-center ${attemptsLeft === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                    disabled={attemptsLeft === 0}
                                 >
                                     <FaUpload className="mr-2" />
                                     Upload Video
@@ -365,7 +368,8 @@ const Lab2Recording = () => {
                                     </button>
                                     <button
                                         onClick={onSubmit}
-                                        className="bg-green-500 text-white px-4 py-2 rounded-full flex items-center"
+                                        className={`bg-green-500 text-white px-4 py-2 rounded-full flex items-center ${attemptsLeft === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                        disabled={attemptsLeft === 0}
                                     >
                                         <FaCheck className="mr-2" />
                                         Submit
@@ -396,6 +400,10 @@ const Lab2Recording = () => {
                         )}
                     </div>
                 </div>
+                
+                {attemptsLeft === 0 && (
+                    <p className="text-red-500 mt-4 text-center">You have used all your attempts for this lab.</p>
+                )}
                 
                 {loading && (
                     <div className="mt-4 text-gray-600 text-center">
