@@ -9,7 +9,7 @@ import { Signin } from './pages/Signin';
 import { Dashboard } from './pages/Dashboard';
 import { ProfessorDashboard } from './pages/ProfessorDashboard';
 import { AdminDashboard } from './pages/AdminDashboard';
-import { StudentDashboard } from './pages/StudentDashboard2';
+import { StudentDashboard } from './pages/StudentDashboard';
 import { LabPage } from './pages/LabPage';
 import Library from './pages/Library';
 import BlogContent from './pages/BlogContent';
