@@ -1,12 +1,14 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import axios from 'axios';
-import { FaVideo, FaStop, FaRedo, FaCheck, FaUpload } from 'react-icons/fa';
+import { FaVideo, FaStop, FaRedo, FaCheck, FaUpload, FaLanguage } from 'react-icons/fa';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import { useAuth } from '../../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const MAX_RECORDING_TIME = 180; // 3 minutes in seconds
 const CHUNK_SIZE = 1024 * 1024; // 1MB chunks
+const MAX_ATTEMPTS = 3;
 
 const Lab2Recording = () => {
     const [recordingState, setRecordingState] = useState('initial');
@@ -21,6 +23,9 @@ const Lab2Recording = () => {
     const [isMediaRecorderSupported, setIsMediaRecorderSupported] = useState(true);
     const { token } = useAuth();
     const [uploadProgress, setUploadProgress] = useState(0);
+    const [attemptsLeft, setAttemptsLeft] = useState(MAX_ATTEMPTS);
+    const [language, setLanguage] = useState('th'); // Default to Thai
+    const navigate = useNavigate();
 
     const mediaRecorderRef = useRef(null);
     const liveVideoRef = useRef(null);
@@ -29,9 +34,42 @@ const Lab2Recording = () => {
     const timerRef = useRef(null);
     const fileInputRef = useRef(null);
 
+    const handleLanguageChange = (event) => {
+        const newLanguage = event.target.value;
+        setLanguage(newLanguage);
+        
+        // Redirect based on the selected language
+        if (newLanguage === 'zh') {
+            navigate('/student/upload1cn');
+        } else if (newLanguage === 'en') {
+            navigate('/student/upload1en');
+        } else if (newLanguage === 'jp') {
+            navigate('/student/upload1jp');
+        }
+        // For Thai, we stay on the current page
+    };
+
     useEffect(() => {
         setIsMediaRecorderSupported(typeof MediaRecorder !== 'undefined');
     }, []);
+
+    useEffect(() => {
+        const fetchLabInfo = async () => {
+            try {
+                const response = await axios.get('/api/v1/student/labs', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const lab2 = response.data.labs.find(lab => lab.labInfo.labNumber === 2);
+                if (lab2) {
+                    setAttemptsLeft(lab2.attemptsLeft);
+                }
+            } catch (error) {
+                console.error('Error fetching lab info:', error);
+            }
+        };
+
+        fetchLabInfo();
+    }, [token]);
 
     const videoConstraints = {
         width: { ideal: 640, max: 1280 },
@@ -134,7 +172,7 @@ const Lab2Recording = () => {
     };
 
     const onSubmit = useCallback(async () => {
-        if (!recordedBlob) return;
+        if (!recordedBlob || attemptsLeft === 0) return;
 
         setLoading(true);
         setError('');
@@ -176,6 +214,8 @@ const Lab2Recording = () => {
             setScore(response.data.score);
             setPros(response.data.pros);
             setRecommendations(response.data.recommendations);
+            // After successful submission
+            setAttemptsLeft(prevAttempts => Math.max(0, prevAttempts - 1));
         } catch (error) {
             if (error.response) {
                 setError(`Error uploading video: ${error.response.data.msg || error.response.statusText}`);
@@ -187,7 +227,7 @@ const Lab2Recording = () => {
         } finally {
             setLoading(false);
         }
-    }, [recordedBlob, token]);
+    }, [recordedBlob, token, attemptsLeft]);
 
     useEffect(() => {
         return () => {
