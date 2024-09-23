@@ -26,7 +26,7 @@ export const StudentDashboard = () => {
     }
   };
 
-  const completedPercentage = Math.floor((labs.filter(lab => lab.isPass !== null && lab.isPass).length / labs.length) * 100);
+  const completedPercentage = Math.floor((labs.filter(lab => lab.everPassed).length / labs.length) * 100);
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -73,6 +73,9 @@ export const StudentDashboard = () => {
                 {lab.isPass === null ? ' ' : lab.isPass ? '✓' : '✗'}
               </div>
               <p className="mt-4">{lab.isPass === null ? 'Not attempted' : lab.isPass ? 'Passed' : 'Try again'}</p>
+              {lab.everPassed && !lab.isPass && (
+                <p className="text-sm text-green-600 mt-2">Previously passed</p>
+              )}
               <button
                 onClick={() => navigate(`/student/upload${lab.labInfo.labNumber}`)}
                 className="mt-4 bg-purple-600 text-white py-2 px-4 rounded hover:bg-purple-700 transition duration-200"

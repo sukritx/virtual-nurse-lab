@@ -16,10 +16,12 @@ router.get('/labs', authMiddleware, async (req, res) => {
             const attemptsMade = studentLabSubmissions.length;
             const attemptsLeft = Math.max(0, MAX_ATTEMPTS - attemptsMade);
             const latestSubmission = studentLabSubmissions[studentLabSubmissions.length - 1];
+            const everPassed = studentLabSubmissions.some(submission => submission.isPass);
             
             return {
                 labInfo: lab,
                 isPass: latestSubmission ? latestSubmission.isPass : null,
+                everPassed: everPassed,
                 attempt: attemptsMade,
                 attemptsLeft: attemptsLeft
             };
