@@ -65,14 +65,16 @@ export const StudentDashboard = () => {
           </div>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {labs.map((lab, index) => (
-            <div key={lab.labInfo._id} className={`bg-white p-4 rounded-lg shadow-md flex flex-col items-center justify-between ${lab.isPass === null ? 'bg-gray-300' : lab.isPass ? 'bg-green-300' : 'bg-red-300'}`}>
+          {labs.map((lab) => (
+            <div key={lab.labInfo._id} className={`bg-white p-4 rounded-lg shadow-md flex flex-col items-center justify-between ${lab.isPass === null ? 'bg-gray-300' : lab.isPass || lab.everPassed ? 'bg-green-300' : 'bg-red-300'}`}>
               <h2 className="text-xl font-semibold">Lab {lab.labInfo.labNumber}</h2>
               <p className="text-sm text-gray-600">{lab.labInfo.labName}</p>
               <div className={`w-8 h-8 rounded-full flex items-center justify-center`}>
-                {lab.isPass === null ? ' ' : lab.isPass ? '✓' : '✗'}
+                {lab.isPass === null ? ' ' : lab.isPass || lab.everPassed ? '✓' : '✗'}
               </div>
-              <p className="mt-4">{lab.isPass === null ? 'Not attempted' : lab.isPass ? 'Passed' : 'Try again'}</p>
+              <p className="mt-4">
+                {lab.isPass === null ? 'Not attempted' : lab.isPass ? 'Passed' : lab.everPassed ? 'Previously passed' : 'Try again'}
+              </p>
               {lab.everPassed && !lab.isPass && (
                 <p className="text-sm text-green-600 mt-2">Previously passed</p>
               )}
