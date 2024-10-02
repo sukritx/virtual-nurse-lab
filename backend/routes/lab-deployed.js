@@ -33,7 +33,9 @@ const openai = new OpenAI({
 });
 
 function getFileType(fileName) {
-    const ext = path.extname(fileName).toLowerCase();
+    // Remove codec information if present
+    const cleanFileName = fileName.split(';')[0];
+    const ext = path.extname(cleanFileName).toLowerCase();
     if (['.mp4', '.avi', '.mov', '.webm'].includes(ext)) return 'video';
     if (['.mp3', '.m4a', '.wav'].includes(ext)) return 'audio';
     throw new Error('Unsupported file type');
