@@ -18,6 +18,7 @@ import Upload1 from './components/Lab-Reuse-Component/Lab1';
 import Upload1Cn from './components/Lab-Clientside-Record/Upload1Cn';
 import Upload1En from './components/Lab-Clientside-Record/Upload1En';
 import UploadJp from './components/Lab-Clientside-Record/Upload1Jp';
+import Upload1Indo from './components/Lab-Reuse-Component/Lab1Indo';
 import Upload2 from './components/Lab-Reuse-Component/Lab2';
 import Upload3 from './components/Lab-Reuse-Component/Lab3';
 import Upload4 from './components/Lab-Reuse-Component/Lab4';
@@ -64,6 +65,7 @@ function App() {
               <Route path="/student/upload1cn" element={<Upload1Cn />} />
               <Route path="/student/upload1en" element={<Upload1En />} />
               <Route path="/student/upload1jp" element={<UploadJp />} />
+              <Route path="/student/upload1indo" element={<Upload1Indo />} />
 
               <Route path="/student/upload2" element={<Upload2 />} />
               <Route path="/student/upload3" element={<Upload3 />} />

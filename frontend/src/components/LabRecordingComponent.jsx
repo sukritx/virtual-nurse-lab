@@ -261,6 +261,7 @@ const LabRecordingComponent = ({
                             <option value="zh">中文</option>
                             <option value="en">English</option>
                             <option value="jp">日本語</option>
+                            <option value="id">Bahasa Indonesia</option>
                         </select>
                     </div>
                 </div>

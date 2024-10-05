@@ -1102,6 +1102,208 @@ async function processTranscriptionLab1jp(transcription) {
     return feedbackJson;
 }
 
+// english version
+router.post('/upload-1-indo', authMiddleware, async (req, res) => {
+    const { fileName, totalChunks } = req.body;
+    const tempDir = path.join(__dirname, '../temp');
+    const finalFilePath = path.join(__dirname, '../public/uploads', fileName);
+    let audioPath = null;
+    let fileUrl = null;
+    let fileType = null;
+
+    try {
+        // Reassemble the file from chunks
+        await new Promise((resolve, reject) => {
+            const writeStream = fs.createWriteStream(finalFilePath);
+            writeStream.on('finish', resolve);
+            writeStream.on('error', reject);
+
+            (async () => {
+                for (let i = 0; i < totalChunks; i++) {
+                    const chunkPath = path.join(tempDir, `${req.userId}_${i}`);
+                    const chunkBuffer = await fs.promises.readFile(chunkPath);
+                    writeStream.write(chunkBuffer);
+                    await fs.promises.unlink(chunkPath);
+                }
+                writeStream.end();
+            })();
+        });
+
+        // console.log('File reassembled successfully');
+        const uploadTimestamp = Date.now();
+
+        fileType = getFileType(fileName);
+
+        // Upload the original file to Spaces
+        // console.time('Spaces upload');
+        fileUrl = await uploadToSpaces(finalFilePath, `lab1/${req.userId}/${uploadTimestamp}${path.extname(fileName)}`);
+        // console.timeEnd('Spaces upload');
+
+        if (fileType === 'video') {
+            // Audio extraction for transcription
+            // console.time('Audio extraction');
+            audioPath = `./public/uploads/audio-${uploadTimestamp}.mp3`;
+            await new Promise((resolve, reject) => {
+                ffmpeg(finalFilePath)
+                    .output(audioPath)
+                    .audioCodec('libmp3lame')
+                    .on('end', resolve)
+                    .on('error', reject)
+                    .run();
+            });
+            // console.timeEnd('Audio extraction');
+        } else {
+            // For audio files, use the uploaded file directly
+            audioPath = finalFilePath;
+        }
+
+        // Transcription
+        // console.time('Transcription');
+        const transcription = await transcribeAudioOpenAI(audioPath);
+        // console.timeEnd('Transcription');
+
+        // GPT processing (same as before)
+        // console.time('GPT processing');
+        const feedbackJson = await processTranscriptionLab1indo(transcription);
+        // console.timeEnd('GPT processing');
+
+        // Prepare and submit lab info
+        const labInfo = {
+            studentId: req.userId,
+            labNumber: 1,
+            subject: 'maternalandchild',
+            fileUrl: fileUrl,
+            fileType: fileType,
+            studentAnswer: transcription,
+            studentScore: feedbackJson.totalScore,
+            isPass: feedbackJson.totalScore >= 60,
+            pros: feedbackJson.pros,
+            recommendations: feedbackJson.recommendations,
+        };
+
+        // console.time('Lab submission');
+        await axios.post('http://localhost:3000/api/v1/lab-deployed/submit-lab', labInfo);
+        // console.timeEnd('Lab submission');
+
+        // Send response
+        res.json({
+            feedback: feedbackJson,
+            transcription,
+            passFailStatus: feedbackJson.totalScore >= 60 ? 'Passed' : 'Failed',
+            score: feedbackJson.totalScore,
+            pros: feedbackJson.pros,
+            recommendations: feedbackJson.recommendations,
+            fileUrl: fileUrl,
+            fileType: fileType
+        });
+
+    } catch (error) {
+        console.error('Error processing the file:', error);
+        res.status(500).json({ msg: 'Error processing the file', error: error.message });
+    } finally {
+        // Cleanup
+        // console.log('Cleaning up local files');
+        [finalFilePath, audioPath].forEach(path => {
+            if (path && fs.existsSync(path)) {
+                try {
+                    fs.unlinkSync(path);
+                    // console.log(`Successfully deleted: ${path}`);
+                } catch (deleteError) {
+                    if (deleteError.code !== 'ENOENT') {
+                        console.error(`Failed to delete file: ${path}`, deleteError);
+                    }
+                }
+            }
+        });
+    }
+});
+async function processTranscriptionLab1indo(transcription) {
+    const answerKey = `
+Skenario 1: Menyusui dengan Puting Lecet
+
+Seorang ibu primipara berusia 17 tahun, satu hari pascapersalinan, telah melahirkan bayi laki-laki sehat dengan berat 2800 gram. Ibu melaporkan kesulitan dalam memposisikan bayinya secara mandiri untuk menyusui. Laktasi telah dimulai, tetapi ia mengalami nyeri pada puting saat menyusui, dengan rasa sakit yang lebih intens di sisi kanan dibandingkan sisi kiri. Skor LATCH-nya adalah 5 (pelekatan = 1, suara terdengar = 1, jenis puting = 2, kenyamanan = 1, posisi memegang bayi = 0).
+
+1. Apa panduan yang akan Anda berikan kepada ibu ini? Pertimbangkan untuk memberikan nasihat tentang teknik pelekatan yang benar dan strategi untuk mengatasi keluhan ibu.
+
+1. Edukasi Teknik Menyusui yang Benar: (10 poin)
+
+Tekankan pentingnya posisi yang benar, pastikan perut bayi sejajar dengan perut ibu untuk memudahkan kontak erat.
+Kepala bayi harus sedikit terangkat dengan tubuh lurus, dan bayi harus menyusu pada areola secara mendalam untuk mencapai pelekatan yang efektif.
+2. Pentingnya Pemberian ASI secara Sering: (10 poin)
+
+Sarankan ibu untuk menyusui setiap 2-3 jam atau sesuai permintaan, dengan setiap sesi berlangsung sekitar 20 menit untuk memastikan asupan ASI yang cukup.
+3. Manajemen Nyeri melalui Urutan Menyusui: (10 poin)
+
+Instruksikan ibu untuk memulai menyusui pada payudara yang kurang sakit (dalam kasus ini, sisi kiri). Jika bayi masih lapar, pindahkan ke payudara kanan. Pada sesi berikutnya, mulai dengan payudara kanan yang sebelumnya belum dikosongkan.
+4. Pencegahan Trauma Puting: (10 poin)
+
+Edukasi ibu bahwa bayi secara alami akan melepaskan puting ketika kenyang. Sarankan agar tidak menarik puting secara paksa saat bayi masih menyusu karena dapat menyebabkan trauma pada puting. Jika perlu, ibu bisa menekan dagu bayi dengan lembut atau menggunakan jari kelingking untuk melepaskan hisapan dengan aman.
+5. Instruksi Mengenai Pola Menelan yang Efektif: (10 poin)
+
+Ajarkan ibu untuk mengamati pola menelan yang ritmis dan terdengar tanpa suara cecapan, yang menunjukkan transfer ASI yang baik.
+6. Penilaian Kecukupan Asupan ASI: (5 poin)
+
+Pandu ibu untuk memantau asupan ASI bayi dengan mengamati pola tidur, frekuensi buang air kecil dan besar, serta warna urin. Perkenalkan aturan "4 6 8" untuk penilaian lebih lanjut.
+7. Teknik Peningkatan Produksi ASI: (5 poin)
+
+Rekomendasikan aplikasi kompres hangat pada payudara sebelum menyusui untuk meningkatkan aliran ASI dan mengurangi ketidaknyamanan.
+8. Saran Mengenai Hidrasi: (5 poin)
+
+Dorong ibu untuk sering minum air hangat untuk mendukung hidrasi dan produksi ASI.
+9. Diskusikan Manfaat Menyusui: (5 poin)
+
+Jelaskan berbagai manfaat menyusui bagi ibu dan bayi, termasuk aspek kesehatan, emosional, dan ikatan.
+10. Rekomendasi Diet untuk Mendukung Laktasi: (5 poin)
+
+Sarankan makanan laktogenik seperti jahe, basil, kemangi, dan susu kedelai untuk mendukung dan meningkatkan produksi ASI.
+2. Bagaimana Anda akan mendemonstrasikan posisi dan teknik menyusui yang benar untuk mencegah puting lecet pada ibu ini?
+
+Demonstrasi yang Disarankan (50 poin)
+
+1. Demonstrasi Posisi Menyusui yang Optimal: (30 poin)
+
+Saat memposisikan bayi, pastikan tubuh bayi sejajar tanpa memutar leher, dengan perut bersentuhan erat dengan perut ibu. Wajah bayi harus menghadap payudara, dan ibu harus memberikan dukungan pada tubuh bayi. Pelekatan yang benar akan menghasilkan menyusui tanpa rasa sakit, dengan puting tetap utuh dan pola hisapan yang konsisten dan efektif.
+2. Perawatan Setelah Menyusui: (10 poin)
+
+Sarankan ibu untuk mengoleskan sedikit ASI perah ke puting setelah menyusui untuk mempercepat penyembuhan dan mencegah iritasi lebih lanjut.
+Posisi Menyusui yang Umum Meliputi:
+
+Cradle Hold: Bayi berbaring melintang di pangkuan ibu, menghadap ibu. Perut bayi harus bersentuhan dengan perut ibu. Ibu mendukung tubuh bayi dengan satu lengan sambil memegang pantat dan paha bayi dengan tangan. Mulut bayi harus sejajar dengan puting, dan kepala harus sedikit terangkat di atas tubuh (10 poin).
+
+Modified Cradle Hold: Ibu menggunakan tangan yang sama dengan sisi menyusui untuk mendukung payudara, sementara tangan yang berlawanan mendukung leher dan belakang kepala bayi. Posisi ini adalah variasi dari cradle hold (10 poin).
+
+Football Hold: Ibu memegang bayi dalam posisi semi-reclining, mendukung leher dan belakang kepala bayi. Tubuh bayi ditempatkan di samping ibu, dengan kaki mengarah ke belakang. Bayi menyusu dari payudara di sisi yang sama dengan tangan ibu (10 poin).
+
+Posisi Berbaring Miring: Ibu dan bayi berbaring di sisi mereka, saling berhadapan. Ibu harus mempertahankan posisi kepala yang sedikit terangkat, dengan punggung dan pinggul lurus. Mulut bayi harus sejajar dengan puting ibu. Ibu menggunakan tangan bagian bawah untuk mendukung punggung bayi dan tangan bagian atas untuk mendukung payudara saat proses pelekatan (10 poin).
+
+skor penuh = 100 poin
+`;
+
+    const checkContent = `
+ini adalah jawaban siswa: "${transcription}".
+ini adalah kunci jawaban: "${answerKey}".
+
+Silakan bandingkan jawaban siswa dengan solusi. Evaluasi apakah jawaban tersebut mencakup poin-poin kunci, dan berikan penjelasan terperinci tentang apa yang sudah dilakukan dengan baik oleh siswa, serta rekomendasi yang diperlukan. Jangan memecah menjadi penilaian parsial. Jawab dalam Bahasa Inggris. 
+Jangan mengkritik tata bahasa atau hal-hal yang tidak terkait.
+Harap konversi hasil evaluasi ke format JSON sebagai berikut:
+{
+    "totalScore": <skor yang diterima siswa>,
+    "pros": "<poin yang dilakukan siswa dengan baik>",
+    "recommendations": "<rekomendasi>"
+}
+`;
+
+    const response = await openai.chat.completions.create({
+        messages: [{ role: "system", content: checkContent }],
+        model: "gpt-4o",
+        response_format: { "type": "json_object" }
+    });
+
+    const feedbackJson = JSON.parse(response.choices[0].message.content.trim());
+    console.log(feedbackJson);
+    return feedbackJson;
+}
+
 router.post('/upload-2', authMiddleware, async (req, res) => {
     const { fileName, totalChunks } = req.body;
     const tempDir = path.join(__dirname, '../temp');

@@ -40,6 +40,8 @@ const Lab1Recording = () => {
             navigate('/student/upload1en');
         } else if (newLanguage === 'jp') {
             navigate('/student/upload1jp');
+        } else if (newLanguage === 'id') {
+            navigate('/student/upload1indo');
         }
     };
 
