@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
@@ -7,9 +7,9 @@ import LabRecordingComponent from '../LabRecordingComponent';
 const MAX_ATTEMPTS = 3;
 const CHUNK_SIZE = 1024 * 1024; // 1MB chunks
 
-const Lab1RecordingIndo = () => {
+const Lab4RecordingEn = () => {
     const [attemptsLeft, setAttemptsLeft] = useState(MAX_ATTEMPTS);
-    const [language, setLanguage] = useState('id');
+    const [language, setLanguage] = useState('en');
     const { token } = useAuth();
     const navigate = useNavigate();
 
@@ -19,7 +19,7 @@ const Lab1RecordingIndo = () => {
                 const response = await axios.get('/api/v1/student/labs', {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
-                const lab1 = response.data.labs.find(lab => lab.labInfo.labNumber === 1);
+                const lab1 = response.data.labs.find(lab => lab.labInfo.labNumber === 4);
                 if (lab1) {
                     setAttemptsLeft(lab1.attemptsLeft);
                 }
@@ -38,11 +38,11 @@ const Lab1RecordingIndo = () => {
         if (newLanguage === 'zh') {
             navigate('/student/upload1cn');
         } else if (newLanguage === 'en') {
-            navigate('/student/upload1en');
+            navigate('/student/upload4en');
         } else if (newLanguage === 'jp') {
-            navigate('/student/upload1jp');
+            navigate('/student/upload4jp');
         } else if (newLanguage === 'th') {
-            navigate('/student/upload1');
+            navigate('/student/upload4');
         }
     };
 
@@ -51,7 +51,7 @@ const Lab1RecordingIndo = () => {
 
         try {
             const totalChunks = Math.ceil(recordedBlob.size / CHUNK_SIZE);
-            const fileName = `lab1_recording_indo_${Date.now()}.${recordedBlob.type.split('/')[1]}`;
+            const fileName = `lab4_recording_en_${Date.now()}.${recordedBlob.type.split('/')[1]}`;
 
             for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
                 const start = chunkIndex * CHUNK_SIZE;
@@ -72,40 +72,31 @@ const Lab1RecordingIndo = () => {
                 });
             }
 
-            const response = await axios.post('/api/v1/lab-deployed/upload-1-indo', {
+            await axios.post('/api/v1/lab-deployed/upload-4-en', {
                 fileName,
                 totalChunks
             }, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 
-            // Handle the response here (e.g., update state with score, recommendations, etc.)
-            console.log(response.data);
-
-            // Update attempts left
             setAttemptsLeft(prevAttempts => Math.max(0, prevAttempts - 1));
 
         } catch (error) {
             console.error('Error uploading video:', error);
-            // Handle error (e.g., show error message to user)
         }
     }, [token, attemptsLeft]);
 
     return (
         <LabRecordingComponent
-            labNumber={1}
-            title="Lab 1: Menyusui"
-            subtitle="Ibu dengan Puting Sakit di Sisi Kanan"
-            description="Seorang ibu berusia 17 tahun, 1 hari setelah melahirkan anak pertamanya (laki-laki). 
-                        Bayi dalam kondisi sehat dengan berat 2.800 gram. Ibu belum bisa menggendong bayinya 
-                        untuk menyusui sendiri. ASI mulai keluar, tetapi ibu merasakan sakit pada puting saat 
-                        bayi menyusu, terutama di sisi kanan. Skor LATCH = 5 (latch on=1, audible=1, 
-                        type of nipple=2, comfort=1, holding=0)"
+            labNumber={4}
+            title="Lab 4: Family Planning"
+            subtitle="Oral Contraceptive Pills"
+            description="A 30-year-old mother, 5 days after delivering her first child, wants to exclusively breastfeed for at least 6 months and is concerned about postpartum contraception while breastfeeding."
             questions={[
-                "Apa saran yang akan Anda berikan kepada ibu ini, misalnya tentang teknik menyusui yang benar (4 langkah menyusui) dan cara mengatasi masalahnya?",
-                "Bagaimana Anda akan mendemonstrasikan posisi menggendong yang benar dan cara mengurangi/mencegah sakit pada puting untuk ibu ini?"
+                "How would you recommend an appropriate contraceptive method for this postpartum mother? Please suggest one method.",
+                "If this postpartum mother is considering using progestin-only birth control pills, what advice would you give regarding the use of contraceptive pills, possible side effects, and appropriate solutions in case of missed doses?"
             ]}
-            videoSrc="/questionVideos/situation1.mp4"
+            videoSrc="/questionVideos/situation4.mp4"
             attemptsLeft={attemptsLeft}
             setAttemptsLeft={setAttemptsLeft} 
             language={language}
@@ -116,4 +107,4 @@ const Lab1RecordingIndo = () => {
     );
 };
 
-export default Lab1RecordingIndo;
+export default Lab4RecordingEn;

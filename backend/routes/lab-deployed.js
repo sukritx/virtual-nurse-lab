@@ -1652,6 +1652,172 @@ router.post('/upload-4', authMiddleware, async (req, res) => {
         });
     }
 });
+
+router.post('/upload-4-en', authMiddleware, async (req, res) => {
+    const { fileName, totalChunks } = req.body;
+    const tempDir = path.join(__dirname, '../temp');
+    const finalFilePath = path.join(__dirname, '../public/uploads', fileName);
+    let audioPath = null;
+    let fileUrl = null;
+    let fileType = null;
+
+    try {
+        // Reassemble the file from chunks
+        await new Promise((resolve, reject) => {
+            const writeStream = fs.createWriteStream(finalFilePath);
+            writeStream.on('finish', resolve);
+            writeStream.on('error', reject);
+
+            (async () => {
+                for (let i = 0; i < totalChunks; i++) {
+                    const chunkPath = path.join(tempDir, `${req.userId}_${i}`);
+                    const chunkBuffer = await fs.promises.readFile(chunkPath);
+                    writeStream.write(chunkBuffer);
+                    await fs.promises.unlink(chunkPath);
+                }
+                writeStream.end();
+            })();
+        });
+
+        // console.log('File reassembled successfully');
+        const uploadTimestamp = Date.now();
+
+        fileType = getFileType(fileName);
+
+        // Upload the original file to Spaces
+        // console.time('Spaces upload');
+        fileUrl = await uploadToSpaces(finalFilePath, `lab4/${req.userId}/${uploadTimestamp}${path.extname(fileName)}`);
+        // console.timeEnd('Spaces upload');
+
+        if (fileType === 'video') {
+            // Audio extraction for transcription
+            // console.time('Audio extraction');
+            audioPath = `./public/uploads/audio-${uploadTimestamp}.mp3`;
+            await new Promise((resolve, reject) => {
+                ffmpeg(finalFilePath)
+                    .output(audioPath)
+                    .audioCodec('libmp3lame')
+                    .on('end', resolve)
+                    .on('error', reject)
+                    .run();
+            });
+            // console.timeEnd('Audio extraction');
+        } else {
+            // For audio files, use the uploaded file directly
+            audioPath = finalFilePath;
+        }
+
+        // Transcription
+        // console.time('Transcription');
+        const transcriptionResult = await transcribeAudioIApp(audioPath);
+        // console.timeEnd('Transcription');
+
+        const transcription = concatenateTranscriptionText(transcriptionResult.output);
+
+        // GPT processing (same as before)
+        // console.time('GPT processing');
+        const feedbackJson = await processTranscriptionLab4En(transcription);
+        // console.timeEnd('GPT processing');
+
+        // Prepare and submit lab info
+        const labInfo = {
+            studentId: req.userId,
+            labNumber: 4,
+            subject: 'maternalandchild',
+            fileUrl: fileUrl,
+            fileType: fileType,
+            studentAnswer: transcription,
+            studentScore: feedbackJson.totalScore,
+            isPass: feedbackJson.totalScore >= 60,
+            pros: feedbackJson.pros,
+            recommendations: feedbackJson.recommendations,
+        };
+
+        // console.time('Lab submission');
+        await axios.post('http://localhost:3000/api/v1/lab-deployed/submit-lab', labInfo);
+        // console.timeEnd('Lab submission');
+
+        // Send response
+        res.json({
+            feedback: feedbackJson,
+            transcription,
+            passFailStatus: feedbackJson.totalScore >= 60 ? 'Passed' : 'Failed',
+            score: feedbackJson.totalScore,
+            pros: feedbackJson.pros,
+            recommendations: feedbackJson.recommendations,
+            fileUrl: fileUrl,
+            fileType: fileType
+        });
+
+    } catch (error) {
+        console.error('Error processing the file:', error);
+        res.status(500).json({ msg: 'Error processing the file', error: error.message });
+    } finally {
+        // Cleanup
+        // console.log('Cleaning up local files');
+        [finalFilePath, audioPath].forEach(path => {
+            if (path && fs.existsSync(path)) {
+                try {
+                    fs.unlinkSync(path);
+                    // console.log(`Successfully deleted: ${path}`);
+                } catch (deleteError) {
+                    if (deleteError.code !== 'ENOENT') {
+                        console.error(`Failed to delete file: ${path}`, deleteError);
+                    }
+                }
+            }
+        });
+    }
+});
+async function processTranscriptionLab4En(transcription) {
+    const answerKey = `
+Lab 4: Family Planning - Oral Contraceptive Pills
+
+What advice would you give this postpartum mother about an appropriate contraceptive method? Recommend one method.
+
+Answer: (10 points if selecting any one of these options)
+
+Low-dose hormonal contraceptive pills (Minipills)
+Injectable contraceptives
+Contraceptive implant
+Abstinence
+Lactational Amenorrhea Method (LAM)
+Condom
+If this postpartum mother is considering using progestin-only contraceptive pills, what advice would you give her regarding their use, potential side effects, and appropriate solutions if she forgets to take a pill?
+
+Answer: (90 points)
+
+Progestin-only pills (minipills) are suitable for breastfeeding mothers because they do not affect milk production. (25 points)
+This type of pill helps thicken cervical mucus, making it more difficult for sperm to enter. (15 points)
+Each pack contains 28 pills with no placebo pills. The mother should take one pill every day without a break and at the same time daily to maintain a steady hormone level. Missing doses may reduce the pill's effectiveness. (30 points)
+If a pill is missed for one day, take it as soon as possible. If two days are missed, take one missed pill in the morning as soon as it’s remembered, take the regular dose in the evening, and continue this pattern for subsequent days. If three days or more are missed, discard the current pack, wait for the next menstrual period, and start a new pack. (25 points)
+Advise the woman to monitor for side effects, such as irregular periods, spotting, breast tenderness, or mood changes. (15 points)
+Total Score: 100 Points
+`;
+
+    const checkContent = `
+Here is the student's answer: "${transcription}".
+Here is the answer key: "${answerKey}".
+
+Please compare the student's answer with the answer key. Assess if it is on point and provide detailed feedback on what the student did well and recommendations for improvement, without commenting on grammar or unrelated issues.
+    {
+    "totalScore": <student's score>,
+    "pros": "<things the student did well>",
+    "recommendations": "<suggestions for improvement>"
+    }
+`;
+
+    const response = await openai.chat.completions.create({
+        messages: [{ role: "system", content: checkContent }],
+        model: "gpt-4o",
+        response_format: { "type": "json_object" }
+    });
+
+    const feedbackJson = JSON.parse(response.choices[0].message.content.trim());
+    //console.log(feedbackJson);
+    return feedbackJson;
+}
+
 router.post('/upload-5', authMiddleware, async (req, res) => {
     const { fileName, totalChunks } = req.body;
     const tempDir = path.join(__dirname, '../temp');
