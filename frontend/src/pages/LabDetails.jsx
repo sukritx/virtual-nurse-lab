@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import axios from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { useParams } from 'react-router-dom';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';

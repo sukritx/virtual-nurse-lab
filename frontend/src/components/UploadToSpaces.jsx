@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import axios from 'axios';
+import axios from '../api/axios';
 import { FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
 import { FiUpload } from 'react-icons/fi';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';

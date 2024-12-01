@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
-import axios from 'axios';
+import axios from '../api/axios';
 import { FaVideo, FaStop, FaRedo, FaCheck, FaUpload } from 'react-icons/fa';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';

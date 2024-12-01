@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import axios from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FaCheckCircle, FaTimesCircle, FaQuestionCircle } from 'react-icons/fa';

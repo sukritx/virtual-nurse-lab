@@ -4,7 +4,7 @@ import { Button } from "../components/Button";
 import { Heading } from "../components/Heading";
 import { InputBox } from "../components/InputBox";
 import { SubHeading } from "../components/SubHeading";
-import axios from "axios";
+import axios from '../api/axios';
 import { jwtDecode } from 'jwt-decode'
 import { useNavigate } from "react-router-dom";
 import { useAuth } from '../context/AuthContext';
@@ -17,7 +17,7 @@ export const Signin = () => {
 
   const handleSignin = async () => {
     try {
-      const response = await axios.post("/api/v1/user/signin", {
+      const response = await axios.post('/api/v1/user/signin', {
         username,
         password
       });
