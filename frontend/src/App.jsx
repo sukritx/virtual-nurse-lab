@@ -30,6 +30,15 @@ import Upload8 from './components/Lab-Reuse-Component/Lab8';
 import Upload9 from './components/Lab-Reuse-Component/Lab9';
 import Upload10 from './components/Lab-Reuse-Component/Lab10';
 import Maternalchild11 from './components/Lab-Reuse-Component/Maternalchild/Lab11';
+import Maternalchild12 from './components/Lab-Reuse-Component/Maternalchild/Lab12';
+import Maternalchild13 from './components/Lab-Reuse-Component/Maternalchild/Lab13';
+import Maternalchild14 from './components/Lab-Reuse-Component/Maternalchild/Lab14';
+import Maternalchild15 from './components/Lab-Reuse-Component/Maternalchild/Lab15';
+import Maternalchild16 from './components/Lab-Reuse-Component/Maternalchild/Lab16';
+import Maternalchild17 from './components/Lab-Reuse-Component/Maternalchild/Lab17';
+import Maternalchild18 from './components/Lab-Reuse-Component/Maternalchild/Lab18';
+import Maternalchild19 from './components/Lab-Reuse-Component/Maternalchild/Lab19';
+import Maternalchild20 from './components/Lab-Reuse-Component/Maternalchild/Lab20';
 import Contact from './pages/Contact';
 import Sale from './pages/Sale';
 import StudentLabs from './pages/StudentLabs';
@@ -80,6 +89,15 @@ function App() {
               <Route path="/student/upload9" element={<Upload9 />} />
               <Route path="/student/upload10" element={<Upload10 />} />
               <Route path="/student/maternalchild11" element={<Maternalchild11 />} />
+              <Route path="/student/maternalchild12" element={<Maternalchild12 />} />
+              <Route path="/student/maternalchild13" element={<Maternalchild13 />} />
+              <Route path="/student/maternalchild14" element={<Maternalchild14 />} />
+              <Route path="/student/maternalchild15" element={<Maternalchild15 />} />
+              <Route path="/student/maternalchild16" element={<Maternalchild16 />} />
+              <Route path="/student/maternalchild17" element={<Maternalchild17 />} />
+              <Route path="/student/maternalchild18" element={<Maternalchild18 />} />
+              <Route path="/student/maternalchild19" element={<Maternalchild19 />} />
+              <Route path="/student/maternalchild20" element={<Maternalchild20 />} />
               <Route path="/student/upload-to-spaces" element={<UploadToSpace />} />
               <Route path="/student/lab/:labNumber/history" element={<LabHistory />} />
             </Route>
