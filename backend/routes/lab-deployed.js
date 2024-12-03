@@ -1108,8 +1108,8 @@ async function processTranscriptionLab1jp(transcription) {
     return feedbackJson;
 }
 
-// english version
-router.post('/upload-1-indo', authMiddleware, async (req, res) => {
+// indonesia version
+router.post('/maternalchild-1-indo', authMiddleware, async (req, res) => {
     const { fileName, totalChunks } = req.body;
     const tempDir = path.join(__dirname, '../temp');
     const finalFilePath = path.join(__dirname, '../public/uploads', fileName);
@@ -1659,7 +1659,7 @@ router.post('/maternalchild-4', authMiddleware, async (req, res) => {
     }
 });
 
-router.post('/upload-4-en', authMiddleware, async (req, res) => {
+router.post('/maternalchild-4-en', authMiddleware, async (req, res) => {
     const { fileName, totalChunks } = req.body;
     const tempDir = path.join(__dirname, '../temp');
     const finalFilePath = path.join(__dirname, '../public/uploads', fileName);
