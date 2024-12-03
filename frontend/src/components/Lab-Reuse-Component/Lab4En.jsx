@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import axios from '../../api/axios';
-import LabRecordingComponent from '../LabRecordingComponent';
+import LabRecordingComponent from '../MaternalchildRecordingComponent';
 
 const MAX_ATTEMPTS = 3;
 const CHUNK_SIZE = 1024 * 1024; // 1MB chunks
@@ -96,7 +96,7 @@ const Lab4RecordingEn = () => {
                 "How would you recommend an appropriate contraceptive method for this postpartum mother? Please suggest one method.",
                 "If this postpartum mother is considering using progestin-only birth control pills, what advice would you give regarding the use of contraceptive pills, possible side effects, and appropriate solutions in case of missed doses?"
             ]}
-            videoSrc="/questionVideos/situation4.mp4"
+            videoSrc="/maternalchild/situation4.mp4"
             attemptsLeft={attemptsLeft}
             setAttemptsLeft={setAttemptsLeft} 
             language={language}

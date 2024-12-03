@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import axios from '../../api/axios';
-import LabRecordingComponent from '../LabRecordingComponent';
+import LabRecordingComponent from '../MaternalchildRecordingComponent';
 
 const MAX_ATTEMPTS = 3;
 
@@ -54,7 +54,7 @@ const Lab4Recording = () => {
                 "ท่านจะให้คำแนะนำเกี่ยวกับวิธีการคุมกำเนิดที่เหมาะสมแก่มารดาหลังคลอดรายนี้อย่างไร แนะนำ 1 วิธี",
                 "หากมารดาหลังคลอดรายนี้ กำลังพิจารณาเลือกใช้ยาเม็ดคุมกำเนิดที่มีฮอร์โมนโปรเจสเตอโรนเพียงอย่างเดียว จะให้คำแนะนำอย่างไร เกี่ยวกับการใช้ยาเม็ดคุมกำเนิด ผลข้างเคียงที่อาจจะเกิดขึ้น และวิธีการแก้ไขปัญหาอย่างเหมาะสมกรณีที่ลืมรับประทานยาเม็ดคุมกำเนิด"
             ]}
-            videoSrc="/questionVideos/situation4.mp4"
+            videoSrc="/maternalchild/situation4.mp4"
             attemptsLeft={attemptsLeft}
             setAttemptsLeft={setAttemptsLeft}
             language={language}

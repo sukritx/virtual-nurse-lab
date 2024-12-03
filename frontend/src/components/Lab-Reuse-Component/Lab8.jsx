@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import axios from '../../api/axios';
-import LabRecordingComponent from '../LabRecordingComponent';
+import LabRecordingComponent from '../MaternalchildRecordingComponent';
 
 const MAX_ATTEMPTS = 3;
 
@@ -53,7 +53,7 @@ const Lab8Recording = () => {
             questions={[
                 "ท่านจะให้คำแนะนำในการทำความสะอาดตาและสายสะดือทารกแก่มารดารายนี้อย่างไร (ครอบคลุมประเด็น การเตรียมอุปกรณ์ และขั้นตอนการทำความสะอาดตาและสายสะดือ)"
             ]}
-            videoSrc="/questionVideos/situation8.mp4"
+            videoSrc="/maternalchild/situation8.mp4"
             attemptsLeft={attemptsLeft}
             setAttemptsLeft={setAttemptsLeft}
             language={language}

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import axios from '../../api/axios';
-import LabRecordingComponent from '../LabRecordingComponent';
+import LabRecordingComponent from '../MaternalchildRecordingComponent';
 
 const MAX_ATTEMPTS = 3;
 
@@ -53,7 +53,7 @@ const Lab6Recording = () => {
             questions={[
                 "ท่านจะให้คำแนะนำวิธีการทำความสะอาดแผลผีเย็บและเปลี่ยนผ้าอนามัยแก่มารดารายนี้อย่างไร (ครอบคลุมในประเด็น วิธีการเปลี่ยนผ้าอนามัย การทำความสะอาดแผลฝีเย็บ และการสังเกตความผิดปกติของแผลฝีเย็บ)"
             ]}
-            videoSrc="/questionVideos/situation6.mp4"
+            videoSrc="/maternalchild/situation6.mp4"
             attemptsLeft={attemptsLeft}
             setAttemptsLeft={setAttemptsLeft}
             language={language}

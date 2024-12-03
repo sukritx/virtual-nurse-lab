@@ -303,7 +303,7 @@ const Lab1Recording = () => {
                     <video 
                         controls 
                         className="w-full"
-                        src="/questionVideos/situation1.mp4"
+                        src="/maternalchild/situation1.mp4"
                     >
                         Your browser does not support the video tag.
                     </video>

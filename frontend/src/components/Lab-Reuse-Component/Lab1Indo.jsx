@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import axios from '../../api/axios';
-import LabRecordingComponent from '../LabRecordingComponent';
+import LabRecordingComponent from '../MaternalchildRecordingComponent';
 
 const MAX_ATTEMPTS = 3;
 const CHUNK_SIZE = 1024 * 1024; // 1MB chunks
@@ -105,7 +105,7 @@ const Lab1RecordingIndo = () => {
                 "Apa saran yang akan Anda berikan kepada ibu ini, misalnya tentang teknik menyusui yang benar (4 langkah menyusui) dan cara mengatasi masalahnya?",
                 "Bagaimana Anda akan mendemonstrasikan posisi menggendong yang benar dan cara mengurangi/mencegah sakit pada puting untuk ibu ini?"
             ]}
-            videoSrc="/questionVideos/situation1.mp4"
+            videoSrc="/maternalchild/situation1.mp4"
             attemptsLeft={attemptsLeft}
             setAttemptsLeft={setAttemptsLeft} 
             language={language}

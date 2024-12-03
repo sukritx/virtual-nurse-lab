@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import axios from '../../api/axios';
-import LabRecordingComponent from '../LabRecordingComponent';
+import LabRecordingComponent from '../MaternalchildRecordingComponent';
 
 const MAX_ATTEMPTS = 3;
 
@@ -54,7 +54,7 @@ const Lab2Recording = () => {
                 "ท่านจะให้คำแนะนำใดแก่มารดารายนี้ที่เตรียมตัวออกไปทำงานนอกบ้านอย่างไร (ครอบคลุมในประเด็น ประโยชน์ของนมแม่ อายุนมในตู้เย็น การใช้ถุงเก็บน้ำนม วิธีการละลายน้ำนม และอาหารเพิ่มน้ำนม)",
                 "ท่านจะสาธิตวิธีบีบนมเก็บ ให้กับมารดารายนี้อย่างไร"
             ]}
-            videoSrc="/questionVideos/situation2.mp4"
+            videoSrc="/maternalchild/situation2.mp4"
             attemptsLeft={attemptsLeft}
             setAttemptsLeft={setAttemptsLeft}
             language={language}

@@ -418,7 +418,7 @@ MATERNAL AND CHILD
 lab 1-10
 */
 
-router.post('/upload-1', authMiddleware, async (req, res) => {
+router.post('/maternalchild-1', authMiddleware, async (req, res) => {
     const { fileName, totalChunks } = req.body;
     const tempDir = path.join(__dirname, '../temp');
     const finalFilePath = path.join(__dirname, '../public/uploads', fileName);
@@ -1310,7 +1310,7 @@ Harap konversi hasil evaluasi ke format JSON sebagai berikut:
     return feedbackJson;
 }
 
-router.post('/upload-2', authMiddleware, async (req, res) => {
+router.post('/maternalchild-2', authMiddleware, async (req, res) => {
     const { fileName, totalChunks } = req.body;
     const tempDir = path.join(__dirname, '../temp');
     const finalFilePath = path.join(__dirname, '../public/uploads', fileName);
@@ -1426,7 +1426,7 @@ router.post('/upload-2', authMiddleware, async (req, res) => {
         });
     }
 });
-router.post('/upload-3', authMiddleware, async (req, res) => {
+router.post('/maternalchild-3', authMiddleware, async (req, res) => {
     const { fileName, totalChunks } = req.body;
     const tempDir = path.join(__dirname, '../temp');
     const finalFilePath = path.join(__dirname, '../public/uploads', fileName);
@@ -1542,7 +1542,7 @@ router.post('/upload-3', authMiddleware, async (req, res) => {
         });
     }
 });
-router.post('/upload-4', authMiddleware, async (req, res) => {
+router.post('/maternalchild-4', authMiddleware, async (req, res) => {
     const { fileName, totalChunks } = req.body;
     const tempDir = path.join(__dirname, '../temp');
     const finalFilePath = path.join(__dirname, '../public/uploads', fileName);
@@ -1824,7 +1824,7 @@ Please compare the student's answer with the answer key. Assess if it is on poin
     return feedbackJson;
 }
 
-router.post('/upload-5', authMiddleware, async (req, res) => {
+router.post('/maternalchild-5', authMiddleware, async (req, res) => {
     const { fileName, totalChunks } = req.body;
     const tempDir = path.join(__dirname, '../temp');
     const finalFilePath = path.join(__dirname, '../public/uploads', fileName);
@@ -1940,7 +1940,7 @@ router.post('/upload-5', authMiddleware, async (req, res) => {
         });
     }
 });
-router.post('/upload-6', authMiddleware, async (req, res) => {
+router.post('/maternalchild-6', authMiddleware, async (req, res) => {
     const { fileName, totalChunks } = req.body;
     const tempDir = path.join(__dirname, '../temp');
     const finalFilePath = path.join(__dirname, '../public/uploads', fileName);
@@ -2056,7 +2056,7 @@ router.post('/upload-6', authMiddleware, async (req, res) => {
         });
     }
 });
-router.post('/upload-7', authMiddleware, async (req, res) => {
+router.post('/maternalchild-7', authMiddleware, async (req, res) => {
     const { fileName, totalChunks } = req.body;
     const tempDir = path.join(__dirname, '../temp');
     const finalFilePath = path.join(__dirname, '../public/uploads', fileName);
@@ -2172,7 +2172,7 @@ router.post('/upload-7', authMiddleware, async (req, res) => {
         });
     }
 });
-router.post('/upload-8', authMiddleware, async (req, res) => {
+router.post('/maternalchild-8', authMiddleware, async (req, res) => {
     const { fileName, totalChunks } = req.body;
     const tempDir = path.join(__dirname, '../temp');
     const finalFilePath = path.join(__dirname, '../public/uploads', fileName);
@@ -2288,7 +2288,7 @@ router.post('/upload-8', authMiddleware, async (req, res) => {
         });
     }
 });
-router.post('/upload-9', authMiddleware, async (req, res) => {
+router.post('/maternalchild-9', authMiddleware, async (req, res) => {
     const { fileName, totalChunks } = req.body;
     const tempDir = path.join(__dirname, '../temp');
     const finalFilePath = path.join(__dirname, '../public/uploads', fileName);
@@ -2404,7 +2404,7 @@ router.post('/upload-9', authMiddleware, async (req, res) => {
         });
     }
 });
-router.post('/upload-10', authMiddleware, async (req, res) => {
+router.post('/maternalchild-10', authMiddleware, async (req, res) => {
     const { fileName, totalChunks } = req.body;
     const tempDir = path.join(__dirname, '../temp');
     const finalFilePath = path.join(__dirname, '../public/uploads', fileName);
@@ -3041,7 +3041,7 @@ MATERNAL AND CHILD
 --antenatal--
 lab 11-15
 */
-router.post('/maternalchild/11', authMiddleware, async (req, res) => {
+router.post('/maternalchild-11', authMiddleware, async (req, res) => {
     const { fileName, totalChunks } = req.body;
     const tempDir = path.join(__dirname, '../temp');
     const finalFilePath = path.join(__dirname, '../public/uploads', fileName);
@@ -3228,7 +3228,7 @@ async function processTranscriptionLab11(transcription) {
     return feedbackJson;
 }
 
-router.post('/maternalchild/12', authMiddleware, async (req, res) => {
+router.post('/maternalchild-12', authMiddleware, async (req, res) => {
     const { fileName, totalChunks } = req.body;
     const tempDir = path.join(__dirname, '../temp');
     const finalFilePath = path.join(__dirname, '../public/uploads', fileName);
@@ -3429,7 +3429,7 @@ async function processTranscriptionLab12(transcription) {
     return feedbackJson;
 }
 
-router.post('/maternalchild/13', authMiddleware, async (req, res) => {
+router.post('/maternalchild-13', authMiddleware, async (req, res) => {
     const { fileName, totalChunks } = req.body;
     const tempDir = path.join(__dirname, '../temp');
     const finalFilePath = path.join(__dirname, '../public/uploads', fileName);
@@ -3616,7 +3616,7 @@ async function processTranscriptionLab13(transcription) {
     return feedbackJson;
 }
 
-router.post('/maternalchild/14', authMiddleware, async (req, res) => {
+router.post('/maternalchild-14', authMiddleware, async (req, res) => {
     const { fileName, totalChunks } = req.body;
     const tempDir = path.join(__dirname, '../temp');
     const finalFilePath = path.join(__dirname, '../public/uploads', fileName);
@@ -3792,7 +3792,7 @@ async function processTranscriptionLab14(transcription) {
     return feedbackJson;
 }
 
-router.post('/maternalchild/15', authMiddleware, async (req, res) => {
+router.post('/maternalchild-15', authMiddleware, async (req, res) => {
     const { fileName, totalChunks } = req.body;
     const tempDir = path.join(__dirname, '../temp');
     const finalFilePath = path.join(__dirname, '../public/uploads', fileName);
@@ -3990,7 +3990,7 @@ MATERNAL AND CHILD
 lab 16-20
 */
 
-router.post('/maternalchild/16', authMiddleware, async (req, res) => {
+router.post('/maternalchild-16', authMiddleware, async (req, res) => {
     const { fileName, totalChunks } = req.body;
     const tempDir = path.join(__dirname, '../temp');
     const finalFilePath = path.join(__dirname, '../public/uploads', fileName);
@@ -4192,7 +4192,7 @@ async function processTranscriptionLab16(transcription) {
     return feedbackJson;
 }
 
-router.post('/maternalchild/17', authMiddleware, async (req, res) => {
+router.post('/maternalchild-17', authMiddleware, async (req, res) => {
     const { fileName, totalChunks } = req.body;
     const tempDir = path.join(__dirname, '../temp');
     const finalFilePath = path.join(__dirname, '../public/uploads', fileName);
@@ -4360,7 +4360,7 @@ Intensity อยู่ระดับ moderate intensity เหมาะสม�
     return feedbackJson;
 }
 
-router.post('/maternalchild/18', authMiddleware, async (req, res) => {
+router.post('/maternalchild-18', authMiddleware, async (req, res) => {
     const { fileName, totalChunks } = req.body;
     const tempDir = path.join(__dirname, '../temp');
     const finalFilePath = path.join(__dirname, '../public/uploads', fileName);
@@ -4537,7 +4537,7 @@ async function processTranscriptionLab18(transcription) {
     return feedbackJson;
 }
 
-router.post('/maternalchild/19', authMiddleware, async (req, res) => {
+router.post('/maternalchild-19', authMiddleware, async (req, res) => {
     const { fileName, totalChunks } = req.body;
     const tempDir = path.join(__dirname, '../temp');
     const finalFilePath = path.join(__dirname, '../public/uploads', fileName);
@@ -4719,7 +4719,7 @@ async function processTranscriptionLab19(transcription) {
     return feedbackJson;
 }
 
-router.post('/maternalchild/20', authMiddleware, async (req, res) => {
+router.post('/maternalchild-20', authMiddleware, async (req, res) => {
     const { fileName, totalChunks } = req.body;
     const tempDir = path.join(__dirname, '../temp');
     const finalFilePath = path.join(__dirname, '../public/uploads', fileName);

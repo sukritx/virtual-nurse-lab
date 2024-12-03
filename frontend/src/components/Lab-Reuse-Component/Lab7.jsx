@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import axios from '../../api/axios';
-import LabRecordingComponent from '../LabRecordingComponent';
+import LabRecordingComponent from '../MaternalchildRecordingComponent';
 
 const MAX_ATTEMPTS = 3;
 
@@ -53,7 +53,7 @@ const Lab7Recording = () => {
             questions={[
                 "ท่านจะให้คำแนะนำวิธีการอาบน้ำทารกแก่มารดารายนี้อย่างไร (ครอบคลุมประเด็น การสังเกตร่างกายทารกก่อนอาบน้ำ สิ่งแวดล้อมบริเวณที่อาบน้ำ และการเตรียมน้ำอาบทารก)"
             ]}
-            videoSrc="/questionVideos/situation7.mp4"
+            videoSrc="/maternalchild/situation7.mp4"
             attemptsLeft={attemptsLeft}
             setAttemptsLeft={setAttemptsLeft}
             language={language}

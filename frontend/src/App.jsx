@@ -29,6 +29,7 @@ import Upload7 from './components/Lab-Reuse-Component/Lab7';
 import Upload8 from './components/Lab-Reuse-Component/Lab8';
 import Upload9 from './components/Lab-Reuse-Component/Lab9';
 import Upload10 from './components/Lab-Reuse-Component/Lab10';
+import Maternalchild11 from './components/Lab-Reuse-Component/Maternalchild/Lab11';
 import Contact from './pages/Contact';
 import Sale from './pages/Sale';
 import StudentLabs from './pages/StudentLabs';
@@ -78,6 +79,7 @@ function App() {
               <Route path="/student/upload8" element={<Upload8 />} />
               <Route path="/student/upload9" element={<Upload9 />} />
               <Route path="/student/upload10" element={<Upload10 />} />
+              <Route path="/student/maternalchild11" element={<Maternalchild11 />} />
               <Route path="/student/upload-to-spaces" element={<UploadToSpace />} />
               <Route path="/student/lab/:labNumber/history" element={<LabHistory />} />
             </Route>

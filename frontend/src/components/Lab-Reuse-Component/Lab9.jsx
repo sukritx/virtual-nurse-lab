@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import axios from '../../api/axios';
-import LabRecordingComponent from '../LabRecordingComponent';
+import LabRecordingComponent from '../MaternalchildRecordingComponent';
 
 const MAX_ATTEMPTS = 3;
 
@@ -53,7 +53,7 @@ const Lab9Recording = () => {
             questions={[
                 "ท่านจะให้คำแนะนำแก่มารดาหลังคลอดรายนี้อย่างไร เพื่อเตรียมตัวกลับบ้าน เมื่อมารดาสอบถามว่า \"จะสามารถกระตุ้นพัฒนาการของลูกในช่วงแรกเกิดถึง 2 เดือนได้อย่างไร\""
             ]}
-            videoSrc="/questionVideos/situation9.mp4"
+            videoSrc="/maternalchild/situation9.mp4"
             attemptsLeft={attemptsLeft}
             setAttemptsLeft={setAttemptsLeft}
             language={language}
