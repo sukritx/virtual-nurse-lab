@@ -64,22 +64,22 @@ export const StudentDashboard = () => {
           </ul>
         </div>
 
-        <div className="flex justify-center mb-6 mt-6">
+        <div className="flex flex-col md:flex-row justify-center mb-6 mt-6 space-y-4 md:space-y-0 md:space-x-4">
           <button
             onClick={() => navigate('/student/postpartum')}
-            className="px-10 py-6 rounded bg-purple-500 text-white text-lg hover:bg-purple-600 transition duration-200"
+            className="px-10 py-6 rounded bg-purple-500 text-white text-lg hover:bg-purple-600 transition duration-200 w-full md:w-auto"
           >
             Postpartum Labs
           </button>
           <button
             onClick={() => navigate('/student/antenatal')}
-            className="px-10 py-6 rounded bg-purple-500 text-white text-lg mx-4 hover:bg-purple-600 transition duration-200"
+            className="px-10 py-6 rounded bg-purple-500 text-white text-lg hover:bg-purple-600 transition duration-200 w-full md:w-auto"
           >
             Antenatal Labs
           </button>
           <button
             onClick={() => navigate('/student/intrapartum')}
-            className="px-10 py-6 rounded bg-purple-500 text-white text-lg hover:bg-purple-600 transition duration-200"
+            className="px-10 py-6 rounded bg-purple-500 text-white text-lg hover:bg-purple-600 transition duration-200 w-full md:w-auto"
           >
             Intrapartum Labs
           </button>
