@@ -10,6 +10,9 @@ import { Dashboard } from './pages/Dashboard';
 import { ProfessorDashboard } from './pages/ProfessorDashboard';
 import { AdminDashboard } from './pages/AdminDashboard';
 import { StudentDashboard } from './pages/StudentDashboard';
+import PostpartumDashboard from './pages/PostpartumDashboard';
+import AntenatalDashboard from './pages/AntenatalDashboard';
+import IntrapartumDashboard from './pages/IntrapartumDashboard';
 import { LabPage } from './pages/LabPage';
 import Library from './pages/Library';
 import BlogContent from './pages/BlogContent';
@@ -71,6 +74,9 @@ function App() {
             <Route element={<MainLayout />}>
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/student/dashboard" element={<StudentDashboard />} />
+              <Route path="/student/postpartum" element={<PostpartumDashboard />} />
+              <Route path="/student/antenatal" element={<AntenatalDashboard />} />
+              <Route path="/student/intrapartum" element={<IntrapartumDashboard />} />
               <Route path="/lab/:labId" element={<LabPage />} />
               <Route path="/student/maternalchild1" element={<Upload1 />} />
               <Route path="/student/maternalchild1cn" element={<Upload1Cn />} />
