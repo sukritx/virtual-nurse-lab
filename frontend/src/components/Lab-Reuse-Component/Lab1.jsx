@@ -35,13 +35,13 @@ const Lab1Recording = () => {
         setLanguage(newLanguage);
         
         if (newLanguage === 'zh') {
-            navigate('/student/upload1cn');
+            navigate('/student/maternalchild1cn');
         } else if (newLanguage === 'en') {
-            navigate('/student/upload1en');
+            navigate('/student/maternalchild1en');
         } else if (newLanguage === 'jp') {
-            navigate('/student/upload1jp');
+            navigate('/student/maternalchild1jp');
         } else if (newLanguage === 'id') {
-            navigate('/student/upload1indo');
+            navigate('/student/maternalchild1indo');
         }
     };
 

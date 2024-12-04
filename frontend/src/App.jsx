@@ -72,22 +72,21 @@ function App() {
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/student/dashboard" element={<StudentDashboard />} />
               <Route path="/lab/:labId" element={<LabPage />} />
-              <Route path="/student/upload1" element={<Upload1 />} />
-              <Route path="/student/upload1cn" element={<Upload1Cn />} />
-              <Route path="/student/upload1en" element={<Upload1En />} />
-              <Route path="/student/upload1jp" element={<UploadJp />} />
-              <Route path="/student/upload1indo" element={<Upload1Indo />} />
-
-              <Route path="/student/upload2" element={<Upload2 />} />
-              <Route path="/student/upload3" element={<Upload3 />} />
-              <Route path="/student/upload4" element={<Upload4 />} />
-              <Route path="/student/upload4en" element={<Upload4En />} />
-              <Route path="/student/upload5" element={<Upload5 />} />
-              <Route path="/student/upload6" element={<Upload6 />} />
-              <Route path="/student/upload7" element={<Upload7 />} />
-              <Route path="/student/upload8" element={<Upload8 />} />
-              <Route path="/student/upload9" element={<Upload9 />} />
-              <Route path="/student/upload10" element={<Upload10 />} />
+              <Route path="/student/maternalchild1" element={<Upload1 />} />
+              <Route path="/student/maternalchild1cn" element={<Upload1Cn />} />
+              <Route path="/student/maternalchild1en" element={<Upload1En />} />
+              <Route path="/student/maternalchild1jp" element={<UploadJp />} />
+              <Route path="/student/maternalchild1indo" element={<Upload1Indo />} />
+              <Route path="/student/maternalchild2" element={<Upload2 />} />
+              <Route path="/student/maternalchild3" element={<Upload3 />} />
+              <Route path="/student/maternalchild4" element={<Upload4 />} />
+              <Route path="/student/maternalchild4en" element={<Upload4En />} />
+              <Route path="/student/maternalchild5" element={<Upload5 />} />
+              <Route path="/student/maternalchild6" element={<Upload6 />} />
+              <Route path="/student/maternalchild7" element={<Upload7 />} />
+              <Route path="/student/maternalchild8" element={<Upload8 />} />
+              <Route path="/student/maternalchild9" element={<Upload9 />} />
+              <Route path="/student/maternalchild10" element={<Upload10 />} />
               <Route path="/student/maternalchild11" element={<Maternalchild11 />} />
               <Route path="/student/maternalchild12" element={<Maternalchild12 />} />
               <Route path="/student/maternalchild13" element={<Maternalchild13 />} />
@@ -98,8 +97,8 @@ function App() {
               <Route path="/student/maternalchild18" element={<Maternalchild18 />} />
               <Route path="/student/maternalchild19" element={<Maternalchild19 />} />
               <Route path="/student/maternalchild20" element={<Maternalchild20 />} />
-              <Route path="/student/upload-to-spaces" element={<UploadToSpace />} />
               <Route path="/student/lab/:labNumber/history" element={<LabHistory />} />
+              <Route path="/student/lab/:labNumber/details" element={<LabDetails />} />
             </Route>
           </Route>
 

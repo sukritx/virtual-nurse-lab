@@ -79,7 +79,7 @@ export const StudentDashboard = () => {
                 <p className="text-sm text-green-600 mt-2">Previously passed</p>
               )}
               <button
-                onClick={() => navigate(`/student/upload${lab.labInfo.labNumber}`)}
+                onClick={() => navigate(`/student/maternalchild${lab.labInfo.labNumber}`)}
                 className="mt-4 bg-purple-600 text-white py-2 px-4 rounded hover:bg-purple-700 transition duration-200"
               >
                 View

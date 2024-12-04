@@ -35,11 +35,11 @@ const Lab2Recording = () => {
         setLanguage(newLanguage);
         
         if (newLanguage === 'zh') {
-            navigate('/student/upload2cn');
+            navigate('/student/maternalchild2cn');
         } else if (newLanguage === 'en') {
-            navigate('/student/upload2en');
+            navigate('/student/maternalchild2en');
         } else if (newLanguage === 'jp') {
-            navigate('/student/upload2jp');
+            navigate('/student/maternalchild2jp');
         }
         // For Thai, we stay on the current page
     };
