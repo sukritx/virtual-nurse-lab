@@ -72,7 +72,7 @@ const Lab4RecordingEn = () => {
                 });
             }
 
-            await axios.post('/api/v1/lab-deployed/upload-4-en', {
+            await axios.post('/api/v1/lab-deployed/maternalchild-4-en', {
                 fileName,
                 totalChunks
             }, {
