@@ -25,7 +25,7 @@ import Upload1Indo from './components/Lab-Reuse-Component/Lab1Indo';
 import Upload2 from './components/Lab-Reuse-Component/Lab2';
 import Upload3 from './components/Lab-Reuse-Component/Lab3';
 import Upload4 from './components/Lab-Reuse-Component/Lab4';
-import Upload4En from './components/Lab-Reuse-Component/Lab4En';
+import Upload4En from './components/Lab-Clientside-Record/Upload4En';
 import Upload5 from './components/Lab-Reuse-Component/Lab5';
 import Upload6 from './components/Lab-Reuse-Component/Lab6';
 import Upload7 from './components/Lab-Reuse-Component/Lab7';
