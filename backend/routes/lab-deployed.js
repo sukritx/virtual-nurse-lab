@@ -1796,6 +1796,7 @@ Here is the student's answer: "${transcription}".
 Here is the answer key: "${answerKey}".
 
 Please compare the student's answer with the answer key. Assess if it is on point and provide detailed feedback on what the student did well and recommendations for improvement, without commenting on grammar or unrelated issues.
+answer in english and in form of json
     {
     "totalScore": <student's score>,
     "pros": "<things the student did well>",
