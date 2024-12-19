@@ -48,7 +48,7 @@ const Lab18Recording = () => {
     return (
         <LabRecordingComponent
             labNumber={18}
-            title="สถานการณ์ที่ 18 การดูแลในระยะที่ 1 ของการคลอด"
+            title="สถานการณ์ที่ 18 การพยาบาลในระยะที่ 1 ของการคลอด"
             subtitle="การดูแลในระยะที่ 1 ของการคลอด"
             description="ณ ห้องคลอด
             ผู้คลอดครรภ์แรก อายุ 20 ปี GA 39 สัปดาห์ ตรวจภายในพบ Cervix dilated 5 cm. Effacement 75% Membrane intact Station -1 ส่วนนำเป็น Vertex ท่าทารก ROA FHR 148 ครั้งต่อนาที คาดคะเนน้ำหนักของทารกได้ 3,000 g. ประเมินการหดรัดตัวของมดลูก Interval 4 นาที Duration 45 วินาที Intensity strong

@@ -48,7 +48,7 @@ const Lab11Recording = () => {
     return (
         <LabRecordingComponent
             labNumber={11}
-            title="Lab 11 Initial Prenatal Assessment"
+            title="สถานการณ์ที่ 11 การประเมินในระยะตั้งครรภ์ (Initial Prenatal Assessment)"
             subtitle="Initial Prenatal Assessment"
             description="สตรีตั้งครรภ์อายุ 36 ปี G2 P1001 last 2 ปี อายุครรภ์ 18 สัปดาห์ ผลการตรวจทางห้องปฏิบัติการ พบ Hct 30%, Hb 9.2 gm/dL, urine albumin: negative, urine sugar: negative, MCV 68 fl, DCIP negative ผลการคัดกรอง Down’s syndrome 1: 500 สตรีตั้งครรภ์ให้ข้อมูลว่า ช่วงนี้มีอาการคลื่นไส้อาเจียน และมีเลือดออกตามไรฟันเล็กน้อย อีกทั้งยังมีความกังวลเกี่ยวกับสุขภาพของทารกในครรภ์ กลัวทารกไม่ปกติเพราะตนเองตั้งครรภ์ตอนอายุมากแล้ว
             Scene: ณ แผนกฝากครรภ์ สตรีตั้งครรภ์มาฝากครรภ์ตามนัด และฟังผลการตรวจทางห้องปฏิบัติการ 
