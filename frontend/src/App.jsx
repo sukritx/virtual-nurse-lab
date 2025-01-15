@@ -26,6 +26,7 @@ import Upload2 from './components/Lab-Reuse-Component/Lab2';
 import Upload3 from './components/Lab-Reuse-Component/Lab3';
 import Upload4 from './components/Lab-Reuse-Component/Lab4';
 import Upload4En from './components/Lab-Clientside-Record/Upload4En';
+import Upload4Cn from './components/Lab-Clientside-Record/Upload4Cn';
 import Upload5 from './components/Lab-Reuse-Component/Lab5';
 import Upload6 from './components/Lab-Reuse-Component/Lab6';
 import Upload7 from './components/Lab-Reuse-Component/Lab7';
@@ -87,6 +88,7 @@ function App() {
               <Route path="/student/maternalchild3" element={<Upload3 />} />
               <Route path="/student/maternalchild4" element={<Upload4 />} />
               <Route path="/student/maternalchild4en" element={<Upload4En />} />
+              <Route path="/student/maternalchild4cn" element={<Upload4Cn />} />
               <Route path="/student/maternalchild5" element={<Upload5 />} />
               <Route path="/student/maternalchild6" element={<Upload6 />} />
               <Route path="/student/maternalchild7" element={<Upload7 />} />

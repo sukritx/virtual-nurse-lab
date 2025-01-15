@@ -1815,6 +1815,174 @@ answer in english and in form of json
     return feedbackJson;
 }
 
+router.post('/maternalchild-4-cn', authMiddleware, async (req, res) => {
+    const { fileName, totalChunks } = req.body;
+    const tempDir = path.join(__dirname, '../temp');
+    const finalFilePath = path.join(__dirname, '../public/uploads', fileName);
+    let audioPath = null;
+    let fileUrl = null;
+    let fileType = null;
+
+    try {
+        // Reassemble the file from chunks
+        await new Promise((resolve, reject) => {
+            const writeStream = fs.createWriteStream(finalFilePath);
+            writeStream.on('finish', resolve);
+            writeStream.on('error', reject);
+
+            (async () => {
+                for (let i = 0; i < totalChunks; i++) {
+                    const chunkPath = path.join(tempDir, `${req.userId}_${i}`);
+                    const chunkBuffer = await fs.promises.readFile(chunkPath);
+                    writeStream.write(chunkBuffer);
+                    await fs.promises.unlink(chunkPath);
+                }
+                writeStream.end();
+            })();
+        });
+
+        // console.log('File reassembled successfully');
+        const uploadTimestamp = Date.now();
+
+        fileType = getFileType(fileName);
+
+        // Upload the original file to Spaces
+        // console.time('Spaces upload');
+        fileUrl = await uploadToSpaces(finalFilePath, `lab4/${req.userId}/${uploadTimestamp}${path.extname(fileName)}`);
+        // console.timeEnd('Spaces upload');
+
+        if (fileType === 'video') {
+            // Audio extraction for transcription
+            // console.time('Audio extraction');
+            audioPath = `./public/uploads/audio-${uploadTimestamp}.mp3`;
+            await new Promise((resolve, reject) => {
+                ffmpeg(finalFilePath)
+                    .output(audioPath)
+                    .audioCodec('libmp3lame')
+                    .on('end', resolve)
+                    .on('error', reject)
+                    .run();
+            });
+            // console.timeEnd('Audio extraction');
+        } else {
+            // For audio files, use the uploaded file directly
+            audioPath = finalFilePath;
+        }
+
+        // Transcription IApp
+        // const transcriptionResult = await transcribeAudioIApp(audioPath);
+        // const transcription = concatenateTranscriptionText(transcriptionResult.output);
+        const transcription = await transcribeAudioOpenAI(audioPath);
+
+        // GPT processing (same as before)
+        // console.time('GPT processing');
+        const feedbackJson = await processTranscriptionLab4Cn(transcription);
+        // console.timeEnd('GPT processing');
+
+        // Prepare and submit lab info
+        const labInfo = {
+            studentId: req.userId,
+            labNumber: 4,
+            subject: 'maternalandchild',
+            fileUrl: fileUrl,
+            fileType: fileType,
+            studentAnswer: transcription,
+            studentScore: feedbackJson.totalScore,
+            isPass: feedbackJson.totalScore >= 60,
+            pros: feedbackJson.pros,
+            recommendations: feedbackJson.recommendations,
+        };
+
+        // console.time('Lab submission');
+        await axios.post('http://localhost:3000/api/v1/lab-deployed/submit-lab', labInfo);
+        // console.timeEnd('Lab submission');
+
+        // Send response
+        res.json({
+            feedback: feedbackJson,
+            transcription,
+            passFailStatus: feedbackJson.totalScore >= 60 ? 'Passed' : 'Failed',
+            score: feedbackJson.totalScore,
+            pros: feedbackJson.pros,
+            recommendations: feedbackJson.recommendations,
+            fileUrl: fileUrl,
+            fileType: fileType
+        });
+
+    } catch (error) {
+        console.error('Error processing the file:', error);
+        res.status(500).json({ msg: 'Error processing the file', error: error.message });
+    } finally {
+        // Cleanup
+        // console.log('Cleaning up local files');
+        [finalFilePath, audioPath].forEach(path => {
+            if (path && fs.existsSync(path)) {
+                try {
+                    fs.unlinkSync(path);
+                    // console.log(`Successfully deleted: ${path}`);
+                } catch (deleteError) {
+                    if (deleteError.code !== 'ENOENT') {
+                        console.error(`Failed to delete file: ${path}`, deleteError);
+                    }
+                }
+            }
+        });
+    }
+});
+async function processTranscriptionLab4(transcription) {
+    const answerKey = `
+实验 4: 计划生育：口服避孕药
+
+1. 您会如何建议这位产后母亲选择适合的避孕方法？请推荐一种方法。
+
+答案：如果选择以下任意一种方法，得分为10分：
+
+低剂量激素口服避孕药（Minipills）
+注射避孕药（Injection）
+避孕植入物（Contraceptive Implant）
+禁欲（Abstinence）
+哺乳避孕法（Lactation Amenorrhea Method）
+安全套（Condom）
+2. 如果这位产后母亲正在考虑使用仅含孕激素的口服避孕药，您会如何提供建议？请说明如何使用此类避孕药、可能出现的副作用以及忘记服药后的解决方法。
+
+答案（90分）：
+
+孕激素单一口服避孕药（Minipills/Progesterone-only pills）非常适合哺乳期的产后母亲，因为不会导致乳汁减少。（25分）
+此类避孕药可以使宫颈黏液变得浓稠，阻止精子进入。（15分）
+药片包装中共有28片，无空白药或安慰剂，建议每日服用且不得中断。应按时服药，以确保体内激素水平稳定。如果服药时间不规律，可能会降低避孕效果。（30分）
+如果忘记服用一天，应在想起时立即服用。如果忘记两天，需按照以下方法处理：
+第一天早上服用漏服的药片，当天晚上服用当天应服的药片；
+第二天早上服用另一片漏服的药片，当晚继续服用当天应服的药片。
+如果忘记服药超过三天，应弃用当前药板，等待月经来潮后再开始新的药板。（25分）
+指导女性注意副作用，例如月经不规律、异常出血、乳房胀痛、情绪波动等。（15分）
+总分：100分
+`;
+
+    const checkContent = `
+这是学生的答案："${transcription}"
+这是答案参考："${answerKey}"
+
+请比较学生的答案与答案参考，判断是否切题，并详细说明学生表现出色的方面，同时提供改进建议。无需说明具体得分部分。
+无需评论语法或与主题无关的内容。
+请将评估结果转换为以下格式的 JSON：
+    {
+        "totalScore": <学生的得分>,
+        "pros": "<学生表现出色的方面>",
+        "recommendations": "<改进建议>"
+    }
+`;
+
+    const response = await openai.chat.completions.create({
+        messages: [{ role: "system", content: checkContent }],
+        model: "gpt-4o",
+        response_format: { "type": "json_object" }
+    });
+
+    const feedbackJson = JSON.parse(response.choices[0].message.content.trim());
+    //console.log(feedbackJson);
+    return feedbackJson;
+}
+
 router.post('/maternalchild-5', authMiddleware, async (req, res) => {
     const { fileName, totalChunks } = req.body;
     const tempDir = path.join(__dirname, '../temp');
