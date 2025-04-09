@@ -68,7 +68,8 @@ router.post("/signup", async (req, res) => {
         firstName: req.body.firstName,
         lastName: req.body.lastName,
         studentId: req.body.studentId,
-        university: university.universityName
+        university: university.universityName,
+        universityCode: university.registerCode
     })
     const userId = user._id;
 

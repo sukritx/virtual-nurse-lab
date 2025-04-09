@@ -9,7 +9,7 @@ const dotenv = require('dotenv').config();
 const app = express();
 
 //------------ DB Configuration ------------//
-const db = process.env.MONGO_URI;
+const db = process.env.MONGO_URI_DEVELOPMENT;
 
 //------------ Mongo Connection ------------//
 mongoose.connect(db, {
