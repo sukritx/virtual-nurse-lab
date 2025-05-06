@@ -48,7 +48,9 @@ import Sale from './pages/Sale';
 import StudentLabs from './pages/StudentLabs';
 import LabDetails from './pages/LabDetails';
 import LabHistory from './pages/LabHistory';
-import UploadToSpace from './components/UploadToSpaces';
+{/* 315 */}
+import StudentDashboard315 from './pages/315/StudentDashboard315';
+import Subject315Lab1 from './components/Lab-Reuse-Component/315/Subject315Lab1';
 
 // Layouts
 import MainLayout from './layouts/MainLayout';
@@ -107,6 +109,10 @@ function App() {
               <Route path="/student/maternalchild20" element={<Maternalchild20 />} />
               <Route path="/student/lab/:subject/:labNumber/history" element={<LabHistory />} />
               <Route path="/student/lab/:subject/:labNumber/details" element={<LabDetails />} />
+
+              {/* 315 */}
+              <Route path="/student/315/dashboard" element={<StudentDashboard315 />} />
+              <Route path="/student/315/1" element={<Subject315Lab1 />} />
             </Route>
           </Route>
 
