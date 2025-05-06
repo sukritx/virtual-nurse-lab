@@ -8,14 +8,15 @@ const LabHistory = () => {
   const [selectedAttempt, setSelectedAttempt] = useState(null);
   const { token } = useAuth();
   const { labNumber } = useParams();
+  const { subject } = useParams();
 
   useEffect(() => {
     fetchLabHistory();
-  }, [token, labNumber]);
+  }, [token, labNumber, subject]);
 
   const fetchLabHistory = async () => {
     try {
-      const response = await axios.get(`/api/v1/student/${labNumber}/history`, {
+      const response = await axios.get(`/api/v1/student/${subject}/${labNumber}/history`, {
         headers: {
           Authorization: `Bearer ${token}`
         }

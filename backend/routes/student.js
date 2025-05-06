@@ -34,12 +34,12 @@ router.get('/labs', authMiddleware, async (req, res) => {
     }
 });
 
-router.get('/:labNumber/history', authMiddleware, async (req, res) => {
+router.get('/:subject/:labNumber/history', authMiddleware, async (req, res) => {
     try {
         const studentId = req.userId;
-        const { labNumber } = req.params;
+        const { subject, labNumber } = req.params;
 
-        const labInfo = await LabInfo.findOne({ labNumber });
+        const labInfo = await LabInfo.findOne({ labNumber, subject });
         if (!labInfo) {
             return res.status(404).json({ message: 'Lab not found' });
         }

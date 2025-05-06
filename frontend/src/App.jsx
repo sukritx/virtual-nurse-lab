@@ -105,8 +105,8 @@ function App() {
               <Route path="/student/maternalchild18" element={<Maternalchild18 />} />
               <Route path="/student/maternalchild19" element={<Maternalchild19 />} />
               <Route path="/student/maternalchild20" element={<Maternalchild20 />} />
-              <Route path="/student/lab/:labNumber/history" element={<LabHistory />} />
-              <Route path="/student/lab/:labNumber/details" element={<LabDetails />} />
+              <Route path="/student/lab/:subject/:labNumber/history" element={<LabHistory />} />
+              <Route path="/student/lab/:subject/:labNumber/details" element={<LabDetails />} />
             </Route>
           </Route>
 
