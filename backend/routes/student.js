@@ -6,7 +6,7 @@ const { authMiddleware } = require('../middleware');
 router.get('/labs', authMiddleware, async (req, res) => {
     try {
         const studentLabs = await LabSubmission.find({ studentId: req.userId }).populate('labInfo').exec();
-        const allLabs = await LabInfo.find().sort({ labNumber: 1 });
+        const allLabs = await LabInfo.find({ subject: 'maternalandchild' }).sort({ labNumber: 1 });
 
         const MAX_ATTEMPTS = 3; // Define max attempts
 
