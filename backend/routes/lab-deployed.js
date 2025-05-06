@@ -5017,4 +5017,501 @@ async function processTranscriptionLab20(transcription) {
     return feedbackJson;
 }
 
+// 315
+router.post('/315-1', authMiddleware, async (req, res) => {
+    const { fileName, totalChunks } = req.body;
+    const tempDir = path.join(__dirname, '../temp');
+    const finalFilePath = path.join(__dirname, '../public/uploads', fileName);
+    let audioPath = null;
+    let fileUrl = null;
+    let fileType = null;
+
+    try {
+        // Reassemble the file from chunks
+        await new Promise((resolve, reject) => {
+            const writeStream = fs.createWriteStream(finalFilePath);
+            writeStream.on('finish', resolve);
+            writeStream.on('error', reject);
+
+            (async () => {
+                for (let i = 0; i < totalChunks; i++) {
+                    const chunkPath = path.join(tempDir, `${req.userId}_${i}`);
+                    const chunkBuffer = await fs.promises.readFile(chunkPath);
+                    writeStream.write(chunkBuffer);
+                    await fs.promises.unlink(chunkPath);
+                }
+                writeStream.end();
+            })();
+        });
+
+        // console.log('File reassembled successfully');
+        const uploadTimestamp = Date.now();
+
+        fileType = getFileType(fileName);
+
+        // Upload the original file to Spaces
+        // console.time('Spaces upload');
+        fileUrl = await uploadToSpaces(finalFilePath, `subject315/lab1/${req.userId}/${uploadTimestamp}${path.extname(fileName)}`);
+        // console.timeEnd('Spaces upload');
+
+        if (fileType === 'video') {
+            // Audio extraction for transcription
+            // console.time('Audio extraction');
+            audioPath = `./public/uploads/audio-${uploadTimestamp}.mp3`;
+            await new Promise((resolve, reject) => {
+                ffmpeg(finalFilePath)
+                    .output(audioPath)
+                    .audioCodec('libmp3lame')
+                    .on('end', resolve)
+                    .on('error', reject)
+                    .run();
+            });
+            // console.timeEnd('Audio extraction');
+        } else {
+            // For audio files, use the uploaded file directly
+            audioPath = finalFilePath;
+        }
+
+        // Transcription IApp
+        // const transcriptionResult = await transcribeAudioIApp(audioPath);
+        // const transcription = concatenateTranscriptionText(transcriptionResult.output);
+        const transcription = await transcribeAudioOpenAI(audioPath);
+
+        // GPT processing (same as before)
+        // console.time('GPT processing');
+        const feedbackJson = await processTranscriptionSubject315Lab1(transcription);
+        // console.timeEnd('GPT processing');
+
+        // Prepare and submit lab info
+        const labInfo = {
+            studentId: req.userId,
+            labNumber: 1,
+            subject: '315',
+            fileUrl: fileUrl,
+            fileType: fileType,
+            studentAnswer: transcription,
+            studentScore: feedbackJson.totalScore,
+            isPass: feedbackJson.totalScore >= 60,
+            pros: feedbackJson.pros,
+            recommendations: feedbackJson.recommendations,
+        };
+
+        // console.time('Lab submission');
+        await axios.post('http://localhost:3000/api/v1/lab-deployed/submit-lab', labInfo);
+        // console.timeEnd('Lab submission');
+
+        // Send response
+        res.json({
+            feedback: feedbackJson,
+            transcription,
+            passFailStatus: feedbackJson.totalScore >= 60 ? 'Passed' : 'Failed',
+            score: feedbackJson.totalScore,
+            pros: feedbackJson.pros,
+            recommendations: feedbackJson.recommendations,
+            fileUrl: fileUrl,
+            fileType: fileType
+        });
+
+    } catch (error) {
+        console.error('Error processing the file:', error);
+        res.status(500).json({ msg: 'Error processing the file', error: error.message });
+    } finally {
+        // Cleanup
+        // console.log('Cleaning up local files');
+        [finalFilePath, audioPath].forEach(path => {
+            if (path && fs.existsSync(path)) {
+                try {
+                    fs.unlinkSync(path);
+                    // console.log(`Successfully deleted: ${path}`);
+                } catch (deleteError) {
+                    if (deleteError.code !== 'ENOENT') {
+                        console.error(`Failed to delete file: ${path}`, deleteError);
+                    }
+                }
+            }
+        });
+    }
+});
+async function processTranscriptionSubject315Lab1(transcription) {
+    const answerKey = `
+สถานการณ์ที่ 1
+โจทย์:
+มารดาครรภ์ที่ 3 หลังคลอด 2 วัน ซักถามเกี่ยวกับอาการปวดมดลูก และก้อนที่คลำพบบริเวณหน้าท้อง ให้นักศึกษาแนะนำมารดารายนี้เกี่ยวกับการเปลี่ยนแปลงของมดลูกที่เกิดขึ้นภายหลังคลอด (โดยอธิบายเกี่ยวกับการกลับคืนสู่สภาพเดิม การลดระดับของมดลูก และอาการปวดมดลูก)
+
+เฉลย
+คำถาม
+1.	การกลับคืนสู่สภาพเดิม (10 คะแนน)
+เกิดขึ้นทันทีภายหลังจากรกคลอด เกิดจาก 3 ขบวนการ คือ 
+1.1) การหดรัดตัวของใยกล้ามเนื้อมดลูก (5 คะแนน)
+1.2) ขบวนการย่อยสลาย (5 คะแนน)
+1.3) การสร้างเยื่อบุโพรงมดลูกใหม่ (5 คะแนน)
+
+2.	การลดระดับของมดลูก (50 คะแนน)
+2.1)	ทันทีหลังรกคลอด มดลูกจะสามารถคลำได้เป็นก้อนแข็งในแนวกลางลำตัว โดยอยู่กึ่งกลางระหว่างหัวหน่าวกับสะดือ หรือประมาณ 2 เซนติเมตรต่ำกว่าระดับสะดือ (10)
+2.2)	ภายใน 12 ชั่วโมงหลังคลอด ยอดมดลูกจะลอยสูงขึ้นไปอยู่ระดับสะดือหรือสูงกว่าระดับสะดือเล็กน้อย และจะคงอยู่ระดับนี้นานประมาณ 24 ชั่วโมง (10)
+2.3)	ระดับมดลูกลดลงวันละประมาณ 1-2 เซนติเมตร (10)
+2.4)	วันที่ 6 หลังคลอดจะคลำยอดมดลูกได้ประมาณกึ่งกลางระหว่างหัวหน่าวกับสะดือ (10)
+2.5)	วันที่ 10 หลังคลอดจะคลำยอดมดลูกไม่ได้ทางหน้าท้อง (10)
+2.6)	ขนาดและรูปร่างของมดลูกจะใกล้เคียงกับก่อนตั้งครรภ์ประมาณสัปดาห์ที่ 6 (10)
+
+3.	อาการปวดมดลูก (50 คะแนน)
+3.1)	อาการปวดมดลูกหลังคลอด เป็นอาการปกติที่พบได้ใน 2-3 วันแรกหลังคลอด และจะค่อยๆหายไปในวันที่ 3-7 หลังคลอด (15)
+3.2)	สาเหตุเกิดจากการหดรัดตัวและคลายตัวของมดลูกสลับกัน มักจะพบอาการปวดมากในมารดาที่กล้ามเนื้อมดลูกมีการยืดขยายมากกว่าปกติ (15) 
+
+คะแนนเต็มเท่ากับ 100 คะแนน
+`;
+
+    const checkContent = `
+นี่คือคำตอบของนักศึกษา: "${transcription}".
+ที่คือเฉลย: "${answerKey}".
+
+โปรดเปรียบเทียบคำตอบของนักศึกษากับเฉลย ตรงประเด็นหรือไม่ พร้อมทั้งอธิบายรายละเอียดสิ่งที่นักศึกษาทำได้ดีอย่างละเอียดและข้อเสนอแนะ โดยไม่ต้องชี้แจงคะแนนย่อย ตอบเป็นภาษาไทย
+ไม่ต้องติในเรื่องไวยกรณ์หรือเรื่องที่ไม่เกี่ยวข้อง
+โปรดแปลงผลการประเมินเป็น JSON รูปแบบดังนี้เท่านั้น:
+    {
+      "totalScore": <คะแนนนักศึกษาได้>,
+      "pros": "<จุดที่นักศึกษาทำได้ดี>",
+      "recommendations": "<ข้อเสนอแนะ>"
+    }
+`;
+
+    const response = await openai.chat.completions.create({
+        messages: [{ role: "system", content: checkContent }],
+        model: "gpt-4o",
+        response_format: { "type": "json_object" }
+    });
+
+    const feedbackJson = JSON.parse(response.choices[0].message.content.trim());
+    //console.log(feedbackJson);
+    return feedbackJson;
+}
+
+router.post('/315-2', authMiddleware, async (req, res) => {
+    const { fileName, totalChunks } = req.body;
+    const tempDir = path.join(__dirname, '../temp');
+    const finalFilePath = path.join(__dirname, '../public/uploads', fileName);
+    let audioPath = null;
+    let fileUrl = null;
+    let fileType = null;
+
+    try {
+        // Reassemble the file from chunks
+        await new Promise((resolve, reject) => {
+            const writeStream = fs.createWriteStream(finalFilePath);
+            writeStream.on('finish', resolve);
+            writeStream.on('error', reject);
+
+            (async () => {
+                for (let i = 0; i < totalChunks; i++) {
+                    const chunkPath = path.join(tempDir, `${req.userId}_${i}`);
+                    const chunkBuffer = await fs.promises.readFile(chunkPath);
+                    writeStream.write(chunkBuffer);
+                    await fs.promises.unlink(chunkPath);
+                }
+                writeStream.end();
+            })();
+        });
+
+        // console.log('File reassembled successfully');
+        const uploadTimestamp = Date.now();
+
+        fileType = getFileType(fileName);
+
+        // Upload the original file to Spaces
+        // console.time('Spaces upload');
+        fileUrl = await uploadToSpaces(finalFilePath, `subject315/lab2/${req.userId}/${uploadTimestamp}${path.extname(fileName)}`);
+        // console.timeEnd('Spaces upload');
+
+        if (fileType === 'video') {
+            // Audio extraction for transcription
+            // console.time('Audio extraction');
+            audioPath = `./public/uploads/audio-${uploadTimestamp}.mp3`;
+            await new Promise((resolve, reject) => {
+                ffmpeg(finalFilePath)
+                    .output(audioPath)
+                    .audioCodec('libmp3lame')
+                    .on('end', resolve)
+                    .on('error', reject)
+                    .run();
+            });
+            // console.timeEnd('Audio extraction');
+        } else {
+            // For audio files, use the uploaded file directly
+            audioPath = finalFilePath;
+        }
+
+        // Transcription IApp
+        // const transcriptionResult = await transcribeAudioIApp(audioPath);
+        // const transcription = concatenateTranscriptionText(transcriptionResult.output);
+        const transcription = await transcribeAudioOpenAI(audioPath);
+
+        // GPT processing (same as before)
+        // console.time('GPT processing');
+        const feedbackJson = await processTranscriptionSubject315Lab2(transcription);
+        // console.timeEnd('GPT processing');
+
+        // Prepare and submit lab info
+        const labInfo = {
+            studentId: req.userId,
+            labNumber: 2,
+            subject: '315',
+            fileUrl: fileUrl,
+            fileType: fileType,
+            studentAnswer: transcription,
+            studentScore: feedbackJson.totalScore,
+            isPass: feedbackJson.totalScore >= 60,
+            pros: feedbackJson.pros,
+            recommendations: feedbackJson.recommendations,
+        };
+
+        // console.time('Lab submission');
+        await axios.post('http://localhost:3000/api/v1/lab-deployed/submit-lab', labInfo);
+        // console.timeEnd('Lab submission');
+
+        // Send response
+        res.json({
+            feedback: feedbackJson,
+            transcription,
+            passFailStatus: feedbackJson.totalScore >= 60 ? 'Passed' : 'Failed',
+            score: feedbackJson.totalScore,
+            pros: feedbackJson.pros,
+            recommendations: feedbackJson.recommendations,
+            fileUrl: fileUrl,
+            fileType: fileType
+        });
+
+    } catch (error) {
+        console.error('Error processing the file:', error);
+        res.status(500).json({ msg: 'Error processing the file', error: error.message });
+    } finally {
+        // Cleanup
+        // console.log('Cleaning up local files');
+        [finalFilePath, audioPath].forEach(path => {
+            if (path && fs.existsSync(path)) {
+                try {
+                    fs.unlinkSync(path);
+                    // console.log(`Successfully deleted: ${path}`);
+                } catch (deleteError) {
+                    if (deleteError.code !== 'ENOENT') {
+                        console.error(`Failed to delete file: ${path}`, deleteError);
+                    }
+                }
+            }
+        });
+    }
+});
+async function processTranscriptionSubject315Lab2(transcription) {
+    const answerKey = `
+สถานการณ์ที่ 2
+โจทย์:
+มารดาหลังคลอดปกติทางช่องคลอด 12 ชั่วโมง แผลฝีเย็บฉีกขาดระดับ 3 ประเมิน REEDA score = 7 (R=2, E=2, Ec=2, D=0, A=1) ปวดแผลฝีเย็บระดับ 8 ให้นักศึกษาแนะนำมารดารายนี้เกี่ยวกับการทำความสะอาดแผลฝีเย็บ การใช้ผ้าอนามัย และการบรรเทาปวดแผลฝีเย็บ
+
+เฉลย
+คำถาม
+1.  การทำความสะอาดแผลฝีเย็บ (30 คะแนน)
+•	แนะนำมารดาให้ล้างมือให้สะอาดก่อนและหลังทำความสะอาดทุกครั้ง เพื่อป้องกันการติดเชื้อที่แผลฝีเย็บและแผลในโพรงมดลูก (15)
+•	แนะนำมารดาให้ชำระอวัยวะสืบพันธุ์ภายนอกและแผลฝีเย็บด้วยตนเองอย่างถูกวิธี โดยใช้สบู่และน้ำสะอาดทำความสะอาดภายหลังการขับถ่ายทุกครั้ง ล้างจากด้านหน้าไปด้านหลัง ป้องกันเชื้อจากทวารหนักเข้าสู่แผลฝีเย็บและแผลในโพรงมดลูก (15)
+
+2.	การใช้ผ้าอนามัย  (30 คะแนน)
+•	แนะนำการใช้ผ้าอนามัยที่ถูกวิธี จับผ้าอนามัยด้านที่ไม่ได้สัมผัสอวัยวะสืบพันธุ์ ใส่และถอดผ้าอนามัยจากด้านหน้าไปด้านหลัง ใส่ให้กระชับ ไม่เลื่อนไปมา เพราะอาจนำเชื้อโรคจากทวารหนักมายังช่องคลอดได้ เปลี่ยนเมื่อรู้สึกว่าเปียกชุ่ม และไม่ควรใช้ผ้านอนามัยแบบสอด เพราะอาจทำให้เกิดการติดเชื้อได้ (30)
+
+3.	การบรรเทาปวดแผลฝีเย็บ (40 คะแนน)
+•	ใน 24 ชั่วโมงแรกหลังคลอด ประคบบริเวณฝีเย็บด้วยความเย็น หรือให้นั่งแช่ก้นในน้ำเย็น ความเย็นจะทำให้เนื้อเยื่อมีอาการชา หลอดเลือดหดตัว ลดอาการมีเลือดออก และลดอาการบวม ประคบนานครั้งละประมาณ 20 นาที หลังจากนั้นพัก 10 นาทีก่อนเริ่มประคบครั้งต่อไป ไม่ควรประคบ cold pack โดยการสัมผัสกับบริเวณผิวหนังฝีเย็บโดยตรง ควรใช้ผ้าห่อก่อนนำไปประคบ เพื่อป้องกันการบาดเจ็บจาก cold burn (20)
+•	แนะนำให้มารดาหลังคลอดเกร็งกล้ามเนื้อแก้มก้น ก่อนนั่งบนพื้นผิวที่แข็ง เพื่อแก้มก้นจะช่วยผ่อนน้ำหนักที่จะกดบริเวณฝีเย็บ (15)
+
+คะแนนเต็มเท่ากับ 100 คะแนน
+`;
+
+    const checkContent = `
+นี่คือคำตอบของนักศึกษา: "${transcription}".
+ที่คือเฉลย: "${answerKey}".
+
+โปรดเปรียบเทียบคำตอบของนักศึกษากับเฉลย ตรงประเด็นหรือไม่ พร้อมทั้งอธิบายรายละเอียดสิ่งที่นักศึกษาทำได้ดีอย่างละเอียดและข้อเสนอแนะ โดยไม่ต้องชี้แจงคะแนนย่อย ตอบเป็นภาษาไทย
+ไม่ต้องติในเรื่องไวยกรณ์หรือเรื่องที่ไม่เกี่ยวข้อง
+โปรดแปลงผลการประเมินเป็น JSON รูปแบบดังนี้เท่านั้น:
+    {
+      "totalScore": <คะแนนนักศึกษาได้>,
+      "pros": "<จุดที่นักศึกษาทำได้ดี>",
+      "recommendations": "<ข้อเสนอแนะ>"
+    }
+`;
+
+    const response = await openai.chat.completions.create({
+        messages: [{ role: "system", content: checkContent }],
+        model: "gpt-4o",
+        response_format: { "type": "json_object" }
+    });
+
+    const feedbackJson = JSON.parse(response.choices[0].message.content.trim());
+    //console.log(feedbackJson);
+    return feedbackJson;
+}
+
+router.post('/315-3', authMiddleware, async (req, res) => {
+    const { fileName, totalChunks } = req.body;
+    const tempDir = path.join(__dirname, '../temp');
+    const finalFilePath = path.join(__dirname, '../public/uploads', fileName);
+    let audioPath = null;
+    let fileUrl = null;
+    let fileType = null;
+
+    try {
+        // Reassemble the file from chunks
+        await new Promise((resolve, reject) => {
+            const writeStream = fs.createWriteStream(finalFilePath);
+            writeStream.on('finish', resolve);
+            writeStream.on('error', reject);
+
+            (async () => {
+                for (let i = 0; i < totalChunks; i++) {
+                    const chunkPath = path.join(tempDir, `${req.userId}_${i}`);
+                    const chunkBuffer = await fs.promises.readFile(chunkPath);
+                    writeStream.write(chunkBuffer);
+                    await fs.promises.unlink(chunkPath);
+                }
+                writeStream.end();
+            })();
+        });
+
+        // console.log('File reassembled successfully');
+        const uploadTimestamp = Date.now();
+
+        fileType = getFileType(fileName);
+
+        // Upload the original file to Spaces
+        // console.time('Spaces upload');
+        fileUrl = await uploadToSpaces(finalFilePath, `subject315/lab3/${req.userId}/${uploadTimestamp}${path.extname(fileName)}`);
+        // console.timeEnd('Spaces upload');
+
+        if (fileType === 'video') {
+            // Audio extraction for transcription
+            // console.time('Audio extraction');
+            audioPath = `./public/uploads/audio-${uploadTimestamp}.mp3`;
+            await new Promise((resolve, reject) => {
+                ffmpeg(finalFilePath)
+                    .output(audioPath)
+                    .audioCodec('libmp3lame')
+                    .on('end', resolve)
+                    .on('error', reject)
+                    .run();
+            });
+            // console.timeEnd('Audio extraction');
+        } else {
+            // For audio files, use the uploaded file directly
+            audioPath = finalFilePath;
+        }
+
+        // Transcription IApp
+        // const transcriptionResult = await transcribeAudioIApp(audioPath);
+        // const transcription = concatenateTranscriptionText(transcriptionResult.output);
+        const transcription = await transcribeAudioOpenAI(audioPath);
+
+        // GPT processing (same as before)
+        // console.time('GPT processing');
+        const feedbackJson = await processTranscriptionSubject315Lab3(transcription);
+        // console.timeEnd('GPT processing');
+
+        // Prepare and submit lab info
+        const labInfo = {
+            studentId: req.userId,
+            labNumber: 3,
+            subject: '315',
+            fileUrl: fileUrl,
+            fileType: fileType,
+            studentAnswer: transcription,
+            studentScore: feedbackJson.totalScore,
+            isPass: feedbackJson.totalScore >= 60,
+            pros: feedbackJson.pros,
+            recommendations: feedbackJson.recommendations,
+        };
+
+        // console.time('Lab submission');
+        await axios.post('http://localhost:3000/api/v1/lab-deployed/submit-lab', labInfo);
+        // console.timeEnd('Lab submission');
+
+        // Send response
+        res.json({
+            feedback: feedbackJson,
+            transcription,
+            passFailStatus: feedbackJson.totalScore >= 60 ? 'Passed' : 'Failed',
+            score: feedbackJson.totalScore,
+            pros: feedbackJson.pros,
+            recommendations: feedbackJson.recommendations,
+            fileUrl: fileUrl,
+            fileType: fileType
+        });
+
+    } catch (error) {
+        console.error('Error processing the file:', error);
+        res.status(500).json({ msg: 'Error processing the file', error: error.message });
+    } finally {
+        // Cleanup
+        // console.log('Cleaning up local files');
+        [finalFilePath, audioPath].forEach(path => {
+            if (path && fs.existsSync(path)) {
+                try {
+                    fs.unlinkSync(path);
+                    // console.log(`Successfully deleted: ${path}`);
+                } catch (deleteError) {
+                    if (deleteError.code !== 'ENOENT') {
+                        console.error(`Failed to delete file: ${path}`, deleteError);
+                    }
+                }
+            }
+        });
+    }
+});
+async function processTranscriptionSubject315Lab3(transcription) {
+    const answerKey = `
+สถานการณ์ที่ 3
+โจทย์:
+มารดาหลังคลอดปกติ 1 วัน หัวนมทั้ง 2 ข้างยาว 0.5 cm น้ำนมยังไม่ไหล พยายามให้ลูกดูดนมตนเองแต่ยังทำไม่ได้ พยาบาลเข้าไปประเมินผลว่า บุตรอมไม่ลึกถึงลานนม ไม่ได้ยินเสียงกลืน อุ้มบุตรดูดนมไม่ถูกวิธี บ่นเจ็บหัวนมขณะที่บุตรดูดนมมาก ให้นักศึกษาประเมิน LATCH score ของมารดารายนี้ และจากนั้นให้แนะนำการดูดนมที่ถูกวิธีแก่มารดารายนี้ (ตั้งแต่การนำทารกเข้าเต้า ไปจนถึงการนำทารกออกจากเต้านม) (100)
+
+เฉลย
+คำถาม
+1.	ประเมิน LATCH score (50 คะแนน)
+LATCH score = 4 คะแนน ต้องได้รับการช่วยเหลือ (10)
+-	Latch = 1 คะแนน บุตรอมไม่ลึกถึงลานนม (10)
+-	Audible = 0 คะแนน ไม่ได้ยินเสียงกลืน (10)
+-	Type of nipple = 2 คะแนน หัวนมทั้ง 2 ข้างยาว 0.5 cm (10)
+-	Comfort = 1 คะแนน เจ็บหัวนมขณะที่บุตรดูดนมมาก (10)
+-	Hold = 0 คะแนน อุ้มบุตรดูดนมไม่ถูกวิธี พยายามให้ลูกดูดนมตนเองแต่ยังทำไม่ได้ (10)
+
+2.	แนะนำการดูดนมที่ถูกวิธี (50 คะแนน)
+2.1)	แนะนำจัดท่าที่สบาย อุ้มลูกหันหน้าเข้าหาเต้านม ท้องมารดาแนบกับท้องลูก (10)
+2.2)	แนะนำใช้หมอนรองใต้ท้องแขนมารดา ให้ปากลูกอยู่ระดับเดียวกับหัวนม อุ้มลูกโดยรองรับทั้งตัว ศีรษะและลำตัวลูกอยู่ในแนวตรง คอไม่บิด ศีรษะสูงกว่าลำตัวเล็กน้อย (10)
+2.3)	แนะนำใช้มือประคองเต้านมในท่า C hold/ U hold (10)
+2.4)	เมื่อลูกอ้าปากกว้าง ให้นำลูกเข้าเต้าด้วยความรวดเร็วและนุ่มนวล (10)
+2.5)	ขณะดูดนม ปากลูกอ้ากว้างแนบสนิทกับเต้านมมารดา ริมฝีปากล่างบานออกคล้ายปากปลา (10)
+2.6)	เมื่อต้องการเปลี่ยนข้างดูด ให้ใช้นิ้วก้อยสอดเข้าไประหว่างมุมปากกับหัวนม/ใช้มือกดคางลูกเบาๆ (10)
+
+
+คะแนนเต็มเท่ากับ 100 คะแนน
+`;
+
+    const checkContent = `
+นี่คือคำตอบของนักศึกษา: "${transcription}".
+ที่คือเฉลย: "${answerKey}".
+
+โปรดเปรียบเทียบคำตอบของนักศึกษากับเฉลย ตรงประเด็นหรือไม่ พร้อมทั้งอธิบายรายละเอียดสิ่งที่นักศึกษาทำได้ดีอย่างละเอียดและข้อเสนอแนะ โดยไม่ต้องชี้แจงคะแนนย่อย ตอบเป็นภาษาไทย
+ไม่ต้องติในเรื่องไวยกรณ์หรือเรื่องที่ไม่เกี่ยวข้อง
+โปรดแปลงผลการประเมินเป็น JSON รูปแบบดังนี้เท่านั้น:
+    {
+      "totalScore": <คะแนนนักศึกษาได้>,
+      "pros": "<จุดที่นักศึกษาทำได้ดี>",
+      "recommendations": "<ข้อเสนอแนะ>"
+    }
+`;
+
+    const response = await openai.chat.completions.create({
+        messages: [{ role: "system", content: checkContent }],
+        model: "gpt-4o",
+        response_format: { "type": "json_object" }
+    });
+
+    const feedbackJson = JSON.parse(response.choices[0].message.content.trim());
+    //console.log(feedbackJson);
+    return feedbackJson;
+}
+
 module.exports = router;
