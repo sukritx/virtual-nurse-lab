@@ -6,7 +6,7 @@ import Subject315RecordingComponent from '../../Subject315RecordingComponent';
 
 const MAX_ATTEMPTS = 3;
 
-const Subject315Lab1 = () => {
+const Subject315Lab2 = () => {
     const [attemptsLeft, setAttemptsLeft] = useState(MAX_ATTEMPTS);
     const [language, setLanguage] = useState('th');
     const { token } = useAuth();
@@ -47,14 +47,14 @@ const Subject315Lab1 = () => {
 
     return (
         <Subject315RecordingComponent
-            labNumber={1}
-            title="อธิบายเกี่ยวกับการกลับคืนสู่สภาพเดิม"
+            labNumber={2}
+            title="แนะนำการทำความสะอาดแผลฝีเย็บ"
             subtitle=""
-            description="มารดาครรภ์ที่ 3 หลังคลอด 2 วัน ซักถามเกี่ยวกับอาการปวดมดลูก และก้อนที่คลำพบบริเวณหน้าท้อง ให้นักศึกษาแนะนำมารดารายนี้เกี่ยวกับการเปลี่ยนแปลงของมดลูกที่เกิดขึ้นภายหลังคลอด (โดยอธิบายเกี่ยวกับการกลับคืนสู่สภาพเดิม การลดระดับของมดลูก และอาการปวดมดลูก)"
+            description="มารดาหลังคลอดปกติทางช่องคลอด 12 ชั่วโมง แผลฝีเย็บฉีกขาดระดับ 3 ประเมิน REEDA score = 7 (R=2, E=2, Ec=2, D=0, A=1) ปวดแผลฝีเย็บระดับ 8 ให้นักศึกษาแนะนำมารดารายนี้เกี่ยวกับการทำความสะอาดแผลฝีเย็บ การใช้ผ้าอนามัย และการบรรเทาปวดแผลฝีเย็บ"
             questions={[
-                "การกลับคืนสู่สภาพเดิม (10 คะแนน)",
-                "การลดระดับของมดลูก (50 คะแนน)",
-                "อาการปวดมดลูก (50 คะแนน)"
+                "การทำความสะอาดแผลฝีเย็บ (30 คะแนน)",
+                "การใช้ผ้าอนามัย  (30 คะแนน)",
+                "การบรรเทาปวดแผลฝีเย็บ (40 คะแนน)"
             ]}
             videoSrc=""
             attemptsLeft={attemptsLeft}
@@ -66,4 +66,4 @@ const Subject315Lab1 = () => {
     );
 };
 
-export default Subject315Lab1;
+export default Subject315Lab2;

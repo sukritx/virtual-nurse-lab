@@ -6,7 +6,7 @@ import Subject315RecordingComponent from '../../Subject315RecordingComponent';
 
 const MAX_ATTEMPTS = 3;
 
-const Subject315Lab1 = () => {
+const Subject315Lab3 = () => {
     const [attemptsLeft, setAttemptsLeft] = useState(MAX_ATTEMPTS);
     const [language, setLanguage] = useState('th');
     const { token } = useAuth();
@@ -47,14 +47,13 @@ const Subject315Lab1 = () => {
 
     return (
         <Subject315RecordingComponent
-            labNumber={1}
-            title="อธิบายเกี่ยวกับการกลับคืนสู่สภาพเดิม"
+            labNumber={3}
+            title="ประเมิน LATCH score แนะนำการดูดนม"
             subtitle=""
-            description="มารดาครรภ์ที่ 3 หลังคลอด 2 วัน ซักถามเกี่ยวกับอาการปวดมดลูก และก้อนที่คลำพบบริเวณหน้าท้อง ให้นักศึกษาแนะนำมารดารายนี้เกี่ยวกับการเปลี่ยนแปลงของมดลูกที่เกิดขึ้นภายหลังคลอด (โดยอธิบายเกี่ยวกับการกลับคืนสู่สภาพเดิม การลดระดับของมดลูก และอาการปวดมดลูก)"
+            description="มารดาหลังคลอดปกติ 1 วัน หัวนมทั้ง 2 ข้างยาว 0.5 cm น้ำนมยังไม่ไหล พยายามให้ลูกดูดนมตนเองแต่ยังทำไม่ได้ พยาบาลเข้าไปประเมินผลว่า บุตรอมไม่ลึกถึงลานนม ไม่ได้ยินเสียงกลืน อุ้มบุตรดูดนมไม่ถูกวิธี บ่นเจ็บหัวนมขณะที่บุตรดูดนมมาก ให้นักศึกษาประเมิน LATCH score ของมารดารายนี้ และจากนั้นให้แนะนำการดูดนมที่ถูกวิธีแก่มารดารายนี้ (ตั้งแต่การนำทารกเข้าเต้า ไปจนถึงการนำทารกออกจากเต้านม) (100)"
             questions={[
-                "การกลับคืนสู่สภาพเดิม (10 คะแนน)",
-                "การลดระดับของมดลูก (50 คะแนน)",
-                "อาการปวดมดลูก (50 คะแนน)"
+                "ประเมิน LATCH score (50 คะแนน)",
+                "แนะนำการดูดนมที่ถูกวิธี (50 คะแนน)"
             ]}
             videoSrc=""
             attemptsLeft={attemptsLeft}
@@ -66,4 +65,4 @@ const Subject315Lab1 = () => {
     );
 };
 
-export default Subject315Lab1;
+export default Subject315Lab3;
