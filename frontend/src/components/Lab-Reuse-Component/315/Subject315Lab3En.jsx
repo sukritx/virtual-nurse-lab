@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
 import axios from '../../../api/axios';
-import Subject315RecordingComponent from '../../Subject315RecordingComponent';
+import Subject315EnRecordingComponent from '../../Subject315EnRecordingComponent';
 
 const MAX_ATTEMPTS = 3;
 
-const Subject315Lab3 = () => {
+const Subject315Lab3En = () => {
     const [attemptsLeft, setAttemptsLeft] = useState(MAX_ATTEMPTS);
     const [language, setLanguage] = useState('th');
     const { token } = useAuth();
@@ -46,14 +46,14 @@ const Subject315Lab3 = () => {
     };
 
     return (
-        <Subject315RecordingComponent
+        <Subject315EnRecordingComponent
             labNumber={3}
-            title="ประเมิน LATCH score แนะนำการดูดนม"
+            title="Assess the LATCH score and provide breastfeeding technique guidance"
             subtitle=""
-            description="มารดาหลังคลอดปกติ 1 วัน หัวนมทั้ง 2 ข้างยาว 0.5 cm น้ำนมยังไม่ไหล พยายามให้ลูกดูดนมตนเองแต่ยังทำไม่ได้ พยาบาลเข้าไปประเมินผลว่า บุตรอมไม่ลึกถึงลานนม ไม่ได้ยินเสียงกลืน อุ้มบุตรดูดนมไม่ถูกวิธี บ่นเจ็บหัวนมขณะที่บุตรดูดนมมาก ให้นักศึกษาประเมิน LATCH score ของมารดารายนี้ และจากนั้นให้แนะนำการดูดนมที่ถูกวิธีแก่มารดารายนี้ (ตั้งแต่การนำทารกเข้าเต้า ไปจนถึงการนำทารกออกจากเต้านม) (100)"
+            description="A postpartum woman 1 day after normal delivery has bilateral nipples measuring 0.5 cm in length, with no milk flow. The mother reports difficulties in breastfeeding, including improper infant latch (not reaching the areola), lack of audible swallowing, improper breastfeeding position, and significant nipple pain. Students are required to assess the LATCH score and provide breastfeeding technique guidance."
             questions={[
-                "ประเมิน LATCH score (50 คะแนน)",
-                "แนะนำการดูดนมที่ถูกวิธี (50 คะแนน)"
+                "LATCH Score Assessment: (50 points)",
+                "Guidance on Correct Breastfeeding Technique: (50 points)"
             ]}
             videoSrc=""
             attemptsLeft={attemptsLeft}
@@ -65,4 +65,4 @@ const Subject315Lab3 = () => {
     );
 };
 
-export default Subject315Lab3;
+export default Subject315Lab3En;

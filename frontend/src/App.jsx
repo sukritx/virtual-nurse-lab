@@ -51,8 +51,11 @@ import LabHistory from './pages/LabHistory';
 {/* 315 */}
 import StudentDashboard315 from './pages/315/StudentDashboard315';
 import Subject315Lab1 from './components/Lab-Reuse-Component/315/Subject315Lab1';
+import Subject315Lab1En from './components/Lab-Reuse-Component/315/Subject315Lab1En';
 import Subject315Lab2 from './components/Lab-Reuse-Component/315/Subject315Lab2';
+import Subject315Lab2En from './components/Lab-Reuse-Component/315/Subject315Lab2En';
 import Subject315Lab3 from './components/Lab-Reuse-Component/315/Subject315Lab3';
+import Subject315Lab3En from './components/Lab-Reuse-Component/315/Subject315Lab3En';
 
 // Layouts
 import MainLayout from './layouts/MainLayout';
@@ -115,8 +118,11 @@ function App() {
               {/* 315 */}
               <Route path="/student/315/dashboard" element={<StudentDashboard315 />} />
               <Route path="/student/315/1" element={<Subject315Lab1 />} />
+              <Route path="/student/315/1en" element={<Subject315Lab1En />} />
               <Route path="/student/315/2" element={<Subject315Lab2 />} />
+              <Route path="/student/315/2en" element={<Subject315Lab2En />} />
               <Route path="/student/315/3" element={<Subject315Lab3 />} />
+              <Route path="/student/315/3en" element={<Subject315Lab3En />} />
             </Route>
           </Route>
 

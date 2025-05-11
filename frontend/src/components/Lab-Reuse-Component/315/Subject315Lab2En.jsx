@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
 import axios from '../../../api/axios';
-import Subject315RecordingComponent from '../../Subject315RecordingComponent';
+import Subject315EnRecordingComponent from '../../Subject315EnRecordingComponent';
 
 const MAX_ATTEMPTS = 3;
 
-const Subject315Lab2 = () => {
+const Subject315Lab2En = () => {
     const [attemptsLeft, setAttemptsLeft] = useState(MAX_ATTEMPTS);
     const [language, setLanguage] = useState('th');
     const { token } = useAuth();
@@ -46,15 +46,15 @@ const Subject315Lab2 = () => {
     };
 
     return (
-        <Subject315RecordingComponent
+        <Subject315EnRecordingComponent
             labNumber={2}
-            title="แนะนำการทำความสะอาดแผลฝีเย็บ"
+            title="Provide guidance on perineal wound care"
             subtitle=""
-            description="มารดาหลังคลอดปกติทางช่องคลอด 12 ชั่วโมง แผลฝีเย็บฉีกขาดระดับ 3 ประเมิน REEDA score = 7 (R=2, E=2, Ec=2, D=0, A=1) ปวดแผลฝีเย็บระดับ 8 ให้นักศึกษาแนะนำมารดารายนี้เกี่ยวกับการทำความสะอาดแผลฝีเย็บ การใช้ผ้าอนามัย และการบรรเทาปวดแผลฝีเย็บ"
+            description="A postpartum woman who delivered vaginally 12 hours ago presents with a third-degree perineal tear, with a REEDA score of 7 (R=2, E=2, Ec=2, D=0, A=1), and reports perineal pain at a severity level of 8. Students are required to provide guidance on perineal wound care, sanitary pad use, and perineal pain management."
             questions={[
-                "การทำความสะอาดแผลฝีเย็บ (30 คะแนน)",
-                "การใช้ผ้าอนามัย  (30 คะแนน)",
-                "การบรรเทาปวดแผลฝีเย็บ (40 คะแนน)"
+                "Perineal Wound Care: (30 points)",
+                "Sanitary Pad Use: (30 points)",
+                "Perineal Pain Management: (40 points)"
             ]}
             videoSrc=""
             attemptsLeft={attemptsLeft}
@@ -66,4 +66,4 @@ const Subject315Lab2 = () => {
     );
 };
 
-export default Subject315Lab2;
+export default Subject315Lab2En;
