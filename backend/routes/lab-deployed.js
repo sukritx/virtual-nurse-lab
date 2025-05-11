@@ -5191,6 +5191,174 @@ async function processTranscriptionSubject315Lab1(transcription) {
     return feedbackJson;
 }
 
+router.post('/315-1-en', authMiddleware, async (req, res) => {
+    const { fileName, totalChunks } = req.body;
+    const tempDir = path.join(__dirname, '../temp');
+    const finalFilePath = path.join(__dirname, '../public/uploads', fileName);
+    let audioPath = null;
+    let fileUrl = null;
+    let fileType = null;
+
+    try {
+        // Reassemble the file from chunks
+        await new Promise((resolve, reject) => {
+            const writeStream = fs.createWriteStream(finalFilePath);
+            writeStream.on('finish', resolve);
+            writeStream.on('error', reject);
+
+            (async () => {
+                for (let i = 0; i < totalChunks; i++) {
+                    const chunkPath = path.join(tempDir, `${req.userId}_${i}`);
+                    const chunkBuffer = await fs.promises.readFile(chunkPath);
+                    writeStream.write(chunkBuffer);
+                    await fs.promises.unlink(chunkPath);
+                }
+                writeStream.end();
+            })();
+        });
+
+        // console.log('File reassembled successfully');
+        const uploadTimestamp = Date.now();
+
+        fileType = getFileType(fileName);
+
+        // Upload the original file to Spaces
+        // console.time('Spaces upload');
+        fileUrl = await uploadToSpaces(finalFilePath, `subject315/lab1/${req.userId}/${uploadTimestamp}${path.extname(fileName)}`);
+        // console.timeEnd('Spaces upload');
+
+        if (fileType === 'video') {
+            // Audio extraction for transcription
+            // console.time('Audio extraction');
+            audioPath = `./public/uploads/audio-${uploadTimestamp}.mp3`;
+            await new Promise((resolve, reject) => {
+                ffmpeg(finalFilePath)
+                    .output(audioPath)
+                    .audioCodec('libmp3lame')
+                    .on('end', resolve)
+                    .on('error', reject)
+                    .run();
+            });
+            // console.timeEnd('Audio extraction');
+        } else {
+            // For audio files, use the uploaded file directly
+            audioPath = finalFilePath;
+        }
+
+        // Transcription IApp
+        // const transcriptionResult = await transcribeAudioIApp(audioPath);
+        // const transcription = concatenateTranscriptionText(transcriptionResult.output);
+        const transcription = await transcribeAudioOpenAI(audioPath);
+
+        // GPT processing (same as before)
+        // console.time('GPT processing');
+        const feedbackJson = await processTranscriptionSubject315Lab1En(transcription);
+        // console.timeEnd('GPT processing');
+
+        // Prepare and submit lab info
+        const labInfo = {
+            studentId: req.userId,
+            labNumber: 1,
+            subject: '315',
+            fileUrl: fileUrl,
+            fileType: fileType,
+            studentAnswer: transcription,
+            studentScore: feedbackJson.totalScore,
+            isPass: feedbackJson.totalScore >= 60,
+            pros: feedbackJson.pros,
+            recommendations: feedbackJson.recommendations,
+        };
+
+        // console.time('Lab submission');
+        await axios.post('http://localhost:3000/api/v1/lab-deployed/submit-lab', labInfo);
+        // console.timeEnd('Lab submission');
+
+        // Send response
+        res.json({
+            feedback: feedbackJson,
+            transcription,
+            passFailStatus: feedbackJson.totalScore >= 60 ? 'Passed' : 'Failed',
+            score: feedbackJson.totalScore,
+            pros: feedbackJson.pros,
+            recommendations: feedbackJson.recommendations,
+            fileUrl: fileUrl,
+            fileType: fileType
+        });
+
+    } catch (error) {
+        console.error('Error processing the file:', error);
+        res.status(500).json({ msg: 'Error processing the file', error: error.message });
+    } finally {
+        // Cleanup
+        // console.log('Cleaning up local files');
+        [finalFilePath, audioPath].forEach(path => {
+            if (path && fs.existsSync(path)) {
+                try {
+                    fs.unlinkSync(path);
+                    // console.log(`Successfully deleted: ${path}`);
+                } catch (deleteError) {
+                    if (deleteError.code !== 'ENOENT') {
+                        console.error(`Failed to delete file: ${path}`, deleteError);
+                    }
+                }
+            }
+        });
+    }
+});
+async function processTranscriptionSubject315Lab1En(transcription) {
+    const answerKey = `
+Scenario 1
+A multiparous woman (third pregnancy) who is 2 days postpartum inquires about uterine pain and a palpable mass in the abdominal area. Students are required to provide guidance to the mother on postpartum uterine changes, including uterine involution, uterine descent, and uterine pain.
+
+Questions and Answers
+1.	Uterine Involution: (10 points)
+•	After childbirth, the uterus undergoes a process of returning to its pre-pregnancy size and condition. This process is called uterine involution and involves three key mechanisms:
+1.1	Contraction of uterine muscle fibers.
+1.2	Autolysis or breakdown of redundant uterine tissue.
+1.3	Regeneration of the endometrial lining.
+
+2.	Uterine Descent: (50 points)
+•	Immediately after placental expulsion, the uterus can be palpated as a firm mass located in the midline of the abdomen, approximately midway between the symphysis pubis and the umbilicus, or about 2 centimeters below the umbilicus (10 points).
+•	Within the first 12 hours postpartum, the uterine fundus may rise to the level of the umbilicus or slightly above it and remains at this level for approximately 24 hours (10 points).
+•	The uterus then descends by approximately 1-2 centimeters per day (10 points).
+•	By the 6th postpartum day, the uterine fundus can be palpated midway between the symphysis pubis and the umbilicus (10 points).
+•	By the 10th postpartum day, the uterine fundus is no longer palpable abdominally (10 points).
+•	The uterus generally returns to its pre-pregnancy size and shape by approximately 6 weeks postpartum (10 points).
+
+3.	Uterine Pain: (50 points)
+•	Postpartum uterine pain is normal during the first 2-3 days and usually subsides by days 3-7 (15 points).
+•	The pain is caused by alternating contraction and relaxation of the uterine muscle, commonly more intense in multiparous women due to increased uterine stretching (15 points).
+•	Uterine contractions tend to increase when the baby suckles, as breastfeeding stimulates uterine contractions, possibly exacerbating pain. Taking analgesics 30 minutes before breastfeeding may help alleviate discomfort (15 points).
+•	Persistent or severe uterine pain lasting more than 72 hours postpartum may indicate an abnormality, and the mother should consult a healthcare professional (15 points).
+
+Total Points: 100
+`;
+
+    const checkContent = `
+this is student's answer: "${transcription}".
+this is the answer key: "${answerKey}".
+
+Please compare the student's answer with the solution. Evaluate if it addresses the key points, and provide a detailed explanation of what the student did well along with recommendations. Do not break down partial scores. Answer in English.
+Do not critique grammar or unrelated issues.
+Please convert the evaluation results into JSON format as follows:
+    {
+    "totalScore": <score the student received>,
+    "pros": "<points the student did well>",
+    "recommendations": "<recommendations>"
+    }
+`;
+
+    const response = await openai.chat.completions.create({
+        messages: [{ role: "system", content: checkContent }],
+        model: "gpt-4o",
+        response_format: { "type": "json_object" }
+    });
+
+    const feedbackJson = JSON.parse(response.choices[0].message.content.trim());
+    //console.log(feedbackJson);
+    return feedbackJson;
+}
+
 router.post('/315-2', authMiddleware, async (req, res) => {
     const { fileName, totalChunks } = req.body;
     const tempDir = path.join(__dirname, '../temp');
@@ -5343,6 +5511,164 @@ async function processTranscriptionSubject315Lab2(transcription) {
       "totalScore": <คะแนนนักศึกษาได้>,
       "pros": "<จุดที่นักศึกษาทำได้ดี>",
       "recommendations": "<ข้อเสนอแนะ>"
+    }
+`;
+
+    const response = await openai.chat.completions.create({
+        messages: [{ role: "system", content: checkContent }],
+        model: "gpt-4o",
+        response_format: { "type": "json_object" }
+    });
+
+    const feedbackJson = JSON.parse(response.choices[0].message.content.trim());
+    //console.log(feedbackJson);
+    return feedbackJson;
+}
+
+router.post('/315-2-en', authMiddleware, async (req, res) => {
+    const { fileName, totalChunks } = req.body;
+    const tempDir = path.join(__dirname, '../temp');
+    const finalFilePath = path.join(__dirname, '../public/uploads', fileName);
+    let audioPath = null;
+    let fileUrl = null;
+    let fileType = null;
+
+    try {
+        // Reassemble the file from chunks
+        await new Promise((resolve, reject) => {
+            const writeStream = fs.createWriteStream(finalFilePath);
+            writeStream.on('finish', resolve);
+            writeStream.on('error', reject);
+
+            (async () => {
+                for (let i = 0; i < totalChunks; i++) {
+                    const chunkPath = path.join(tempDir, `${req.userId}_${i}`);
+                    const chunkBuffer = await fs.promises.readFile(chunkPath);
+                    writeStream.write(chunkBuffer);
+                    await fs.promises.unlink(chunkPath);
+                }
+                writeStream.end();
+            })();
+        });
+
+        // console.log('File reassembled successfully');
+        const uploadTimestamp = Date.now();
+
+        fileType = getFileType(fileName);
+
+        // Upload the original file to Spaces
+        // console.time('Spaces upload');
+        fileUrl = await uploadToSpaces(finalFilePath, `subject315/lab2/${req.userId}/${uploadTimestamp}${path.extname(fileName)}`);
+        // console.timeEnd('Spaces upload');
+
+        if (fileType === 'video') {
+            // Audio extraction for transcription
+            // console.time('Audio extraction');
+            audioPath = `./public/uploads/audio-${uploadTimestamp}.mp3`;
+            await new Promise((resolve, reject) => {
+                ffmpeg(finalFilePath)
+                    .output(audioPath)
+                    .audioCodec('libmp3lame')
+                    .on('end', resolve)
+                    .on('error', reject)
+                    .run();
+            });
+            // console.timeEnd('Audio extraction');
+        } else {
+            // For audio files, use the uploaded file directly
+            audioPath = finalFilePath;
+        }
+
+        // Transcription IApp
+        // const transcriptionResult = await transcribeAudioIApp(audioPath);
+        // const transcription = concatenateTranscriptionText(transcriptionResult.output);
+        const transcription = await transcribeAudioOpenAI(audioPath);
+
+        // GPT processing (same as before)
+        // console.time('GPT processing');
+        const feedbackJson = await processTranscriptionSubject315Lab2En(transcription);
+        // console.timeEnd('GPT processing');
+
+        // Prepare and submit lab info
+        const labInfo = {
+            studentId: req.userId,
+            labNumber: 2,
+            subject: '315',
+            fileUrl: fileUrl,
+            fileType: fileType,
+            studentAnswer: transcription,
+            studentScore: feedbackJson.totalScore,
+            isPass: feedbackJson.totalScore >= 60,
+            pros: feedbackJson.pros,
+            recommendations: feedbackJson.recommendations,
+        };
+
+        // console.time('Lab submission');
+        await axios.post('http://localhost:3000/api/v1/lab-deployed/submit-lab', labInfo);
+        // console.timeEnd('Lab submission');
+
+        // Send response
+        res.json({
+            feedback: feedbackJson,
+            transcription,
+            passFailStatus: feedbackJson.totalScore >= 60 ? 'Passed' : 'Failed',
+            score: feedbackJson.totalScore,
+            pros: feedbackJson.pros,
+            recommendations: feedbackJson.recommendations,
+            fileUrl: fileUrl,
+            fileType: fileType
+        });
+
+    } catch (error) {
+        console.error('Error processing the file:', error);
+        res.status(500).json({ msg: 'Error processing the file', error: error.message });
+    } finally {
+        // Cleanup
+        // console.log('Cleaning up local files');
+        [finalFilePath, audioPath].forEach(path => {
+            if (path && fs.existsSync(path)) {
+                try {
+                    fs.unlinkSync(path);
+                    // console.log(`Successfully deleted: ${path}`);
+                } catch (deleteError) {
+                    if (deleteError.code !== 'ENOENT') {
+                        console.error(`Failed to delete file: ${path}`, deleteError);
+                    }
+                }
+            }
+        });
+    }
+});
+async function processTranscriptionSubject315Lab2En(transcription) {
+    const answerKey = `
+Scenario 2
+A postpartum woman who delivered vaginally 12 hours ago presents with a third-degree perineal tear, with a REEDA score of 7 (R=2, E=2, Ec=2, D=0, A=1), and reports perineal pain at a severity level of 8. Students are required to provide guidance on perineal wound care, sanitary pad use, and perineal pain management.
+
+Questions and Answers
+1.	Perineal Wound Care: (30 points)
+•	Advise the mother to wash her hands thoroughly before and after wound care to prevent infection in the perineal and uterine cavity wounds (15 points).
+•	Educate the mother on proper genital and perineal cleansing techniques using soap and clean water after each bowel movement, wiping from front to back to avoid fecal contamination of the perineal wound (15 points).
+2.	Sanitary Pad Use: (30 points)
+•	Instruct the mother on the correct method of using sanitary pads, ensuring the pad is held from the non-genital contact side and positioned from front to back. Secure the pad to prevent shifting, which could introduce bacteria from the anal area to the vaginal region. Replace the pad when damp and avoid using tampons to reduce infection risk (30 points).
+3.	Perineal Pain Management: (40 points)
+•	During the first 24 hours postpartum, apply cold compresses to the perineal area or perform a sitz bath with cold water to numb the tissue, constrict blood vessels, reduce bleeding, and minimize swelling. Apply cold packs for approximately 20 minutes per session, allowing a 10-minute break between applications. Wrap the cold pack in cloth before application to avoid cold burns (20 points).
+•	Advise the mother to tense the gluteal muscles before sitting on a hard surface to reduce direct pressure on the perineum (15 points).
+•	If perineal pain is severe, administer analgesics as per the prescribed regimen (15 points).
+
+Total Points: 100
+`;
+
+    const checkContent = `
+this is student's answer: "${transcription}".
+this is the answer key: "${answerKey}".
+
+Please compare the student's answer with the solution. Evaluate if it addresses the key points, and provide a detailed explanation of what the student did well along with recommendations. Do not break down partial scores. Answer in English.
+Do not critique grammar or unrelated issues.
+Please convert the evaluation results into JSON format as follows:
+    {
+    "totalScore": <score the student received>,
+    "pros": "<points the student did well>",
+    "recommendations": "<recommendations>"
     }
 `;
 
@@ -5513,6 +5839,168 @@ LATCH score = 4 คะแนน ต้องได้รับการช่ว
       "totalScore": <คะแนนนักศึกษาได้>,
       "pros": "<จุดที่นักศึกษาทำได้ดี>",
       "recommendations": "<ข้อเสนอแนะ>"
+    }
+`;
+
+    const response = await openai.chat.completions.create({
+        messages: [{ role: "system", content: checkContent }],
+        model: "gpt-4o",
+        response_format: { "type": "json_object" }
+    });
+
+    const feedbackJson = JSON.parse(response.choices[0].message.content.trim());
+    //console.log(feedbackJson);
+    return feedbackJson;
+}
+
+router.post('/315-3-en', authMiddleware, async (req, res) => {
+    const { fileName, totalChunks } = req.body;
+    const tempDir = path.join(__dirname, '../temp');
+    const finalFilePath = path.join(__dirname, '../public/uploads', fileName);
+    let audioPath = null;
+    let fileUrl = null;
+    let fileType = null;
+
+    try {
+        // Reassemble the file from chunks
+        await new Promise((resolve, reject) => {
+            const writeStream = fs.createWriteStream(finalFilePath);
+            writeStream.on('finish', resolve);
+            writeStream.on('error', reject);
+
+            (async () => {
+                for (let i = 0; i < totalChunks; i++) {
+                    const chunkPath = path.join(tempDir, `${req.userId}_${i}`);
+                    const chunkBuffer = await fs.promises.readFile(chunkPath);
+                    writeStream.write(chunkBuffer);
+                    await fs.promises.unlink(chunkPath);
+                }
+                writeStream.end();
+            })();
+        });
+
+        // console.log('File reassembled successfully');
+        const uploadTimestamp = Date.now();
+
+        fileType = getFileType(fileName);
+
+        // Upload the original file to Spaces
+        // console.time('Spaces upload');
+        fileUrl = await uploadToSpaces(finalFilePath, `subject315/lab3/${req.userId}/${uploadTimestamp}${path.extname(fileName)}`);
+        // console.timeEnd('Spaces upload');
+
+        if (fileType === 'video') {
+            // Audio extraction for transcription
+            // console.time('Audio extraction');
+            audioPath = `./public/uploads/audio-${uploadTimestamp}.mp3`;
+            await new Promise((resolve, reject) => {
+                ffmpeg(finalFilePath)
+                    .output(audioPath)
+                    .audioCodec('libmp3lame')
+                    .on('end', resolve)
+                    .on('error', reject)
+                    .run();
+            });
+            // console.timeEnd('Audio extraction');
+        } else {
+            // For audio files, use the uploaded file directly
+            audioPath = finalFilePath;
+        }
+
+        // Transcription IApp
+        // const transcriptionResult = await transcribeAudioIApp(audioPath);
+        // const transcription = concatenateTranscriptionText(transcriptionResult.output);
+        const transcription = await transcribeAudioOpenAI(audioPath);
+
+        // GPT processing (same as before)
+        // console.time('GPT processing');
+        const feedbackJson = await processTranscriptionSubject315Lab3En(transcription);
+        // console.timeEnd('GPT processing');
+
+        // Prepare and submit lab info
+        const labInfo = {
+            studentId: req.userId,
+            labNumber: 3,
+            subject: '315',
+            fileUrl: fileUrl,
+            fileType: fileType,
+            studentAnswer: transcription,
+            studentScore: feedbackJson.totalScore,
+            isPass: feedbackJson.totalScore >= 60,
+            pros: feedbackJson.pros,
+            recommendations: feedbackJson.recommendations,
+        };
+
+        // console.time('Lab submission');
+        await axios.post('http://localhost:3000/api/v1/lab-deployed/submit-lab', labInfo);
+        // console.timeEnd('Lab submission');
+
+        // Send response
+        res.json({
+            feedback: feedbackJson,
+            transcription,
+            passFailStatus: feedbackJson.totalScore >= 60 ? 'Passed' : 'Failed',
+            score: feedbackJson.totalScore,
+            pros: feedbackJson.pros,
+            recommendations: feedbackJson.recommendations,
+            fileUrl: fileUrl,
+            fileType: fileType
+        });
+
+    } catch (error) {
+        console.error('Error processing the file:', error);
+        res.status(500).json({ msg: 'Error processing the file', error: error.message });
+    } finally {
+        // Cleanup
+        // console.log('Cleaning up local files');
+        [finalFilePath, audioPath].forEach(path => {
+            if (path && fs.existsSync(path)) {
+                try {
+                    fs.unlinkSync(path);
+                    // console.log(`Successfully deleted: ${path}`);
+                } catch (deleteError) {
+                    if (deleteError.code !== 'ENOENT') {
+                        console.error(`Failed to delete file: ${path}`, deleteError);
+                    }
+                }
+            }
+        });
+    }
+});
+async function processTranscriptionSubject315Lab3En(transcription) {
+    const answerKey = `
+Scenario 3
+A postpartum woman 1 day after normal delivery has bilateral nipples measuring 0.5 cm in length, with no milk flow. The mother reports difficulties in breastfeeding, including improper infant latch (not reaching the areola), lack of audible swallowing, improper breastfeeding position, and significant nipple pain. Students are required to assess the LATCH score and provide breastfeeding technique guidance.
+
+Questions and Answers
+1.	LATCH Score Assessment: (50 points)
+•	LATCH Score: 4 (Requires assistance) (10 points)
+•	Latch: 1 point (Inadequate latch, infant does not grasp the areola deeply) (10 points)
+•	Audible Swallowing: 0 points (No audible swallowing noted) (10 points)
+•	Type of Nipple: 2 points (Nipple length 0.5 cm) (10 points)
+•	Comfort (Nipple Pain): 1 point (Significant pain while breastfeeding) (10 points)
+•	Hold (Positioning): 0 points (Improper breastfeeding hold) (10 points)
+2.	Guidance on Correct Breastfeeding Technique: (50 points)
+•	Position the mother comfortably, holding the infant facing the breast, with the baby’s abdomen touching the mother’s abdomen (10 points).
+•	Use a supportive pillow under the mother’s arm to position the baby at the nipple level, ensuring the head, neck, and body are aligned, and the infant’s neck is not twisted (10 points).
+•	Use the C-hold or U-hold technique to support the breast while breastfeeding (10 points).
+•	Wait for the infant to open their mouth widely, then quickly and gently bring the infant to the breast, ensuring the mouth covers most of the areola. The baby’s lower lip should be flared outward like a fish’s mouth (10 points).
+•	To switch breasts or end the feeding session, gently insert a finger between the infant’s mouth and the nipple or press the infant’s chin lightly to break suction safely (10 points).
+
+Total Points: 100
+`;
+
+    const checkContent = `
+this is student's answer: "${transcription}".
+this is the answer key: "${answerKey}".
+
+Please compare the student's answer with the solution. Evaluate if it addresses the key points, and provide a detailed explanation of what the student did well along with recommendations. Do not break down partial scores. Answer in English.
+Do not critique grammar or unrelated issues.
+Please convert the evaluation results into JSON format as follows:
+    {
+    "totalScore": <score the student received>,
+    "pros": "<points the student did well>",
+    "recommendations": "<recommendations>"
     }
 `;
 
