@@ -15,12 +15,12 @@ const Subject315Lab2 = () => {
     useEffect(() => {
         const fetchLabInfo = async () => {
             try {
-                const response = await axios.get('/api/v1/student/labs', {
+                const response = await axios.get('/api/v1/student/315/labs', {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
-                const lab20 = response.data.labs.find(lab => lab.labInfo.labNumber === 20);
-                if (lab20) {
-                    setAttemptsLeft(lab20.attemptsLeft);
+                const lab2 = response.data.labs.find(lab => lab.labInfo.labNumber === 2);
+                if (lab2) {
+                    setAttemptsLeft(lab2.attemptsLeft);
                 }
             } catch (error) {
                 console.error('Error fetching lab info:', error);
