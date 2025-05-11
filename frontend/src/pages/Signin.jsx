@@ -27,11 +27,13 @@ export const Signin = () => {
       // Decode the token to get user information
       const decodedToken = jwtDecode(token);
 
-      // Redirect based on user role
+      // Redirect based on user role and university
       if (decodedToken.isAdmin) {
         navigate("/admin/dashboard");
       } else if (decodedToken.isProfessor) {
         navigate("/professor/dashboard");
+      } else if (user && user.university === 'Subject315') {
+        navigate("/student/315/dashboard");
       } else {
         navigate("/student/dashboard");
       }
