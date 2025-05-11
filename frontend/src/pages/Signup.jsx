@@ -129,7 +129,11 @@ export const Signup = () => {
       });
       const { token, user } = response.data;
       login(token, user);
-      navigate("/student/dashboard");
+      if (user && user.university === 'Subject315') {
+        navigate('/student/315/dashboard');
+      } else {
+        navigate('/student/dashboard');
+      }
     } catch (error) {
       console.error("Error during signup:", error);
       if (error.response?.data?.errors) {
