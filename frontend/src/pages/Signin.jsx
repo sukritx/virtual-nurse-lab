@@ -30,6 +30,8 @@ export const Signin = () => {
       // Redirect based on user role and university
       if (decodedToken.isAdmin) {
         navigate("/admin/dashboard");
+      } else if (decodedToken.isProfessor && user.university === 'Subject315') {
+        navigate("/professor/315/dashboard");
       } else if (decodedToken.isProfessor) {
         navigate("/professor/dashboard");
       } else if (user && user.university === 'Subject315') {
