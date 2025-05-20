@@ -5073,9 +5073,9 @@ router.post('/315-1', authMiddleware, async (req, res) => {
         }
 
         // Transcription IApp
-        // const transcriptionResult = await transcribeAudioIApp(audioPath);
-        // const transcription = concatenateTranscriptionText(transcriptionResult.output);
-        const transcription = await transcribeAudioOpenAI(audioPath);
+        const transcriptionResult = await transcribeAudioIApp(audioPath);
+        const transcription = concatenateTranscriptionText(transcriptionResult.output);
+        // const transcription = await transcribeAudioOpenAI(audioPath);
 
         // GPT processing (same as before)
         // console.time('GPT processing');
@@ -5414,9 +5414,9 @@ router.post('/315-2', authMiddleware, async (req, res) => {
         }
 
         // Transcription IApp
-        // const transcriptionResult = await transcribeAudioIApp(audioPath);
-        // const transcription = concatenateTranscriptionText(transcriptionResult.output);
-        const transcription = await transcribeAudioOpenAI(audioPath);
+        const transcriptionResult = await transcribeAudioIApp(audioPath);
+        const transcription = concatenateTranscriptionText(transcriptionResult.output);
+        // const transcription = await transcribeAudioOpenAI(audioPath);
 
         // GPT processing (same as before)
         // console.time('GPT processing');
@@ -5738,9 +5738,9 @@ router.post('/315-3', authMiddleware, async (req, res) => {
         }
 
         // Transcription IApp
-        // const transcriptionResult = await transcribeAudioIApp(audioPath);
-        // const transcription = concatenateTranscriptionText(transcriptionResult.output);
-        const transcription = await transcribeAudioOpenAI(audioPath);
+        const transcriptionResult = await transcribeAudioIApp(audioPath);
+        const transcription = concatenateTranscriptionText(transcriptionResult.output);
+        // const transcription = await transcribeAudioOpenAI(audioPath);
 
         // GPT processing (same as before)
         // console.time('GPT processing');
