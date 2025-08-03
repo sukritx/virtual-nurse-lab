@@ -1,5 +1,5 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import { PrivateRoute } from './components/PrivateRoute';
 
 // Pages
@@ -60,6 +60,7 @@ import Subject315Lab3En from './components/Lab-Reuse-Component/315/Subject315Lab
 import { Subject315ProfessorDashboard } from './pages/315/Subject315ProfessorDashboard';
 import Subject315StudentLabs from './pages/315/Subject315StudentLabs';
 import Subject315LabDetails from './pages/315/Subject315LabDetails';
+import TrialCssd from './components/trial-cssd.jsx'
 
 // Layouts
 import MainLayout from './layouts/MainLayout';
@@ -68,92 +69,104 @@ function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <Routes>
-          {/* Public Routes */}
-          <Route element={<MainLayout />}>
-            <Route path="/" element={<Homepage />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/signin" element={<Signin />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/sale" element={<Sale />} />
-            <Route path="/library" element={<Library />} />
-            <Route path="/library/:id" element={<BlogContent />} />
-            <Route path="/student/test-upload" element={<UploadTest />} />
-          </Route>
-
-          {/* Private Routes */}
-          <Route element={<PrivateRoute />}>
-            <Route element={<MainLayout />}>
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/student/dashboard" element={<StudentDashboard />} />
-              <Route path="/student/postpartum" element={<PostpartumDashboard />} />
-              <Route path="/student/antenatal" element={<AntenatalDashboard />} />
-              <Route path="/student/intrapartum" element={<IntrapartumDashboard />} />
-              <Route path="/lab/:labId" element={<LabPage />} />
-              <Route path="/student/maternalchild1" element={<Upload1 />} />
-              <Route path="/student/maternalchild1cn" element={<Upload1Cn />} />
-              <Route path="/student/maternalchild1en" element={<Upload1En />} />
-              <Route path="/student/maternalchild1jp" element={<UploadJp />} />
-              <Route path="/student/maternalchild1indo" element={<Upload1Indo />} />
-              <Route path="/student/maternalchild2" element={<Upload2 />} />
-              <Route path="/student/maternalchild3" element={<Upload3 />} />
-              <Route path="/student/maternalchild4" element={<Upload4 />} />
-              <Route path="/student/maternalchild4en" element={<Upload4En />} />
-              <Route path="/student/maternalchild4cn" element={<Upload4Cn />} />
-              <Route path="/student/maternalchild5" element={<Upload5 />} />
-              <Route path="/student/maternalchild6" element={<Upload6 />} />
-              <Route path="/student/maternalchild7" element={<Upload7 />} />
-              <Route path="/student/maternalchild8" element={<Upload8 />} />
-              <Route path="/student/maternalchild9" element={<Upload9 />} />
-              <Route path="/student/maternalchild10" element={<Upload10 />} />
-              <Route path="/student/maternalchild11" element={<Maternalchild11 />} />
-              <Route path="/student/maternalchild12" element={<Maternalchild12 />} />
-              <Route path="/student/maternalchild13" element={<Maternalchild13 />} />
-              <Route path="/student/maternalchild14" element={<Maternalchild14 />} />
-              <Route path="/student/maternalchild15" element={<Maternalchild15 />} />
-              <Route path="/student/maternalchild16" element={<Maternalchild16 />} />
-              <Route path="/student/maternalchild17" element={<Maternalchild17 />} />
-              <Route path="/student/maternalchild18" element={<Maternalchild18 />} />
-              <Route path="/student/maternalchild19" element={<Maternalchild19 />} />
-              <Route path="/student/maternalchild20" element={<Maternalchild20 />} />
-              <Route path="/student/lab/:subject/:labNumber/history" element={<LabHistory />} />
-              <Route path="/student/lab/:subject/:labNumber/details" element={<LabDetails />} />
-
-              {/* 315 */}
-              <Route path="/student/315/dashboard" element={<StudentDashboard315 />} />
-              <Route path="/student/315/:labNumber/history" element={<Subject315LabHistory />} />
-              <Route path="/student/315/1" element={<Subject315Lab1 />} />
-              <Route path="/student/315/1en" element={<Subject315Lab1En />} />
-              <Route path="/student/315/2" element={<Subject315Lab2 />} />
-              <Route path="/student/315/2en" element={<Subject315Lab2En />} />
-              <Route path="/student/315/3" element={<Subject315Lab3 />} />
-              <Route path="/student/315/3en" element={<Subject315Lab3En />} />
-            </Route>
-          </Route>
-
-          {/* Professor Routes */}
-          <Route element={<PrivateRoute role="professor" />}>
-            <Route element={<MainLayout />}>
-              <Route path="/professor/dashboard" element={<ProfessorDashboard />} />
-              <Route path="/professor/view-labs/:userId" element={<StudentLabs />} />
-              <Route path="/professor/view-lab/:userId/:labNumber" element={<LabDetails />} />
-
-              {/* 315 */}
-              <Route path="/professor/315/dashboard" element={<Subject315ProfessorDashboard />} />
-              <Route path="/professor/315/view-labs/:userId" element={<Subject315StudentLabs />} />
-              <Route path="/professor/315/view-lab/:userId/:labNumber" element={<Subject315LabDetails />} />
-            </Route>
-          </Route>
-
-          {/* Admin Routes */}
-          <Route element={<PrivateRoute role="admin" />}>
-            <Route element={<MainLayout />}>
-              <Route path="/admin/dashboard" element={<AdminDashboard />} />
-            </Route>
-          </Route>
-        </Routes>
+        <AppContent /> {/* New component to wrap content that needs useAuth */}
       </AuthProvider>
     </BrowserRouter>
+  );
+}
+
+// New component to access useAuth
+function AppContent() {
+  const { token } = useAuth(); // Get token from AuthContext
+  const isLoggedIn = !!token; // Determine if user is logged in
+
+  return (
+    <Routes>
+      {/* Public Routes */}
+      <Route element={<MainLayout />}>
+        <Route path="/" element={<Homepage />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/signin" element={<Signin />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/sale" element={<Sale />} />
+        <Route path="/library" element={<Library />} />
+        <Route path="/library/:id" element={<BlogContent />} />
+        <Route path="/student/test-upload" element={<UploadTest />} />
+        {/* Pass isLoggedIn to TrialCssd */}
+        <Route path="/trial-cssd" element={<TrialCssd isLoggedIn={isLoggedIn} />} />
+      </Route>
+
+      {/* Private Routes */}
+      <Route element={<PrivateRoute />}>
+        <Route element={<MainLayout />}>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/student/dashboard" element={<StudentDashboard />} />
+          <Route path="/student/postpartum" element={<PostpartumDashboard />} />
+          <Route path="/student/antenatal" element={<AntenatalDashboard />} />
+          <Route path="/student/intrapartum" element={<IntrapartumDashboard />} />
+          <Route path="/lab/:labId" element={<LabPage />} />
+          <Route path="/student/maternalchild1" element={<Upload1 />} />
+          <Route path="/student/maternalchild1cn" element={<Upload1Cn />} />
+          <Route path="/student/maternalchild1en" element={<Upload1En />} />
+          <Route path="/student/maternalchild1jp" element={<UploadJp />} />
+          <Route path="/student/maternalchild1indo" element={<Upload1Indo />} />
+          <Route path="/student/maternalchild2" element={<Upload2 />} />
+          <Route path="/student/maternalchild3" element={<Upload3 />} />
+          <Route path="/student/maternalchild4" element={<Upload4 />} />
+          <Route path="/student/maternalchild4en" element={<Upload4En />} />
+          <Route path="/student/maternalchild4cn" element={<Upload4Cn />} />
+          <Route path="/student/maternalchild5" element={<Upload5 />} />
+          <Route path="/student/maternalchild6" element={<Upload6 />} />
+          <Route path="/student/maternalchild7" element={<Upload7 />} />
+          <Route path="/student/maternalchild8" element={<Upload8 />} />
+          <Route path="/student/maternalchild9" element={<Upload9 />} />
+          <Route path="/student/maternalchild10" element={<Upload10 />} />
+          <Route path="/student/maternalchild11" element={<Maternalchild11 />} />
+          <Route path="/student/maternalchild12" element={<Maternalchild12 />} />
+          <Route path="/student/maternalchild13" element={<Maternalchild13 />} />
+          <Route path="/student/maternalchild14" element={<Maternalchild14 />} />
+          <Route path="/student/maternalchild15" element={<Maternalchild15 />} />
+          <Route path="/student/maternalchild16" element={<Maternalchild16 />} />
+          <Route path="/student/maternalchild17" element={<Maternalchild17 />} />
+          <Route path="/student/maternalchild18" element={<Maternalchild18 />} />
+          <Route path="/student/maternalchild19" element={<Maternalchild19 />} />
+          <Route path="/student/maternalchild20" element={<Maternalchild20 />} />
+          <Route path="/student/lab/:subject/:labNumber/history" element={<LabHistory />} />
+          <Route path="/student/lab/:subject/:labNumber/details" element={<LabDetails />} />
+
+          {/* 315 */}
+          <Route path="/student/315/dashboard" element={<StudentDashboard315 />} />
+          <Route path="/student/315/:labNumber/history" element={<Subject315LabHistory />} />
+          <Route path="/student/315/1" element={<Subject315Lab1 />} />
+          <Route path="/student/315/1en" element={<Subject315Lab1En />} />
+          <Route path="/student/315/2" element={<Subject315Lab2 />} />
+          <Route path="/student/315/2en" element={<Subject315Lab2En />} />
+          <Route path="/student/315/3" element={<Subject315Lab3 />} />
+          <Route path="/student/315/3en" element={<Subject315Lab3En />} />
+        </Route>
+      </Route>
+
+      {/* Professor Routes */}
+      <Route element={<PrivateRoute role="professor" />}>
+        <Route element={<MainLayout />}>
+          <Route path="/professor/dashboard" element={<ProfessorDashboard />} />
+          <Route path="/professor/view-labs/:userId" element={<StudentLabs />} />
+          <Route path="/professor/view-lab/:userId/:labNumber" element={<LabDetails />} />
+
+          {/* 315 */}
+          <Route path="/professor/315/dashboard" element={<Subject315ProfessorDashboard />} />
+          <Route path="/professor/315/view-labs/:userId" element={<Subject315StudentLabs />} />
+          <Route path="/professor/315/view-lab/:userId/:labNumber" element={<Subject315LabDetails />} />
+        </Route>
+      </Route>
+
+      {/* Admin Routes */}
+      <Route element={<PrivateRoute role="admin" />}>
+        <Route element={<MainLayout />}>
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+        </Route>
+      </Route>
+    </Routes>
   );
 }
 
