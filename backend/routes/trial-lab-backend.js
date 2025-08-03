@@ -416,7 +416,7 @@ router.post('/upload-test', authMiddleware, async (req, res) => {
 TRIAL CSSD BACKEND
 */
 
-router.post('/trial-cssd-1', authMiddleware, async (req, res) => {
+router.post('/1', authMiddleware, async (req, res) => {
     const { fileName, totalChunks } = req.body;
     const tempDir = path.join(__dirname, '../temp');
     const finalFilePath = path.join(__dirname, '../public/uploads', fileName);
@@ -565,3 +565,5 @@ async function processTranscriptionLab1(transcription) {
     console.log(feedbackJson);
     return feedbackJson;
 }
+
+module.exports = router;

@@ -8,6 +8,7 @@ const labRouter = require('./lab');
 const testRouter = require('./test');
 const labDeployedRouter = require('./lab-deployed');
 const testChunkRouter = require('./test-chunk');
+const trialLabRouter = require('./trial-lab-backend')
 
 const router = express.Router();
 
@@ -17,6 +18,7 @@ router.use("/professor", professorRouter);
 router.use("/admin", adminRouter);
 router.use("/lab", labRouter);
 router.use("/lab-deployed", labDeployedRouter);
+router.use("/trial-cssd", trialLabRouter);
 router.use("/test", testRouter);
 router.use("/test-chunk", testChunkRouter);
 
