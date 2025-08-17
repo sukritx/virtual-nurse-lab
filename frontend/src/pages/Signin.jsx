@@ -36,7 +36,7 @@ export const Signin = () => {
         navigate("/professor/dashboard");
       } else if (user && user.university === 'Subject315') {
         navigate("/student/315/dashboard");
-      } else if (user && user.university === 'CSSD01') {
+      } else if (user && user.university === 'Trial-CSSD') {
         navigate("/cssd");
       } else {
         navigate("/student/dashboard");
