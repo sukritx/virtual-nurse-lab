@@ -93,7 +93,7 @@ function AppContent() {
         <Route path="/library/:id" element={<BlogContent />} />
         <Route path="/student/test-upload" element={<UploadTest />} />
         {/* Pass isLoggedIn to TrialCssd */}
-        <Route path="/trial-cssd" element={<TrialCssd isLoggedIn={isLoggedIn} />} />
+        <Route path="/cssd" element={<TrialCssd isLoggedIn={isLoggedIn} />} />
       </Route>
 
       {/* Private Routes */}
