@@ -1358,5 +1358,868 @@ async function processTranscriptionSurgicalLab5(transcription) {
 /*
 MEDICAL NURSING
 */
+router.post('/medical/1', authMiddleware, async (req, res) => {
+    const { fileName, totalChunks } = req.body;
+    const tempDir = path.join(__dirname, '../temp');
+    const finalFilePath = path.join(__dirname, '../public/uploads', fileName);
+    let audioPath = null;
+    let fileUrl = null;
+    let fileType = null;
+
+    try {
+        // Reassemble the file from chunks
+        await new Promise((resolve, reject) => {
+            const writeStream = fs.createWriteStream(finalFilePath);
+            writeStream.on('finish', resolve);
+            writeStream.on('error', reject);
+
+            (async () => {
+                for (let i = 0; i < totalChunks; i++) {
+                    const chunkPath = path.join(tempDir, `${req.userId}_${i}`);
+                    const chunkBuffer = await fs.promises.readFile(chunkPath);
+                    writeStream.write(chunkBuffer);
+                    await fs.promises.unlink(chunkPath);
+                }
+                writeStream.end();
+            })();
+        });
+
+        // console.log('File reassembled successfully');
+        const uploadTimestamp = Date.now();
+
+        fileType = getFileType(fileName);
+
+        // Upload the original file to Spaces
+        // console.time('Spaces upload');
+        fileUrl = await uploadToSpaces(finalFilePath, `medical-1/${req.userId}/${uploadTimestamp}${path.extname(fileName)}`);
+        // console.timeEnd('Spaces upload');
+
+        if (fileType === 'video') {
+            // Audio extraction for transcription
+            // console.time('Audio extraction');
+            audioPath = `./public/uploads/audio-${uploadTimestamp}.mp3`;
+            await new Promise((resolve, reject) => {
+                ffmpeg(finalFilePath)
+                    .output(audioPath)
+                    .audioCodec('libmp3lame')
+                    .on('end', resolve)
+                    .on('error', reject)
+                    .run();
+            });
+            // console.timeEnd('Audio extraction');
+        } else {
+            // For audio files, use the uploaded file directly
+            audioPath = finalFilePath;
+        }
+
+        // Transcription IApp
+        const transcriptionResult = await transcribeAudioIApp(audioPath);
+        const transcription = concatenateTranscriptionText(transcriptionResult.output);
+        // const transcription = await transcribeAudioOpenAI(audioPath);
+
+        // GPT processing (same as before)
+        // console.time('GPT processing');
+        const feedbackJson = await processTranscriptionMedicalLab1(transcription);
+        // console.timeEnd('GPT processing');
+
+        // Prepare and submit lab info
+        const labInfo = {
+            studentId: req.userId,
+            labNumber: 1,
+            subject: 'medical',
+            fileUrl: fileUrl,
+            fileType: fileType,
+            studentAnswer: transcription,
+            studentScore: feedbackJson.totalScore,
+            isPass: feedbackJson.totalScore >= 60,
+            pros: feedbackJson.pros,
+            recommendations: feedbackJson.recommendations,
+        };
+
+        // console.time('Lab submission');
+        await axios.post('http://localhost:3000/api/v1/lab-deployed/submit-lab', labInfo);
+        // console.timeEnd('Lab submission');
+
+        // Send response
+        res.json({
+            feedback: feedbackJson,
+            transcription,
+            passFailStatus: feedbackJson.totalScore >= 60 ? 'Passed' : 'Failed',
+            score: feedbackJson.totalScore,
+            pros: feedbackJson.pros,
+            recommendations: feedbackJson.recommendations,
+            fileUrl: fileUrl,
+            fileType: fileType
+        });
+
+    } catch (error) {
+        console.error('Error processing the file:', error);
+        res.status(500).json({ msg: 'Error processing the file', error: error.message });
+    } finally {
+        // Cleanup
+        // console.log('Cleaning up local files');
+        [finalFilePath, audioPath].forEach(path => {
+            if (path && fs.existsSync(path)) {
+                try {
+                    fs.unlinkSync(path);
+                    // console.log(`Successfully deleted: ${path}`);
+                } catch (deleteError) {
+                    if (deleteError.code !== 'ENOENT') {
+                        console.error(`Failed to delete file: ${path}`, deleteError);
+                    }
+                }
+            }
+        });
+    }
+});
+
+async function processTranscriptionMedicalLab1(transcription) {
+    const answerKey = `
+คำถาม:
+ผู้ป่วยที่มีภาวะ Respiratory failure ได้รับการรักษาโดยการ on ET-tube with carina’s ventilator ในขณะที่ตรวจเยี่ยมผู้ป่วยพบว่ามีเสียงหายใจครืดคราด  ให้นักศึกษาอธิบายขั้นตอนการดูดเสมหะและแสดงการดูดเสมหะกับหุ่นจำลอง
+
+เฉลย:
+แจ้งให้ผู้ป่วยทราบ  (5)
+จัดท่านอนศีรษะสูง 30-45 องศา (10)
+ล้างมือแบบ hygienic hand washing  (15)
+สวมถุงมือ  (5) 
+สวมหน้ากากอนามัย   (5)
+ดูดเสมหะในท่อช่วยหายใจโดยใช้เวลาครั้งละ 10  ถึง 15 วินาที (15)
+ดูดเสมหะโดยยึดหลักปราศจากเชื้อ หรือ aseptic technique  (15)
+ดูดเสมหะโดยใช้ความดัน 80 ถึง 120 มิลลิเมตรปรอท (15)
+ให้ออกซิเจนก่อน ขณะ และหลังดูดเสมหะ  (15)
+บันทึกผลการดูดเสมหะ (5)
+
+คำตอบ คะแนนเต็ม 100 คะแนน
+`;
+
+    const checkContent = `
+คุณคือผู้ตรวจประเมินผลการปฏิบัติงานของนักศึกษาพยาบาลที่มีประสบการณ์ โปรดประเมินคำตอบของนักศึกษาจาก 'คำตอบของท่านผู้ทดสอบ' เทียบกับ 'เฉลยและเกณฑ์การให้คะแนน' อย่างละเอียด
+
+**หลักการประเมิน:**
+1.  **การเปรียบเทียบ:** ให้เปรียบเทียบคำตอบของนักศึกษาโดยเน้นความหมายและเนื้อหาที่ถูกต้องและครบถ้วนตาม 'เฉลยและเกณฑ์การให้คะแนน' ไม่ใช่เพียงแค่คำศัพท์ที่ตรงกันทุกคำ
+2.  **การให้คะแนน:** 'เฉลยและเกณฑ์การให้คะแนน' มีประเด็นย่อยพร้อมคะแนนกำกับในวงเล็บ (เช่น (10), (5)) ให้คุณระบุว่าแต่ละประเด็นในเฉลยนั้นมีอยู่ในคำตอบของนักศึกษาหรือไม่
+    *   ถ้าประเด็นนั้นปรากฏและถูกต้องสมบูรณ์: ให้คะแนนเต็มสำหรับประเด็นนั้น
+    *   ถ้าประเด็นนั้นปรากฏแต่ไม่สมบูรณ์หรือไม่ถูกต้องทั้งหมด: ให้พิจารณาให้คะแนนบางส่วนตามความเหมาะสม (เช่น อาจได้ครึ่งหนึ่งของคะแนนเต็มสำหรับประเด็นนั้น)
+    *   ถ้าประเด็นนั้นไม่ปรากฏเลย: ไม่ให้คะแนนสำหรับประเด็นนั้น
+3.  **การคำนวณคะแนนรวม:** คำนวณ 'totalScore' จากผลรวมของคะแนนที่ได้รับจากแต่ละประเด็นย่อยในเฉลย
+4.  **ข้อดี (pros):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาสามารถตอบได้ถูกต้อง ชัดเจน และครบถ้วน โดยอธิบายรายละเอียดว่าทำไมจึงถือว่าทำได้ดี
+5.  **ข้อเสนอแนะ (recommendations):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาตอบได้ไม่สมบูรณ์ คลาดเคลื่อน หรือขาดหายไป พร้อมให้คำแนะนำที่เฉพาะเจาะจงเพื่อปรับปรุงในครั้งต่อไป
+6.  **ข้อควรทราบ:** ไม่ต้องวิจารณ์เรื่องไวยากรณ์ การสะกดคำ หรือประเด็นอื่นที่ไม่เกี่ยวข้องกับเนื้อหาทางการพยาบาล
+
+
+นี่คือคำตอบของท่านผู้ทดสอบ: "${transcription}".
+ที่คือเฉลย: "${answerKey}".
+
+**รูปแบบผลลัพธ์:**
+โปรดสร้างผลการประเมินในรูปแบบ JSON ดังนี้เท่านั้น:
+    {
+      "totalScore": <คะแนนท่านผู้ทดสอบ>,
+      "pros": "<จุดที่ท่านผู้ทดสอบทำได้ดี>",
+      "recommendations": "<ข้อเสนอแนะ>"
+    }
+`;
+
+    const response = await openai.chat.completions.create({
+        messages: [{ role: "system", content: checkContent }],
+        model: "gpt-4o",
+        response_format: { "type": "json_object" }
+    });
+
+    const feedbackJson = JSON.parse(response.choices[0].message.content.trim());
+    console.log(feedbackJson);
+    return feedbackJson;
+};
+
+router.post('/medical/2', authMiddleware, async (req, res) => {
+    const { fileName, totalChunks } = req.body;
+    const tempDir = path.join(__dirname, '../temp');
+    const finalFilePath = path.join(__dirname, '../public/uploads', fileName);
+    let audioPath = null;
+    let fileUrl = null;
+    let fileType = null;
+
+    try {
+        // Reassemble the file from chunks
+        await new Promise((resolve, reject) => {
+            const writeStream = fs.createWriteStream(finalFilePath);
+            writeStream.on('finish', resolve);
+            writeStream.on('error', reject);
+
+            (async () => {
+                for (let i = 0; i < totalChunks; i++) {
+                    const chunkPath = path.join(tempDir, `${req.userId}_${i}`);
+                    const chunkBuffer = await fs.promises.readFile(chunkPath);
+                    writeStream.write(chunkBuffer);
+                    await fs.promises.unlink(chunkPath);
+                }
+                writeStream.end();
+            })();
+        });
+
+        // console.log('File reassembled successfully');
+        const uploadTimestamp = Date.now();
+
+        fileType = getFileType(fileName);
+
+        // Upload the original file to Spaces
+        // console.time('Spaces upload');
+        fileUrl = await uploadToSpaces(finalFilePath, `medical-2/${req.userId}/${uploadTimestamp}${path.extname(fileName)}`);
+        // console.timeEnd('Spaces upload');
+
+        if (fileType === 'video') {
+            // Audio extraction for transcription
+            // console.time('Audio extraction');
+            audioPath = `./public/uploads/audio-${uploadTimestamp}.mp3`;
+            await new Promise((resolve, reject) => {
+                ffmpeg(finalFilePath)
+                    .output(audioPath)
+                    .audioCodec('libmp3lame')
+                    .on('end', resolve)
+                    .on('error', reject)
+                    .run();
+            });
+            // console.timeEnd('Audio extraction');
+        } else {
+            // For audio files, use the uploaded file directly
+            audioPath = finalFilePath;
+        }
+
+        // Transcription IApp
+        const transcriptionResult = await transcribeAudioIApp(audioPath);
+        const transcription = concatenateTranscriptionText(transcriptionResult.output);
+        // const transcription = await transcribeAudioOpenAI(audioPath);
+
+        // GPT processing (same as before)
+        // console.time('GPT processing');
+        const feedbackJson = await processTranscriptionMedicalLab2(transcription);
+        // console.timeEnd('GPT processing');
+
+        // Prepare and submit lab info
+        const labInfo = {
+            studentId: req.userId,
+            labNumber: 2,
+            subject: 'medical',
+            fileUrl: fileUrl,
+            fileType: fileType,
+            studentAnswer: transcription,
+            studentScore: feedbackJson.totalScore,
+            isPass: feedbackJson.totalScore >= 60,
+            pros: feedbackJson.pros,
+            recommendations: feedbackJson.recommendations,
+        };
+
+        // console.time('Lab submission');
+        await axios.post('http://localhost:3000/api/v1/lab-deployed/submit-lab', labInfo);
+        // console.timeEnd('Lab submission');
+
+        // Send response
+        res.json({
+            feedback: feedbackJson,
+            transcription,
+            passFailStatus: feedbackJson.totalScore >= 60 ? 'Passed' : 'Failed',
+            score: feedbackJson.totalScore,
+            pros: feedbackJson.pros,
+            recommendations: feedbackJson.recommendations,
+            fileUrl: fileUrl,
+            fileType: fileType
+        });
+
+    } catch (error) {
+        console.error('Error processing the file:', error);
+        res.status(500).json({ msg: 'Error processing the file', error: error.message });
+    } finally {
+        // Cleanup
+        // console.log('Cleaning up local files');
+        [finalFilePath, audioPath].forEach(path => {
+            if (path && fs.existsSync(path)) {
+                try {
+                    fs.unlinkSync(path);
+                    // console.log(`Successfully deleted: ${path}`);
+                } catch (deleteError) {
+                    if (deleteError.code !== 'ENOENT') {
+                        console.error(`Failed to delete file: ${path}`, deleteError);
+                    }
+                }
+            }
+        });
+    }
+});
+
+async function processTranscriptionMedicalLab2(transcription) {
+    const answerKey = `
+คำถาม:
+ผู้ป่วยโรคหลอดเลือดสมองที่มีค่า Glasgow Coma Scale เท่ากับ  E1V2M3  ให้นักศึกษาอธิบายความหมายของ E1    V2  และ M3   และแสดงท่าทางประกอบ
+
+เฉลย:
+แบบประเมินกลาสโกว์โคมาสกอร์ (Glasgow Coma Score [GCS]) เป็นแบบประเมินที่ใช้ในการประเมินระดับความรู้สึกตัวในผู้ป่วยบาดเจ็บศีรษะ  โดยประเมินแบ่งออกเป็น 3 ข้อ คือ การลืมตา (eye opening) ซึ่งประเมินหน้าที่ของศูนย์ควบคุมระดับความรู้สึกตัว (reticular activating system: RAS) การสื่อภาษา (verbal response) ซึ่งประเมินหน้าที่ของศูนย์ควบคุมการพูด (speech center) และ การเคลื่อนไหว (motor response) ซึ่งประเมินหน้าที่ของเปลือกสมอง (cerebral cortex) (20)
+การประเมินนี้ใช้สำหรับการประเมินทางระบบประสาทในผู้ป่วย ต่อไปนี้  (10)
+1. ผู้ป่วยบาดเจ็บที่ศีรษะ 
+2. ผู้ป่วยที่มีกลุ่มอาการทางสมอง เช่น ผู้ป่วยโรคหลอดเลือดสมอง   
+3. ผู้ป่วยก่อนและหลังการผ่าตัดสมอง 
+4. กลุ่มโรค/ กลุ่มอาการตามแผนการรักษาของแพทย์ 
+ผู้ป่วยมี E1V2M3 หมายความดังรายละเอียดนี้
+1. แสดง หลับตา แล้วอธิบายว่า ผู้ป่วยไม่ลืมตาเลย แม้ถูกกระตุ้นด้วยความเจ็บปวด หมายถึง E1 อ่านว่าอีหนึ่ง (30) 
+2. แสดง ส่งเสียงไม่เป็นคำพูด เช่น เสียงอืออา เสียงคราง หมายถึง V2 อ่านว่า  วีสอง (30)
+3. แสดง ขาเกร็งเหยียดตรง ปลายแขนหมุนเข้าหาลำตัวรูป คล้ายตัว C เรียกลักษณะนี้ว่า Decorticate rigidity มายถึง M3 อ่านว่าเอ็มสาม (30)
+
+คำตอบ คะแนนเต็ม 100 คะแนน
+`;
+
+    const checkContent = `
+คุณคือผู้ตรวจประเมินผลการปฏิบัติงานของนักศึกษาพยาบาลที่มีประสบการณ์ โปรดประเมินคำตอบของนักศึกษาจาก 'คำตอบของท่านผู้ทดสอบ' เทียบกับ 'เฉลยและเกณฑ์การให้คะแนน' อย่างละเอียด
+
+**หลักการประเมิน:**
+1.  **การเปรียบเทียบ:** ให้เปรียบเทียบคำตอบของนักศึกษาโดยเน้นความหมายและเนื้อหาที่ถูกต้องและครบถ้วนตาม 'เฉลยและเกณฑ์การให้คะแนน' ไม่ใช่เพียงแค่คำศัพท์ที่ตรงกันทุกคำ
+2.  **การให้คะแนน:** 'เฉลยและเกณฑ์การให้คะแนน' มีประเด็นย่อยพร้อมคะแนนกำกับในวงเล็บ (เช่น (10), (5)) ให้คุณระบุว่าแต่ละประเด็นในเฉลยนั้นมีอยู่ในคำตอบของนักศึกษาหรือไม่
+    *   ถ้าประเด็นนั้นปรากฏและถูกต้องสมบูรณ์: ให้คะแนนเต็มสำหรับประเด็นนั้น
+    *   ถ้าประเด็นนั้นปรากฏแต่ไม่สมบูรณ์หรือไม่ถูกต้องทั้งหมด: ให้พิจารณาให้คะแนนบางส่วนตามความเหมาะสม (เช่น อาจได้ครึ่งหนึ่งของคะแนนเต็มสำหรับประเด็นนั้น)
+    *   ถ้าประเด็นนั้นไม่ปรากฏเลย: ไม่ให้คะแนนสำหรับประเด็นนั้น
+3.  **การคำนวณคะแนนรวม:** คำนวณ 'totalScore' จากผลรวมของคะแนนที่ได้รับจากแต่ละประเด็นย่อยในเฉลย
+4.  **ข้อดี (pros):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาสามารถตอบได้ถูกต้อง ชัดเจน และครบถ้วน โดยอธิบายรายละเอียดว่าทำไมจึงถือว่าทำได้ดี
+5.  **ข้อเสนอแนะ (recommendations):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาตอบได้ไม่สมบูรณ์ คลาดเคลื่อน หรือขาดหายไป พร้อมให้คำแนะนำที่เฉพาะเจาะจงเพื่อปรับปรุงในครั้งต่อไป
+6.  **ข้อควรทราบ:** ไม่ต้องวิจารณ์เรื่องไวยากรณ์ การสะกดคำ หรือประเด็นอื่นที่ไม่เกี่ยวข้องกับเนื้อหาทางการพยาบาล
+
+
+นี่คือคำตอบของท่านผู้ทดสอบ: "${transcription}".
+ที่คือเฉลย: "${answerKey}".
+
+**รูปแบบผลลัพธ์:**
+โปรดสร้างผลการประเมินในรูปแบบ JSON ดังนี้เท่านั้น:
+    {
+      "totalScore": <คะแนนท่านผู้ทดสอบ>,
+      "pros": "<จุดที่ท่านผู้ทดสอบทำได้ดี>",
+      "recommendations": "<ข้อเสนอแนะ>"
+    }
+`;
+
+    const response = await openai.chat.completions.create({
+        messages: [{ role: "system", content: checkContent }],
+        model: "gpt-4o",
+        response_format: { "type": "json_object" }
+    });
+
+    const feedbackJson = JSON.parse(response.choices[0].message.content.trim());
+    console.log(feedbackJson);
+    return feedbackJson;
+};
+
+router.post('/medical/3', authMiddleware, async (req, res) => {
+    const { fileName, totalChunks } = req.body;
+    const tempDir = path.join(__dirname, '../temp');
+    const finalFilePath = path.join(__dirname, '../public/uploads', fileName);
+    let audioPath = null;
+    let fileUrl = null;
+    let fileType = null;
+
+    try {
+        // Reassemble the file from chunks
+        await new Promise((resolve, reject) => {
+            const writeStream = fs.createWriteStream(finalFilePath);
+            writeStream.on('finish', resolve);
+            writeStream.on('error', reject);
+
+            (async () => {
+                for (let i = 0; i < totalChunks; i++) {
+                    const chunkPath = path.join(tempDir, `${req.userId}_${i}`);
+                    const chunkBuffer = await fs.promises.readFile(chunkPath);
+                    writeStream.write(chunkBuffer);
+                    await fs.promises.unlink(chunkPath);
+                }
+                writeStream.end();
+            })();
+        });
+
+        // console.log('File reassembled successfully');
+        const uploadTimestamp = Date.now();
+
+        fileType = getFileType(fileName);
+
+        // Upload the original file to Spaces
+        // console.time('Spaces upload');
+        fileUrl = await uploadToSpaces(finalFilePath, `medical-3/${req.userId}/${uploadTimestamp}${path.extname(fileName)}`);
+        // console.timeEnd('Spaces upload');
+
+        if (fileType === 'video') {
+            // Audio extraction for transcription
+            // console.time('Audio extraction');
+            audioPath = `./public/uploads/audio-${uploadTimestamp}.mp3`;
+            await new Promise((resolve, reject) => {
+                ffmpeg(finalFilePath)
+                    .output(audioPath)
+                    .audioCodec('libmp3lame')
+                    .on('end', resolve)
+                    .on('error', reject)
+                    .run();
+            });
+            // console.timeEnd('Audio extraction');
+        } else {
+            // For audio files, use the uploaded file directly
+            audioPath = finalFilePath;
+        }
+
+        // Transcription IApp
+        const transcriptionResult = await transcribeAudioIApp(audioPath);
+        const transcription = concatenateTranscriptionText(transcriptionResult.output);
+        // const transcription = await transcribeAudioOpenAI(audioPath);
+
+        // GPT processing (same as before)
+        // console.time('GPT processing');
+        const feedbackJson = await processTranscriptionMedicalLab3(transcription);
+        // console.timeEnd('GPT processing');
+
+        // Prepare and submit lab info
+        const labInfo = {
+            studentId: req.userId,
+            labNumber: 3,
+            subject: 'medical',
+            fileUrl: fileUrl,
+            fileType: fileType,
+            studentAnswer: transcription,
+            studentScore: feedbackJson.totalScore,
+            isPass: feedbackJson.totalScore >= 60,
+            pros: feedbackJson.pros,
+            recommendations: feedbackJson.recommendations,
+        };
+
+        // console.time('Lab submission');
+        await axios.post('http://localhost:3000/api/v1/lab-deployed/submit-lab', labInfo);
+        // console.timeEnd('Lab submission');
+
+        // Send response
+        res.json({
+            feedback: feedbackJson,
+            transcription,
+            passFailStatus: feedbackJson.totalScore >= 60 ? 'Passed' : 'Failed',
+            score: feedbackJson.totalScore,
+            pros: feedbackJson.pros,
+            recommendations: feedbackJson.recommendations,
+            fileUrl: fileUrl,
+            fileType: fileType
+        });
+
+    } catch (error) {
+        console.error('Error processing the file:', error);
+        res.status(500).json({ msg: 'Error processing the file', error: error.message });
+    } finally {
+        // Cleanup
+        // console.log('Cleaning up local files');
+        [finalFilePath, audioPath].forEach(path => {
+            if (path && fs.existsSync(path)) {
+                try {
+                    fs.unlinkSync(path);
+                    // console.log(`Successfully deleted: ${path}`);
+                } catch (deleteError) {
+                    if (deleteError.code !== 'ENOENT') {
+                        console.error(`Failed to delete file: ${path}`, deleteError);
+                    }
+                }
+            }
+        });
+    }
+});
+
+async function processTranscriptionMedicalLab3(transcription) {
+    const answerKey = `
+คำถาม:
+ผู้ป่วยโรคปอดอักเสบรายหนึ่ง on Oxygen cannula 3 LPM มีอาการหายใจเหนื่อยหอบ ฟังปอดพบเสียง rhonchi and wheezing แพทย์มีแผนการรักษาให้พ่นยา Berodual 1 NB stat via Nebulizer  หลังจากตรวจสอบชื่อ นามสกุล และการแพ้ยาแล้ว  
+ให้นักศึกษาอธิบายวิธีการพ่นยาและการให้คำแนะนำกับผู้ป่วยรายนี้  
+
+เฉลย:
+1. จะขอหมุนหัวเตียงขึ้น พร้อมแสดงท่าทางหมุนหัวเตียงสูง (5)
+2. แสดงท่าทาง ประกอบหน้ากากพ่นยา ต่อสายออกซิเจนเข้ากับหน้ากาก ใส่ยาพ่นลงในกระเปาะยาและหมุนกระเปาะปิดเกลียวให้แน่น (15)
+3. แสดงท่าทาง ปลดเครื่องทำความชื้น (humidifier) ออกต่อปลายสายพ่นยาเข้ากับ flow meter (15)
+4. แสดงท่าทาง หมุนปุ่ม flow meter ไปที่ 6 – 8 ลิตรต่อนาที (15)
+5. ครอบหน้ากากพ่นยากับใบหน้าผู้ป่วยให้แนบสนิท และปรับกระบอกยาให้อยู่ในแนวตั้ง 90 องศา (10) และ ให้ผู้ป่วยหายใจเข้าออกทางจมูกให้ลึก ๆ (10)
+6. แจ้งผู้ป่วยว่าถ้ามีอาการใจสั่น ชีพจรเร็ว อาการหายใจเหนื่อยหอบ ให้แจ้งให้พยาบาลทราบ (10)
+7. บอกว่าเมื่อยาหมด ปิดออกซิเจน (5) แล้ว ถอดหน้ากากพ่นยาออกจากใบหน้าผู้ป่วย (5)
+8. ดูแลให้ออกซิเจนตามแผนการรักษา (10)
+9. ให้ผู้ป่วยบ้วนปาก และจิบน้ำ  (10)
+
+คำตอบ คะแนนเต็ม 100 คะแนน
+`;
+
+    const checkContent = `
+คุณคือผู้ตรวจประเมินผลการปฏิบัติงานของนักศึกษาพยาบาลที่มีประสบการณ์ โปรดประเมินคำตอบของนักศึกษาจาก 'คำตอบของท่านผู้ทดสอบ' เทียบกับ 'เฉลยและเกณฑ์การให้คะแนน' อย่างละเอียด
+
+**หลักการประเมิน:**
+1.  **การเปรียบเทียบ:** ให้เปรียบเทียบคำตอบของนักศึกษาโดยเน้นความหมายและเนื้อหาที่ถูกต้องและครบถ้วนตาม 'เฉลยและเกณฑ์การให้คะแนน' ไม่ใช่เพียงแค่คำศัพท์ที่ตรงกันทุกคำ
+2.  **การให้คะแนน:** 'เฉลยและเกณฑ์การให้คะแนน' มีประเด็นย่อยพร้อมคะแนนกำกับในวงเล็บ (เช่น (10), (5)) ให้คุณระบุว่าแต่ละประเด็นในเฉลยนั้นมีอยู่ในคำตอบของนักศึกษาหรือไม่
+    *   ถ้าประเด็นนั้นปรากฏและถูกต้องสมบูรณ์: ให้คะแนนเต็มสำหรับประเด็นนั้น
+    *   ถ้าประเด็นนั้นปรากฏแต่ไม่สมบูรณ์หรือไม่ถูกต้องทั้งหมด: ให้พิจารณาให้คะแนนบางส่วนตามความเหมาะสม (เช่น อาจได้ครึ่งหนึ่งของคะแนนเต็มสำหรับประเด็นนั้น)
+    *   ถ้าประเด็นนั้นไม่ปรากฏเลย: ไม่ให้คะแนนสำหรับประเด็นนั้น
+3.  **การคำนวณคะแนนรวม:** คำนวณ 'totalScore' จากผลรวมของคะแนนที่ได้รับจากแต่ละประเด็นย่อยในเฉลย
+4.  **ข้อดี (pros):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาสามารถตอบได้ถูกต้อง ชัดเจน และครบถ้วน โดยอธิบายรายละเอียดว่าทำไมจึงถือว่าทำได้ดี
+5.  **ข้อเสนอแนะ (recommendations):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาตอบได้ไม่สมบูรณ์ คลาดเคลื่อน หรือขาดหายไป พร้อมให้คำแนะนำที่เฉพาะเจาะจงเพื่อปรับปรุงในครั้งต่อไป
+6.  **ข้อควรทราบ:** ไม่ต้องวิจารณ์เรื่องไวยากรณ์ การสะกดคำ หรือประเด็นอื่นที่ไม่เกี่ยวข้องกับเนื้อหาทางการพยาบาล
+
+
+นี่คือคำตอบของท่านผู้ทดสอบ: "${transcription}".
+ที่คือเฉลย: "${answerKey}".
+
+**รูปแบบผลลัพธ์:**
+โปรดสร้างผลการประเมินในรูปแบบ JSON ดังนี้เท่านั้น:
+    {
+      "totalScore": <คะแนนท่านผู้ทดสอบ>,
+      "pros": "<จุดที่ท่านผู้ทดสอบทำได้ดี>",
+      "recommendations": "<ข้อเสนอแนะ>"
+    }
+`;
+
+    const response = await openai.chat.completions.create({
+        messages: [{ role: "system", content: checkContent }],
+        model: "gpt-4o",
+        response_format: { "type": "json_object" }
+    });
+
+    const feedbackJson = JSON.parse(response.choices[0].message.content.trim());
+    console.log(feedbackJson);
+    return feedbackJson;
+};
+
+router.post('/medical/4', authMiddleware, async (req, res) => {
+    const { fileName, totalChunks } = req.body;
+    const tempDir = path.join(__dirname, '../temp');
+    const finalFilePath = path.join(__dirname, '../public/uploads', fileName);
+    let audioPath = null;
+    let fileUrl = null;
+    let fileType = null;
+
+    try {
+        // Reassemble the file from chunks
+        await new Promise((resolve, reject) => {
+            const writeStream = fs.createWriteStream(finalFilePath);
+            writeStream.on('finish', resolve);
+            writeStream.on('error', reject);
+
+            (async () => {
+                for (let i = 0; i < totalChunks; i++) {
+                    const chunkPath = path.join(tempDir, `${req.userId}_${i}`);
+                    const chunkBuffer = await fs.promises.readFile(chunkPath);
+                    writeStream.write(chunkBuffer);
+                    await fs.promises.unlink(chunkPath);
+                }
+                writeStream.end();
+            })();
+        });
+
+        // console.log('File reassembled successfully');
+        const uploadTimestamp = Date.now();
+
+        fileType = getFileType(fileName);
+
+        // Upload the original file to Spaces
+        // console.time('Spaces upload');
+        fileUrl = await uploadToSpaces(finalFilePath, `medical-4/${req.userId}/${uploadTimestamp}${path.extname(fileName)}`);
+        // console.timeEnd('Spaces upload');
+
+        if (fileType === 'video') {
+            // Audio extraction for transcription
+            // console.time('Audio extraction');
+            audioPath = `./public/uploads/audio-${uploadTimestamp}.mp3`;
+            await new Promise((resolve, reject) => {
+                ffmpeg(finalFilePath)
+                    .output(audioPath)
+                    .audioCodec('libmp3lame')
+                    .on('end', resolve)
+                    .on('error', reject)
+                    .run();
+            });
+            // console.timeEnd('Audio extraction');
+        } else {
+            // For audio files, use the uploaded file directly
+            audioPath = finalFilePath;
+        }
+
+        // Transcription IApp
+        const transcriptionResult = await transcribeAudioIApp(audioPath);
+        const transcription = concatenateTranscriptionText(transcriptionResult.output);
+        // const transcription = await transcribeAudioOpenAI(audioPath);
+
+        // GPT processing (same as before)
+        // console.time('GPT processing');
+        const feedbackJson = await processTranscriptionMedicalLab4(transcription);
+        // console.timeEnd('GPT processing');
+
+        // Prepare and submit lab info
+        const labInfo = {
+            studentId: req.userId,
+            labNumber: 4,
+            subject: 'medical',
+            fileUrl: fileUrl,
+            fileType: fileType,
+            studentAnswer: transcription,
+            studentScore: feedbackJson.totalScore,
+            isPass: feedbackJson.totalScore >= 60,
+            pros: feedbackJson.pros,
+            recommendations: feedbackJson.recommendations,
+        };
+
+        // console.time('Lab submission');
+        await axios.post('http://localhost:3000/api/v1/lab-deployed/submit-lab', labInfo);
+        // console.timeEnd('Lab submission');
+
+        // Send response
+        res.json({
+            feedback: feedbackJson,
+            transcription,
+            passFailStatus: feedbackJson.totalScore >= 60 ? 'Passed' : 'Failed',
+            score: feedbackJson.totalScore,
+            pros: feedbackJson.pros,
+            recommendations: feedbackJson.recommendations,
+            fileUrl: fileUrl,
+            fileType: fileType
+        });
+
+    } catch (error) {
+        console.error('Error processing the file:', error);
+        res.status(500).json({ msg: 'Error processing the file', error: error.message });
+    } finally {
+        // Cleanup
+        // console.log('Cleaning up local files');
+        [finalFilePath, audioPath].forEach(path => {
+            if (path && fs.existsSync(path)) {
+                try {
+                    fs.unlinkSync(path);
+                    // console.log(`Successfully deleted: ${path}`);
+                } catch (deleteError) {
+                    if (deleteError.code !== 'ENOENT') {
+                        console.error(`Failed to delete file: ${path}`, deleteError);
+                    }
+                }
+            }
+        });
+    }
+});
+
+async function processTranscriptionMedicalLab4(transcription) {
+    const answerKey = `
+คำถาม:
+ผู้ป่วยเบาหวานแพทย์มีแผนการรักษาให้เจาะ capillary blood glucose ก่อนอาหารและให้ insulin ตาม RI scale ผลการเจาะพบว่าระดับน้ำตาลในเลือดสูงต้องให้ Actapid 8 units SC  ให้นักศึกษาอธิบายและแสดงการให้ยากับผู้ป่วย
+
+เฉลย:
+1. ตรวจสอบชนิดของยากับแผนการรักษาของแพทย์ (5)
+	2. เตรียมยาโดยดูดจำนวนยาตามแผนการรักษา โดยเช็ดทำความสะอาดบริเวณจุกยางด้วยสำลีชุบ 70% alcohol (10) ก่อนแทงเข็ม ดูดยาเท่ากับ 8 units (5) และสวมปลอกเข็มหลังจากดูดยาเสร็จ ก่อนนำไปฉีด (5)
+	3. ตรวจสอบชื่อ และนามสกุลผู้ป่วย (10) และแจ้งผู้ป่วยว่าจะฉีดยาอะไร (5) เพื่ออะไร (5)
+	4. เลือกตำแหน่งฉีดยาได้ (บริเวณหน้าท้อง หรือ ต้นขา หรือ ต้นแขนด้านนอก) (15)
+	5. เช็ดทำความสะอาดบริเวณที่จะฉีดด้วยสำลีชุบ 70% alcohol (5)
+	6. ใช้มือข้างที่ไม่ถนัดยกผิวหนังบริเวณที่จะฉีด (5)
+	7. แทงเข็มเข้าใต้ผิวหนัง ต้องทำมุม 60 กรณีบริเวณต้นขา (5) หรือ ต้นแขนด้านนอก (5) หรือ 90 องศา บริเวณหน้าท้อง (5)
+	8. ทดสอบว่ายาไม่ได้อยู่ในหลอดเลือดโดยการดูดขึ้นมา (5)
+	9. กดก้านสูบดันยาจนหมด (5) และถอนเข็มออก (5) ใช้สำลีกดและห้ามคลึง (5)
+
+คำตอบ คะแนนเต็ม 100 คะแนน
+`;
+
+    const checkContent = `
+คุณคือผู้ตรวจประเมินผลการปฏิบัติงานของนักศึกษาพยาบาลที่มีประสบการณ์ โปรดประเมินคำตอบของนักศึกษาจาก 'คำตอบของท่านผู้ทดสอบ' เทียบกับ 'เฉลยและเกณฑ์การให้คะแนน' อย่างละเอียด
+
+**หลักการประเมิน:**
+1.  **การเปรียบเทียบ:** ให้เปรียบเทียบคำตอบของนักศึกษาโดยเน้นความหมายและเนื้อหาที่ถูกต้องและครบถ้วนตาม 'เฉลยและเกณฑ์การให้คะแนน' ไม่ใช่เพียงแค่คำศัพท์ที่ตรงกันทุกคำ
+2.  **การให้คะแนน:** 'เฉลยและเกณฑ์การให้คะแนน' มีประเด็นย่อยพร้อมคะแนนกำกับในวงเล็บ (เช่น (10), (5)) ให้คุณระบุว่าแต่ละประเด็นในเฉลยนั้นมีอยู่ในคำตอบของนักศึกษาหรือไม่
+    *   ถ้าประเด็นนั้นปรากฏและถูกต้องสมบูรณ์: ให้คะแนนเต็มสำหรับประเด็นนั้น
+    *   ถ้าประเด็นนั้นปรากฏแต่ไม่สมบูรณ์หรือไม่ถูกต้องทั้งหมด: ให้พิจารณาให้คะแนนบางส่วนตามความเหมาะสม (เช่น อาจได้ครึ่งหนึ่งของคะแนนเต็มสำหรับประเด็นนั้น)
+    *   ถ้าประเด็นนั้นไม่ปรากฏเลย: ไม่ให้คะแนนสำหรับประเด็นนั้น
+3.  **การคำนวณคะแนนรวม:** คำนวณ 'totalScore' จากผลรวมของคะแนนที่ได้รับจากแต่ละประเด็นย่อยในเฉลย
+4.  **ข้อดี (pros):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาสามารถตอบได้ถูกต้อง ชัดเจน และครบถ้วน โดยอธิบายรายละเอียดว่าทำไมจึงถือว่าทำได้ดี
+5.  **ข้อเสนอแนะ (recommendations):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาตอบได้ไม่สมบูรณ์ คลาดเคลื่อน หรือขาดหายไป พร้อมให้คำแนะนำที่เฉพาะเจาะจงเพื่อปรับปรุงในครั้งต่อไป
+6.  **ข้อควรทราบ:** ไม่ต้องวิจารณ์เรื่องไวยากรณ์ การสะกดคำ หรือประเด็นอื่นที่ไม่เกี่ยวข้องกับเนื้อหาทางการพยาบาล
+
+
+นี่คือคำตอบของท่านผู้ทดสอบ: "${transcription}".
+ที่คือเฉลย: "${answerKey}".
+
+**รูปแบบผลลัพธ์:**
+โปรดสร้างผลการประเมินในรูปแบบ JSON ดังนี้เท่านั้น:
+    {
+      "totalScore": <คะแนนท่านผู้ทดสอบ>,
+      "pros": "<จุดที่ท่านผู้ทดสอบทำได้ดี>",
+      "recommendations": "<ข้อเสนอแนะ>"
+    }
+`;
+
+    const response = await openai.chat.completions.create({
+        messages: [{ role: "system", content: checkContent }],
+        model: "gpt-4o",
+        response_format: { "type": "json_object" }
+    });
+
+    const feedbackJson = JSON.parse(response.choices[0].message.content.trim());
+    console.log(feedbackJson);
+    return feedbackJson;
+};
+
+router.post('/medical/5', authMiddleware, async (req, res) => {
+    const { fileName, totalChunks } = req.body;
+    const tempDir = path.join(__dirname, '../temp');
+    const finalFilePath = path.join(__dirname, '../public/uploads', fileName);
+    let audioPath = null;
+    let fileUrl = null;
+    let fileType = null;
+
+    try {
+        // Reassemble the file from chunks
+        await new Promise((resolve, reject) => {
+            const writeStream = fs.createWriteStream(finalFilePath);
+            writeStream.on('finish', resolve);
+            writeStream.on('error', reject);
+
+            (async () => {
+                for (let i = 0; i < totalChunks; i++) {
+                    const chunkPath = path.join(tempDir, `${req.userId}_${i}`);
+                    const chunkBuffer = await fs.promises.readFile(chunkPath);
+                    writeStream.write(chunkBuffer);
+                    await fs.promises.unlink(chunkPath);
+                }
+                writeStream.end();
+            })();
+        });
+
+        // console.log('File reassembled successfully');
+        const uploadTimestamp = Date.now();
+
+        fileType = getFileType(fileName);
+
+        // Upload the original file to Spaces
+        // console.time('Spaces upload');
+        fileUrl = await uploadToSpaces(finalFilePath, `medical-5/${req.userId}/${uploadTimestamp}${path.extname(fileName)}`);
+        // console.timeEnd('Spaces upload');
+
+        if (fileType === 'video') {
+            // Audio extraction for transcription
+            // console.time('Audio extraction');
+            audioPath = `./public/uploads/audio-${uploadTimestamp}.mp3`;
+            await new Promise((resolve, reject) => {
+                ffmpeg(finalFilePath)
+                    .output(audioPath)
+                    .audioCodec('libmp3lame')
+                    .on('end', resolve)
+                    .on('error', reject)
+                    .run();
+            });
+            // console.timeEnd('Audio extraction');
+        } else {
+            // For audio files, use the uploaded file directly
+            audioPath = finalFilePath;
+        }
+
+        // Transcription IApp
+        const transcriptionResult = await transcribeAudioIApp(audioPath);
+        const transcription = concatenateTranscriptionText(transcriptionResult.output);
+        // const transcription = await transcribeAudioOpenAI(audioPath);
+
+        // GPT processing (same as before)
+        // console.time('GPT processing');
+        const feedbackJson = await processTranscriptionMedicalLab5(transcription);
+        // console.timeEnd('GPT processing');
+
+        // Prepare and submit lab info
+        const labInfo = {
+            studentId: req.userId,
+            labNumber: 5,
+            subject: 'medical',
+            fileUrl: fileUrl,
+            fileType: fileType,
+            studentAnswer: transcription,
+            studentScore: feedbackJson.totalScore,
+            isPass: feedbackJson.totalScore >= 60,
+            pros: feedbackJson.pros,
+            recommendations: feedbackJson.recommendations,
+        };
+
+        // console.time('Lab submission');
+        await axios.post('http://localhost:3000/api/v1/lab-deployed/submit-lab', labInfo);
+        // console.timeEnd('Lab submission');
+
+        // Send response
+        res.json({
+            feedback: feedbackJson,
+            transcription,
+            passFailStatus: feedbackJson.totalScore >= 60 ? 'Passed' : 'Failed',
+            score: feedbackJson.totalScore,
+            pros: feedbackJson.pros,
+            recommendations: feedbackJson.recommendations,
+            fileUrl: fileUrl,
+            fileType: fileType
+        });
+
+    } catch (error) {
+        console.error('Error processing the file:', error);
+        res.status(500).json({ msg: 'Error processing the file', error: error.message });
+    } finally {
+        // Cleanup
+        // console.log('Cleaning up local files');
+        [finalFilePath, audioPath].forEach(path => {
+            if (path && fs.existsSync(path)) {
+                try {
+                    fs.unlinkSync(path);
+                    // console.log(`Successfully deleted: ${path}`);
+                } catch (deleteError) {
+                    if (deleteError.code !== 'ENOENT') {
+                        console.error(`Failed to delete file: ${path}`, deleteError);
+                    }
+                }
+            }
+        });
+    }
+});
+
+async function processTranscriptionMedicalLab5(transcription) {
+    const answerKey = `
+คำถาม:
+ผู้ป่วยโรคมะเร็งเม็ดเลือดขาวรายหนึ่ง ผู้ป่วยมีภาวะซีด และผลตรวจ hemoglobin เท่ากับ  6.0 gm%  แพทย์มีแผนการรักษาให้ Leucocyte poor red blood cells (LPRC) 1 unit หลังจากติดตามเลือดมาให้ผู้ป่วยได้  ให้นักศึกษาอธิบายวิธีการพยาบาลผู้ป่วยที่ได้รับเลือด
+
+เฉลย:
+1. ตรวจสอบความถูกต้องของถุงเลือด ใบคล้องเลือด และใบนำส่งเลือดให้ตรงกันทุกจุด ได้แก่ ชื่อ-นามสกุล (5) เลขที่โรงพยาบาล ชนิดของเลือด (5) หมู่เลือด Rh (5) หมายเลขถุงเลือด (5) และปริมาณ รวมทั้งตรวจสอบวันหมดอายุ (5) และลักษณะของเลือด โดยพยาบาล 2 คน (5)
+	2. เตรียม set ให้เลือดที่มีตัวกรอง (5)
+	3. ถามชื่อ นามสกุลและหมู่เลือดของผู้ป่วย (5)
+	4. ขอดูป้ายข้อมือเพื่อเช็คชื่อ นามสกุลให้ตรงกัน (5)
+	5. อธิบายว่าหากขณะให้เลือดมีอาการเหนื่อยหอบ มีไข้ หนาวสั่น ผื่นคัน แน่นหน้าอก ปวดหลัง ให้แจ้งให้พยาบาลทราบ (15)
+	6. วัดความดันโลหิต ชีพจร อุณหภูมิ และอัตราการหายใจ ก่อนให้เลือด (15)
+	7. ดูแลการให้เลือดโดยต่อเลือดให้กับผู้ป่วย (5)
+	8. หลังจากได้เลือด 15 นาที วัดความดันโลหิต ชีพจร อุณหภูมิ และอัตราการหายใจ (10) และสอบถามอาการ เหนื่อยหอบ มีไข้ หนาวสั่น ผื่นคัน แน่นหน้าอก ปวดหลัง (10)
+	9. หากไม่พบอาการผิดปกติ ปรับการไหลของเลือด/ส่วนประกอบของเลือดตามแผนการรักษา (PRC ต้องให้หมดภายใน 4 ชั่วโมง) (10)
+	10. วัดความดันโลหิต ชีพจร อุณหภูมิ และอัตราการหายใจ หลังเลือดหมด (10)
+
+คำตอบ คะแนนเต็ม 100 คะแนน
+`;
+
+    const checkContent = `
+คุณคือผู้ตรวจประเมินผลการปฏิบัติงานของนักศึกษาพยาบาลที่มีประสบการณ์ โปรดประเมินคำตอบของนักศึกษาจาก 'คำตอบของท่านผู้ทดสอบ' เทียบกับ 'เฉลยและเกณฑ์การให้คะแนน' อย่างละเอียด
+
+**หลักการประเมิน:**
+1.  **การเปรียบเทียบ:** ให้เปรียบเทียบคำตอบของนักศึกษาโดยเน้นความหมายและเนื้อหาที่ถูกต้องและครบถ้วนตาม 'เฉลยและเกณฑ์การให้คะแนน' ไม่ใช่เพียงแค่คำศัพท์ที่ตรงกันทุกคำ
+2.  **การให้คะแนน:** 'เฉลยและเกณฑ์การให้คะแนน' มีประเด็นย่อยพร้อมคะแนนกำกับในวงเล็บ (เช่น (10), (5)) ให้คุณระบุว่าแต่ละประเด็นในเฉลยนั้นมีอยู่ในคำตอบของนักศึกษาหรือไม่
+    *   ถ้าประเด็นนั้นปรากฏและถูกต้องสมบูรณ์: ให้คะแนนเต็มสำหรับประเด็นนั้น
+    *   ถ้าประเด็นนั้นปรากฏแต่ไม่สมบูรณ์หรือไม่ถูกต้องทั้งหมด: ให้พิจารณาให้คะแนนบางส่วนตามความเหมาะสม (เช่น อาจได้ครึ่งหนึ่งของคะแนนเต็มสำหรับประเด็นนั้น)
+    *   ถ้าประเด็นนั้นไม่ปรากฏเลย: ไม่ให้คะแนนสำหรับประเด็นนั้น
+3.  **การคำนวณคะแนนรวม:** คำนวณ 'totalScore' จากผลรวมของคะแนนที่ได้รับจากแต่ละประเด็นย่อยในเฉลย
+4.  **ข้อดี (pros):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาสามารถตอบได้ถูกต้อง ชัดเจน และครบถ้วน โดยอธิบายรายละเอียดว่าทำไมจึงถือว่าทำได้ดี
+5.  **ข้อเสนอแนะ (recommendations):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาตอบได้ไม่สมบูรณ์ คลาดเคลื่อน หรือขาดหายไป พร้อมให้คำแนะนำที่เฉพาะเจาะจงเพื่อปรับปรุงในครั้งต่อไป
+6.  **ข้อควรทราบ:** ไม่ต้องวิจารณ์เรื่องไวยากรณ์ การสะกดคำ หรือประเด็นอื่นที่ไม่เกี่ยวข้องกับเนื้อหาทางการพยาบาล
+
+
+นี่คือคำตอบของท่านผู้ทดสอบ: "${transcription}".
+ที่คือเฉลย: "${answerKey}".
+
+**รูปแบบผลลัพธ์:**
+โปรดสร้างผลการประเมินในรูปแบบ JSON ดังนี้เท่านั้น:
+    {
+      "totalScore": <คะแนนท่านผู้ทดสอบ>,
+      "pros": "<จุดที่ท่านผู้ทดสอบทำได้ดี>",
+      "recommendations": "<ข้อเสนอแนะ>"
+    }
+`;
+
+    const response = await openai.chat.completions.create({
+        messages: [{ role: "system", content: checkContent }],
+        model: "gpt-4o",
+        response_format: { "type": "json_object" }
+    });
+
+    const feedbackJson = JSON.parse(response.choices[0].message.content.trim());
+    console.log(feedbackJson);
+    return feedbackJson;
+};
 
 module.exports = router;
