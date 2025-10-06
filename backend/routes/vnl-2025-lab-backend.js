@@ -449,7 +449,7 @@ router.post('/surgical/1', authMiddleware, async (req, res) => {
 
         // Upload the original file to Spaces
         // console.time('Spaces upload');
-        fileUrl = await uploadToSpaces(finalFilePath, `surgical-1/${req.userId}/${uploadTimestamp}${path.extname(fileName)}`);
+        fileUrl = await uploadToSpaces(finalFilePath, `surgical/lab1/${req.userId}/${uploadTimestamp}${path.extname(fileName)}`);
         // console.timeEnd('Spaces upload');
 
         if (fileType === 'video') {
@@ -639,7 +639,7 @@ router.post('/surgical/2', authMiddleware, async (req, res) => {
 
         // Upload the original file to Spaces
         // console.time('Spaces upload');
-        fileUrl = await uploadToSpaces(finalFilePath, `surgical-2/${req.userId}/${uploadTimestamp}${path.extname(fileName)}`);
+        fileUrl = await uploadToSpaces(finalFilePath, `surgical/lab2/${req.userId}/${uploadTimestamp}${path.extname(fileName)}`);
         // console.timeEnd('Spaces upload');
 
         if (fileType === 'video') {
@@ -833,7 +833,7 @@ router.post('/surgical/3', authMiddleware, async (req, res) => {
 
         // Upload the original file to Spaces
         // console.time('Spaces upload');
-        fileUrl = await uploadToSpaces(finalFilePath, `surgical-3/${req.userId}/${uploadTimestamp}${path.extname(fileName)}`);
+        fileUrl = await uploadToSpaces(finalFilePath, `surgical/lab3/${req.userId}/${uploadTimestamp}${path.extname(fileName)}`);
         // console.timeEnd('Spaces upload');
 
         if (fileType === 'video') {
@@ -1031,7 +1031,7 @@ router.post('/surgical/4', authMiddleware, async (req, res) => {
 
         // Upload the original file to Spaces
         // console.time('Spaces upload');
-        fileUrl = await uploadToSpaces(finalFilePath, `surgical-4/${req.userId}/${uploadTimestamp}${path.extname(fileName)}`);
+        fileUrl = await uploadToSpaces(finalFilePath, `surgical/lab4/${req.userId}/${uploadTimestamp}${path.extname(fileName)}`);
         // console.timeEnd('Spaces upload');
 
         if (fileType === 'video') {
@@ -1208,7 +1208,7 @@ router.post('/surgical/5', authMiddleware, async (req, res) => {
 
         // Upload the original file to Spaces
         // console.time('Spaces upload');
-        fileUrl = await uploadToSpaces(finalFilePath, `surgical-5/${req.userId}/${uploadTimestamp}${path.extname(fileName)}`);
+        fileUrl = await uploadToSpaces(finalFilePath, `surgical/lab5/${req.userId}/${uploadTimestamp}${path.extname(fileName)}`);
         // console.timeEnd('Spaces upload');
 
         if (fileType === 'video') {
@@ -1391,7 +1391,7 @@ router.post('/medical/1', authMiddleware, async (req, res) => {
 
         // Upload the original file to Spaces
         // console.time('Spaces upload');
-        fileUrl = await uploadToSpaces(finalFilePath, `medical-1/${req.userId}/${uploadTimestamp}${path.extname(fileName)}`);
+        fileUrl = await uploadToSpaces(finalFilePath, `medical/lab1/${req.userId}/${uploadTimestamp}${path.extname(fileName)}`);
         // console.timeEnd('Spaces upload');
 
         if (fileType === 'video') {
@@ -1564,7 +1564,7 @@ router.post('/medical/2', authMiddleware, async (req, res) => {
 
         // Upload the original file to Spaces
         // console.time('Spaces upload');
-        fileUrl = await uploadToSpaces(finalFilePath, `medical-2/${req.userId}/${uploadTimestamp}${path.extname(fileName)}`);
+        fileUrl = await uploadToSpaces(finalFilePath, `medical/lab2/${req.userId}/${uploadTimestamp}${path.extname(fileName)}`);
         // console.timeEnd('Spaces upload');
 
         if (fileType === 'video') {
@@ -1737,7 +1737,7 @@ router.post('/medical/3', authMiddleware, async (req, res) => {
 
         // Upload the original file to Spaces
         // console.time('Spaces upload');
-        fileUrl = await uploadToSpaces(finalFilePath, `medical-3/${req.userId}/${uploadTimestamp}${path.extname(fileName)}`);
+        fileUrl = await uploadToSpaces(finalFilePath, `medical/lab3/${req.userId}/${uploadTimestamp}${path.extname(fileName)}`);
         // console.timeEnd('Spaces upload');
 
         if (fileType === 'video') {
@@ -1910,7 +1910,7 @@ router.post('/medical/4', authMiddleware, async (req, res) => {
 
         // Upload the original file to Spaces
         // console.time('Spaces upload');
-        fileUrl = await uploadToSpaces(finalFilePath, `medical-4/${req.userId}/${uploadTimestamp}${path.extname(fileName)}`);
+        fileUrl = await uploadToSpaces(finalFilePath, `medical/lab4/${req.userId}/${uploadTimestamp}${path.extname(fileName)}`);
         // console.timeEnd('Spaces upload');
 
         if (fileType === 'video') {
@@ -2082,7 +2082,7 @@ router.post('/medical/5', authMiddleware, async (req, res) => {
 
         // Upload the original file to Spaces
         // console.time('Spaces upload');
-        fileUrl = await uploadToSpaces(finalFilePath, `medical-5/${req.userId}/${uploadTimestamp}${path.extname(fileName)}`);
+        fileUrl = await uploadToSpaces(finalFilePath, `medical/lab5/${req.userId}/${uploadTimestamp}${path.extname(fileName)}`);
         // console.timeEnd('Spaces upload');
 
         if (fileType === 'video') {
@@ -2180,6 +2180,1003 @@ async function processTranscriptionMedicalLab5(transcription) {
 	8. หลังจากได้เลือด 15 นาที วัดความดันโลหิต ชีพจร อุณหภูมิ และอัตราการหายใจ (10) และสอบถามอาการ เหนื่อยหอบ มีไข้ หนาวสั่น ผื่นคัน แน่นหน้าอก ปวดหลัง (10)
 	9. หากไม่พบอาการผิดปกติ ปรับการไหลของเลือด/ส่วนประกอบของเลือดตามแผนการรักษา (PRC ต้องให้หมดภายใน 4 ชั่วโมง) (10)
 	10. วัดความดันโลหิต ชีพจร อุณหภูมิ และอัตราการหายใจ หลังเลือดหมด (10)
+
+คำตอบ คะแนนเต็ม 100 คะแนน
+`;
+
+    const checkContent = `
+คุณคือผู้ตรวจประเมินผลการปฏิบัติงานของนักศึกษาพยาบาลที่มีประสบการณ์ โปรดประเมินคำตอบของนักศึกษาจาก 'คำตอบของท่านผู้ทดสอบ' เทียบกับ 'เฉลยและเกณฑ์การให้คะแนน' อย่างละเอียด
+
+**หลักการประเมิน:**
+1.  **การเปรียบเทียบ:** ให้เปรียบเทียบคำตอบของนักศึกษาโดยเน้นความหมายและเนื้อหาที่ถูกต้องและครบถ้วนตาม 'เฉลยและเกณฑ์การให้คะแนน' ไม่ใช่เพียงแค่คำศัพท์ที่ตรงกันทุกคำ
+2.  **การให้คะแนน:** 'เฉลยและเกณฑ์การให้คะแนน' มีประเด็นย่อยพร้อมคะแนนกำกับในวงเล็บ (เช่น (10), (5)) ให้คุณระบุว่าแต่ละประเด็นในเฉลยนั้นมีอยู่ในคำตอบของนักศึกษาหรือไม่
+    *   ถ้าประเด็นนั้นปรากฏและถูกต้องสมบูรณ์: ให้คะแนนเต็มสำหรับประเด็นนั้น
+    *   ถ้าประเด็นนั้นปรากฏแต่ไม่สมบูรณ์หรือไม่ถูกต้องทั้งหมด: ให้พิจารณาให้คะแนนบางส่วนตามความเหมาะสม (เช่น อาจได้ครึ่งหนึ่งของคะแนนเต็มสำหรับประเด็นนั้น)
+    *   ถ้าประเด็นนั้นไม่ปรากฏเลย: ไม่ให้คะแนนสำหรับประเด็นนั้น
+3.  **การคำนวณคะแนนรวม:** คำนวณ 'totalScore' จากผลรวมของคะแนนที่ได้รับจากแต่ละประเด็นย่อยในเฉลย
+4.  **ข้อดี (pros):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาสามารถตอบได้ถูกต้อง ชัดเจน และครบถ้วน โดยอธิบายรายละเอียดว่าทำไมจึงถือว่าทำได้ดี
+5.  **ข้อเสนอแนะ (recommendations):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาตอบได้ไม่สมบูรณ์ คลาดเคลื่อน หรือขาดหายไป พร้อมให้คำแนะนำที่เฉพาะเจาะจงเพื่อปรับปรุงในครั้งต่อไป
+6.  **ข้อควรทราบ:** ไม่ต้องวิจารณ์เรื่องไวยากรณ์ การสะกดคำ หรือประเด็นอื่นที่ไม่เกี่ยวข้องกับเนื้อหาทางการพยาบาล
+
+
+นี่คือคำตอบของท่านผู้ทดสอบ: "${transcription}".
+ที่คือเฉลย: "${answerKey}".
+
+**รูปแบบผลลัพธ์:**
+โปรดสร้างผลการประเมินในรูปแบบ JSON ดังนี้เท่านั้น:
+    {
+      "totalScore": <คะแนนท่านผู้ทดสอบ>,
+      "pros": "<จุดที่ท่านผู้ทดสอบทำได้ดี>",
+      "recommendations": "<ข้อเสนอแนะ>"
+    }
+`;
+
+    const response = await openai.chat.completions.create({
+        messages: [{ role: "system", content: checkContent }],
+        model: "gpt-4o",
+        response_format: { "type": "json_object" }
+    });
+
+    const feedbackJson = JSON.parse(response.choices[0].message.content.trim());
+    console.log(feedbackJson);
+    return feedbackJson;
+};
+
+/*
+OB NURSING
+*/
+router.post('/ob/1', authMiddleware, async (req, res) => {
+    const { fileName, totalChunks } = req.body;
+    const tempDir = path.join(__dirname, '../temp');
+    const finalFilePath = path.join(__dirname, '../public/uploads', fileName);
+    let audioPath = null;
+    let fileUrl = null;
+    let fileType = null;
+
+    try {
+        // Reassemble the file from chunks
+        await new Promise((resolve, reject) => {
+            const writeStream = fs.createWriteStream(finalFilePath);
+            writeStream.on('finish', resolve);
+            writeStream.on('error', reject);
+
+            (async () => {
+                for (let i = 0; i < totalChunks; i++) {
+                    const chunkPath = path.join(tempDir, `${req.userId}_${i}`);
+                    const chunkBuffer = await fs.promises.readFile(chunkPath);
+                    writeStream.write(chunkBuffer);
+                    await fs.promises.unlink(chunkPath);
+                }
+                writeStream.end();
+            })();
+        });
+
+        // console.log('File reassembled successfully');
+        const uploadTimestamp = Date.now();
+
+        fileType = getFileType(fileName);
+
+        // Upload the original file to Spaces
+        // console.time('Spaces upload');
+        fileUrl = await uploadToSpaces(finalFilePath, `ob/lab1/${req.userId}/${uploadTimestamp}${path.extname(fileName)}`);
+        // console.timeEnd('Spaces upload');
+
+        if (fileType === 'video') {
+            // Audio extraction for transcription
+            // console.time('Audio extraction');
+            audioPath = `./public/uploads/audio-${uploadTimestamp}.mp3`;
+            await new Promise((resolve, reject) => {
+                ffmpeg(finalFilePath)
+                    .output(audioPath)
+                    .audioCodec('libmp3lame')
+                    .on('end', resolve)
+                    .on('error', reject)
+                    .run();
+            });
+            // console.timeEnd('Audio extraction');
+        } else {
+            // For audio files, use the uploaded file directly
+            audioPath = finalFilePath;
+        }
+
+        // Transcription IApp
+        const transcriptionResult = await transcribeAudioIApp(audioPath);
+        const transcription = concatenateTranscriptionText(transcriptionResult.output);
+        // const transcription = await transcribeAudioOpenAI(audioPath);
+
+        // GPT processing (same as before)
+        // console.time('GPT processing');
+        const feedbackJson = await processTranscriptionOBLab1(transcription);
+        // console.timeEnd('GPT processing');
+
+        // Prepare and submit lab info
+        const labInfo = {
+            studentId: req.userId,
+            labNumber: 1,
+            subject: 'ob',
+            fileUrl: fileUrl,
+            fileType: fileType,
+            studentAnswer: transcription,
+            studentScore: feedbackJson.totalScore,
+            isPass: feedbackJson.totalScore >= 60,
+            pros: feedbackJson.pros,
+            recommendations: feedbackJson.recommendations,
+        };
+
+        // console.time('Lab submission');
+        await axios.post('http://localhost:3000/api/v1/lab-deployed/submit-lab', labInfo);
+        // console.timeEnd('Lab submission');
+
+        // Send response
+        res.json({
+            feedback: feedbackJson,
+            transcription,
+            passFailStatus: feedbackJson.totalScore >= 60 ? 'Passed' : 'Failed',
+            score: feedbackJson.totalScore,
+            pros: feedbackJson.pros,
+            recommendations: feedbackJson.recommendations,
+            fileUrl: fileUrl,
+            fileType: fileType
+        });
+
+    } catch (error) {
+        console.error('Error processing the file:', error);
+        res.status(500).json({ msg: 'Error processing the file', error: error.message });
+    } finally {
+        // Cleanup
+        // console.log('Cleaning up local files');
+        [finalFilePath, audioPath].forEach(path => {
+            if (path && fs.existsSync(path)) {
+                try {
+                    fs.unlinkSync(path);
+                    // console.log(`Successfully deleted: ${path}`);
+                } catch (deleteError) {
+                    if (deleteError.code !== 'ENOENT') {
+                        console.error(`Failed to delete file: ${path}`, deleteError);
+                    }
+                }
+            }
+        });
+    }
+});
+
+async function processTranscriptionOBLab1(transcription) {
+    const answerKey = `
+Initial Prenatal Assessment (เฉลย)
+1. อธิบายผลการตรวจปัสสาวะ เฉลย (15 คะแนน) 
+ผลการตรวจปัสสาวะปกติ ไม่มีโปรตีน (protein) และน้ำตาล (sugar) ในปัสสาวะ 
+หรือ
+•	 ผลการตรวจปัสสาวะไม่พบโปรตีน 
+•	ผลการตรวจปัสสาวะไม่พบน้ำตาล 
+•	Urine protein ให้ผลลบ แสดงว่าไม่มีโปรตีนในปัสสาวะ 
+•	ค่าโปรตีนในปัสสาวะให้ผลลบ แสดงว่าไม่มีโปรตีนในปัสสาวะ 
+•	Urine sugar ให้ผลลบ แสดงว่าไม่มีน้ำตาลในปัสสาวะ 
+•	ค่าน้ำตาลในปัสสาวะให้ผลลบ แสดงว่าไม่มีโปรตีนในปัสสาวะ 
+•	ผลตรวจปัสสาวะปกติ 
+
+2. อธิบายผลการตรวจเลือด เฉลย (15 คะแนน) 
+1.	ค่าความเข้มข้นของเลือด ฮีโมโกลบิน (Hb) มีค่าต่ำกว่าปกติ และ ฮีมาโตคริต (Hct) มีค่าต่ำกว่าปกติ หรือ ค่า MCV เท่ากับ 68 fl แปลผล มีค่าต่ำกว่าปกติ หรือ ภาวะโลหิตจาง หรือ มีภาวะเลือดจาง
+2.	มีโอกาสเป็นธาลัสซีเมีย หรือ ผลการคัดกรองธาลัสซีเมียผิดปกติ มีโอกาสเป็นธาลัสซีเมีย (thalassemia) หรือ ไม่พบความผิดปกติของฮีโมโกลบินอี (HbE) ไม่มีภาวะธาลัสซีเมียที่เกี่ยวข้องกับ ฮีโมโกลบินอี (HbE) หรือ ไม่เป็นธาลัสซีเมียชนิด ฮีโมโกลบิน อี (hemoglobin E)
+
+4. อธิบายผลการตรวจคัดกรองดาวน์ซินโดรม เฉลย (15 คะแนน)
+ผลการตรวจคัดกรอง Down’s Syndrome 1:500  หรือ มีโอกาสน้อยที่ทารกในครรภ์จะมีภาวะดาวน์ซินโดรม หรือ ทารกในครรภ์มีความเสี่ยงต่ำที่จะเกิดภาวะดาวน์ซินโดรม 
+ 
+3. อธิบายสาเหตุและคำแนะนำในการปฏิบัติตัวเมื่อมีอาการคลื่นไส้อาเจียน  เฉลย (30 คะแนน) 
+	สาเหตุ เฉลย (10 คะแนน)
+•	คลื่นไส้อาเจียน หรือ morning sickness หรือ nausea gravidarum เกิดจากการเพิ่มขึ้นของฮอร์โมน hCG (human chorionic gonadotropin) และ เอสโตรเจน (estrogen) 
+•	คลื่นไส้อาเจียน เกิดจากการเพิ่มขึ้นของฮอร์โมนที่เกี่ยวกับการตั้งครรภ์ (5 คะแนน)
+•	คลื่นไส้อาเจียน เกิดจากการเปลี่ยนแปลงฮอร์โมนที่เกี่ยวกับการตั้งครรภ์ (5 คะแนน)
+การปฏิบัติตัวเมื่อมีคลื่นไส้อาเจียน เฉลย (20 คะแนน)
+•	รับประทานอาหารครั้งละน้อยแต่บ่อยครั้ง 
+•	เพิ่มจำนวนมื้ออาหารเป็นวันละ 5-6 มื้อ 
+•	รับประทานอาหารย่อยง่าย เช่น ขนมปังกรอบ (หลีกเลี่ยงอาหารรสจัด อาหารมัน อาหารที่มีกลิ่นฉุน 
+•	จิบน้ำบ่อยๆ หรือดื่มน้ำผลไม้หรือน้ำขิง 
+•	หลังอาเจียน ให้บ้วนปากเพื่อลดการกระตุ้นทำให้คลื่นไส้อาเจียน และทำให้ช่องปากสะอาดป้องกันฟันผุ 
+
+4. อธิบายสาเหตุและคำแนะนำในการปฏิบัติตัวเมื่อมีเลือดออกตามไรฟัน เฉลย (30 คะแนน)
+	สาเหตุ เฉลย (10 คะแนน)
+•	เลือดออกตามไรฟัน เกิดจากฮอร์โมนเอสโตรเจน (estrogen) ที่เพิ่มขึ้นในขณะตั้งครรภ์ ทำให้เลือดมาเลี้ยงบริเวณช่องปากและเหงือกมากขึ้น ส่งผลให้สตรีตั้งครรภ์มีเหงือกบวมนุ่มจากการมีเลือดคั่งและมีเลือดออกง่าย 
+การปฏิบัติตัวเมื่อมีเลือดออกตามไรฟัน เฉลย (20 คะแนน)
+•	ใช้แปรงสีฟันที่มีขนแปรงอ่อนนุ่ม 
+•	หลีกเลี่ยงการแปรงฟันแรงเกินไป 
+•	รับประทานอาหารที่มีวิตามินซีสูง เช่น ส้ม ฝรั่ง มะละกอ และผักใบเขียว 
+•	ถ้ามีอาการมาก ควรไปตรวจสุขภาพช่องปากกับทันตแพทย์ในระหว่างตั้งครรภ์ 
+
+คำตอบ คะแนนเต็ม 100 คะแนน
+`;
+
+    const checkContent = `
+คุณคือผู้ตรวจประเมินผลการปฏิบัติงานของนักศึกษาพยาบาลที่มีประสบการณ์ โปรดประเมินคำตอบของนักศึกษาจาก 'คำตอบของท่านผู้ทดสอบ' เทียบกับ 'เฉลยและเกณฑ์การให้คะแนน' อย่างละเอียด
+
+**หลักการประเมิน:**
+1.  **การเปรียบเทียบ:** ให้เปรียบเทียบคำตอบของนักศึกษาโดยเน้นความหมายและเนื้อหาที่ถูกต้องและครบถ้วนตาม 'เฉลยและเกณฑ์การให้คะแนน' ไม่ใช่เพียงแค่คำศัพท์ที่ตรงกันทุกคำ
+2.  **การให้คะแนน:** 'เฉลยและเกณฑ์การให้คะแนน' มีประเด็นย่อยพร้อมคะแนนกำกับในวงเล็บ (เช่น (10), (5)) ให้คุณระบุว่าแต่ละประเด็นในเฉลยนั้นมีอยู่ในคำตอบของนักศึกษาหรือไม่
+    *   ถ้าประเด็นนั้นปรากฏและถูกต้องสมบูรณ์: ให้คะแนนเต็มสำหรับประเด็นนั้น
+    *   ถ้าประเด็นนั้นปรากฏแต่ไม่สมบูรณ์หรือไม่ถูกต้องทั้งหมด: ให้พิจารณาให้คะแนนบางส่วนตามความเหมาะสม (เช่น อาจได้ครึ่งหนึ่งของคะแนนเต็มสำหรับประเด็นนั้น)
+    *   ถ้าประเด็นนั้นไม่ปรากฏเลย: ไม่ให้คะแนนสำหรับประเด็นนั้น
+3.  **การคำนวณคะแนนรวม:** คำนวณ 'totalScore' จากผลรวมของคะแนนที่ได้รับจากแต่ละประเด็นย่อยในเฉลย
+4.  **ข้อดี (pros):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาสามารถตอบได้ถูกต้อง ชัดเจน และครบถ้วน โดยอธิบายรายละเอียดว่าทำไมจึงถือว่าทำได้ดี
+5.  **ข้อเสนอแนะ (recommendations):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาตอบได้ไม่สมบูรณ์ คลาดเคลื่อน หรือขาดหายไป พร้อมให้คำแนะนำที่เฉพาะเจาะจงเพื่อปรับปรุงในครั้งต่อไป
+6.  **ข้อควรทราบ:** ไม่ต้องวิจารณ์เรื่องไวยากรณ์ การสะกดคำ หรือประเด็นอื่นที่ไม่เกี่ยวข้องกับเนื้อหาทางการพยาบาล
+
+
+นี่คือคำตอบของท่านผู้ทดสอบ: "${transcription}".
+ที่คือเฉลย: "${answerKey}".
+
+**รูปแบบผลลัพธ์:**
+โปรดสร้างผลการประเมินในรูปแบบ JSON ดังนี้เท่านั้น:
+    {
+      "totalScore": <คะแนนท่านผู้ทดสอบ>,
+      "pros": "<จุดที่ท่านผู้ทดสอบทำได้ดี>",
+      "recommendations": "<ข้อเสนอแนะ>"
+    }
+`;
+
+    const response = await openai.chat.completions.create({
+        messages: [{ role: "system", content: checkContent }],
+        model: "gpt-4o",
+        response_format: { "type": "json_object" }
+    });
+
+    const feedbackJson = JSON.parse(response.choices[0].message.content.trim());
+    console.log(feedbackJson);
+    return feedbackJson;
+};
+
+router.post('/ob/2', authMiddleware, async (req, res) => {
+    const { fileName, totalChunks } = req.body;
+    const tempDir = path.join(__dirname, '../temp');
+    const finalFilePath = path.join(__dirname, '../public/uploads', fileName);
+    let audioPath = null;
+    let fileUrl = null;
+    let fileType = null;
+
+    try {
+        // Reassemble the file from chunks
+        await new Promise((resolve, reject) => {
+            const writeStream = fs.createWriteStream(finalFilePath);
+            writeStream.on('finish', resolve);
+            writeStream.on('error', reject);
+
+            (async () => {
+                for (let i = 0; i < totalChunks; i++) {
+                    const chunkPath = path.join(tempDir, `${req.userId}_${i}`);
+                    const chunkBuffer = await fs.promises.readFile(chunkPath);
+                    writeStream.write(chunkBuffer);
+                    await fs.promises.unlink(chunkPath);
+                }
+                writeStream.end();
+            })();
+        });
+
+        // console.log('File reassembled successfully');
+        const uploadTimestamp = Date.now();
+
+        fileType = getFileType(fileName);
+
+        // Upload the original file to Spaces
+        // console.time('Spaces upload');
+        fileUrl = await uploadToSpaces(finalFilePath, `ob/lab2/${req.userId}/${uploadTimestamp}${path.extname(fileName)}`);
+        // console.timeEnd('Spaces upload');
+
+        if (fileType === 'video') {
+            // Audio extraction for transcription
+            // console.time('Audio extraction');
+            audioPath = `./public/uploads/audio-${uploadTimestamp}.mp3`;
+            await new Promise((resolve, reject) => {
+                ffmpeg(finalFilePath)
+                    .output(audioPath)
+                    .audioCodec('libmp3lame')
+                    .on('end', resolve)
+                    .on('error', reject)
+                    .run();
+            });
+            // console.timeEnd('Audio extraction');
+        } else {
+            // For audio files, use the uploaded file directly
+            audioPath = finalFilePath;
+        }
+
+        // Transcription IApp
+        const transcriptionResult = await transcribeAudioIApp(audioPath);
+        const transcription = concatenateTranscriptionText(transcriptionResult.output);
+        // const transcription = await transcribeAudioOpenAI(audioPath);
+
+        // GPT processing (same as before)
+        // console.time('GPT processing');
+        const feedbackJson = await processTranscriptionOBLab2(transcription);
+        // console.timeEnd('GPT processing');
+
+        // Prepare and submit lab info
+        const labInfo = {
+            studentId: req.userId,
+            labNumber: 2,
+            subject: 'ob',
+            fileUrl: fileUrl,
+            fileType: fileType,
+            studentAnswer: transcription,
+            studentScore: feedbackJson.totalScore,
+            isPass: feedbackJson.totalScore >= 60,
+            pros: feedbackJson.pros,
+            recommendations: feedbackJson.recommendations,
+        };
+
+        // console.time('Lab submission');
+        await axios.post('http://localhost:3000/api/v1/lab-deployed/submit-lab', labInfo);
+        // console.timeEnd('Lab submission');
+
+        // Send response
+        res.json({
+            feedback: feedbackJson,
+            transcription,
+            passFailStatus: feedbackJson.totalScore >= 60 ? 'Passed' : 'Failed',
+            score: feedbackJson.totalScore,
+            pros: feedbackJson.pros,
+            recommendations: feedbackJson.recommendations,
+            fileUrl: fileUrl,
+            fileType: fileType
+        });
+
+    } catch (error) {
+        console.error('Error processing the file:', error);
+        res.status(500).json({ msg: 'Error processing the file', error: error.message });
+    } finally {
+        // Cleanup
+        // console.log('Cleaning up local files');
+        [finalFilePath, audioPath].forEach(path => {
+            if (path && fs.existsSync(path)) {
+                try {
+                    fs.unlinkSync(path);
+                    // console.log(`Successfully deleted: ${path}`);
+                } catch (deleteError) {
+                    if (deleteError.code !== 'ENOENT') {
+                        console.error(`Failed to delete file: ${path}`, deleteError);
+                    }
+                }
+            }
+        });
+    }
+});
+
+async function processTranscriptionOBLab2(transcription) {
+    const answerKey = `
+การตรวจครรภ์ (ปวดหลังและตะคริว) (เฉลย)
+
+เฉลย
+1. อธิบายวัตถุประสงค์ของการตรวจครรภ์
+เฉลย (30 คะแนน) 
+•	เพื่อเปรียบเทียบความสูงของยอดมดลูกกับอายุครรภ์ (5 คะแนน)
+•	เพื่อหาความสัมพันธ์ระหว่างส่วนสูงยอดมดลูก (fundal height) และอายุครรภ์ (date) (10 คะแนน)
+•	เพื่อประเมิน size และ date (5 คะแนน)
+•	เพื่อประเมินการเจริญเติบโตของทารกในครรภ์ (fetal growth) (5 คะแนน)
+•	เพื่อคาดคะเนอายุครรภ์และกำหนดวันคลอด (10 คะแนน)
+•	เพื่อวินิจฉัยสภาพของทารกในครรภ์ (5 คะแนน)
+•	เพื่อประเมินสภาวะทารกในครรภ์ (5 คะแนน)
+•	เพื่อประเมินแนวลำตัว ส่วนนำ ทรง และท่าทารกในครรภ์ (5 คะแนน)
+•	เพื่อใช้เป็นข้อมูลสำหรับวางแผนให้การพยาบาล (5 คะแนน)
+•	เพื่อประเมินการมีชีวิตของทารกในครรภ์ (5 คะแนน)
+
+2. อธิบายผลการตรวจครรภ์และสาธิตการตรวจครรภ์ตามสถานการณ์ที่กำหนด
+เฉลย  (70 คะแนน)
+1. การดู (10 คะแนน)
+1.1 หน้าท้องเป็น ovoid shape, longitudinal lie, fundal height สูงกว่าสะดือ 2/4 พบการเคลื่อน ไหวด้านซ้ายค่อนมาข้างหน้า (5 คะแนน)
+1.2 หน้าท้องมีขนาดใหญ่ขึ้น fundal height เท่ากับ 27 เซนติเมตร ขนาดหน้าท้องสัมพันธ์กับอายุครรภ์ (5 คะแนน)
+2. การคลำ (40 คะแนน)
+2.1 ยอดมดลูก (fundal height) อยู่ระดับ 2/4 สูงกว่าสะดือ (5 คะแนน)
+2.2 ยอดมดลูกมีลักษณะนุ่ม กว้าง ไม่มี ballottement (5 คะแนน)
+2.3 ยอดมดลูกเป็นส่วนก้นของทารก (10 คะแนน)
+2.4 พบลักษณะแผ่นเรียบ (large part) ด้านขวาของสตรีตั้งครรภ์ และลักษณะไม่เรียบ ขรุขระ (small part) ที่ด้านซ้ายของสตรีตั้งครรภ์ (10 คะแนน)
+2.5 ด้านหลังของทารกอยู่ทางด้านขวาของสตรีตั้งครรภ์ และแขนขาของทารกอยู่ทางด้านซ้ายหน้าของสตรีตั้งครรภ์ (10 คะแนน)
+2.6 ส่วนนำของทารกกลม แข็ง เรียบ สามารถโยกคอนส่วนนำไปมาระหว่าง ilia fossa ได้ (10 คะแนน)
+2.7 ส่วนนำเป็นศีรษะ ลอยอยู่ (head float) เหนือหัวหน่าว (10 คะแนน)
+2.8 ส่วนนำยังไม่มี engagement (5 คะแนน)
+2.9 ส่วนนำยังไม่เข้าสู่อุ้งเชิงกราน (5 คะแนน)
+2.10 ศีรษะของทารกอยู่ด้านล่าง สามารถขยับได้เล็กน้อย (5 คะแนน)
+2.11 ศีรษะของทารกอยู่ในท่าหันหลังด้านขวาของสตรีตั้งครรภ์ (10 คะแนน)
+2.12 ทารกอยู่ในท่า ROP (10 คะแนน)
+3. การฟัง (20 คะแนน)
+3.1 ฟังเสียงการเต้นของหัวใจทารก (fetal heart sound) ได้บริเวณสีข้างด้านขวาของสตรีตั้งครรภ์ (10 คะแนน)
+3.2 อัตราการเต้นของหัวใจทารกในครรภ์ เป็นจังหวะสม่ำเสมอ 138-156 ครั้งต่อนาที (5 คะแนน)
+3.3 funic souffle มีเสียงฟู่ จังหวะสม่ำเสมอ เท่ากับเสียงการเต้นของหัวใจทารก (5 คะแนน)
+3.4 ได้ยินเสียง bowel sound สม่ำเสมอ ประมาณ 16 ครั้งต่อนาที (5 คะแนน)
+3.5 ได้ยินเสียง bowel sound สม่ำเสมอ อยู่ในเกณฑ์ปกติ (5 คะแนน)
+
+คำตอบ คะแนนเต็ม 100 คะแนน
+`;
+
+    const checkContent = `
+คุณคือผู้ตรวจประเมินผลการปฏิบัติงานของนักศึกษาพยาบาลที่มีประสบการณ์ โปรดประเมินคำตอบของนักศึกษาจาก 'คำตอบของท่านผู้ทดสอบ' เทียบกับ 'เฉลยและเกณฑ์การให้คะแนน' อย่างละเอียด
+
+**หลักการประเมิน:**
+1.  **การเปรียบเทียบ:** ให้เปรียบเทียบคำตอบของนักศึกษาโดยเน้นความหมายและเนื้อหาที่ถูกต้องและครบถ้วนตาม 'เฉลยและเกณฑ์การให้คะแนน' ไม่ใช่เพียงแค่คำศัพท์ที่ตรงกันทุกคำ
+2.  **การให้คะแนน:** 'เฉลยและเกณฑ์การให้คะแนน' มีประเด็นย่อยพร้อมคะแนนกำกับในวงเล็บ (เช่น (10), (5)) ให้คุณระบุว่าแต่ละประเด็นในเฉลยนั้นมีอยู่ในคำตอบของนักศึกษาหรือไม่
+    *   ถ้าประเด็นนั้นปรากฏและถูกต้องสมบูรณ์: ให้คะแนนเต็มสำหรับประเด็นนั้น
+    *   ถ้าประเด็นนั้นปรากฏแต่ไม่สมบูรณ์หรือไม่ถูกต้องทั้งหมด: ให้พิจารณาให้คะแนนบางส่วนตามความเหมาะสม (เช่น อาจได้ครึ่งหนึ่งของคะแนนเต็มสำหรับประเด็นนั้น)
+    *   ถ้าประเด็นนั้นไม่ปรากฏเลย: ไม่ให้คะแนนสำหรับประเด็นนั้น
+3.  **การคำนวณคะแนนรวม:** คำนวณ 'totalScore' จากผลรวมของคะแนนที่ได้รับจากแต่ละประเด็นย่อยในเฉลย
+4.  **ข้อดี (pros):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาสามารถตอบได้ถูกต้อง ชัดเจน และครบถ้วน โดยอธิบายรายละเอียดว่าทำไมจึงถือว่าทำได้ดี
+5.  **ข้อเสนอแนะ (recommendations):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาตอบได้ไม่สมบูรณ์ คลาดเคลื่อน หรือขาดหายไป พร้อมให้คำแนะนำที่เฉพาะเจาะจงเพื่อปรับปรุงในครั้งต่อไป
+6.  **ข้อควรทราบ:** ไม่ต้องวิจารณ์เรื่องไวยากรณ์ การสะกดคำ หรือประเด็นอื่นที่ไม่เกี่ยวข้องกับเนื้อหาทางการพยาบาล
+
+
+นี่คือคำตอบของท่านผู้ทดสอบ: "${transcription}".
+ที่คือเฉลย: "${answerKey}".
+
+**รูปแบบผลลัพธ์:**
+โปรดสร้างผลการประเมินในรูปแบบ JSON ดังนี้เท่านั้น:
+    {
+      "totalScore": <คะแนนท่านผู้ทดสอบ>,
+      "pros": "<จุดที่ท่านผู้ทดสอบทำได้ดี>",
+      "recommendations": "<ข้อเสนอแนะ>"
+    }
+`;
+
+    const response = await openai.chat.completions.create({
+        messages: [{ role: "system", content: checkContent }],
+        model: "gpt-4o",
+        response_format: { "type": "json_object" }
+    });
+
+    const feedbackJson = JSON.parse(response.choices[0].message.content.trim());
+    console.log(feedbackJson);
+    return feedbackJson;
+};
+
+router.post('/ob/3', authMiddleware, async (req, res) => {
+    const { fileName, totalChunks } = req.body;
+    const tempDir = path.join(__dirname, '../temp');
+    const finalFilePath = path.join(__dirname, '../public/uploads', fileName);
+    let audioPath = null;
+    let fileUrl = null;
+    let fileType = null;
+
+    try {
+        // Reassemble the file from chunks
+        await new Promise((resolve, reject) => {
+            const writeStream = fs.createWriteStream(finalFilePath);
+            writeStream.on('finish', resolve);
+            writeStream.on('error', reject);
+
+            (async () => {
+                for (let i = 0; i < totalChunks; i++) {
+                    const chunkPath = path.join(tempDir, `${req.userId}_${i}`);
+                    const chunkBuffer = await fs.promises.readFile(chunkPath);
+                    writeStream.write(chunkBuffer);
+                    await fs.promises.unlink(chunkPath);
+                }
+                writeStream.end();
+            })();
+        });
+
+        // console.log('File reassembled successfully');
+        const uploadTimestamp = Date.now();
+
+        fileType = getFileType(fileName);
+
+        // Upload the original file to Spaces
+        // console.time('Spaces upload');
+        fileUrl = await uploadToSpaces(finalFilePath, `ob/lab3/${req.userId}/${uploadTimestamp}${path.extname(fileName)}`);
+        // console.timeEnd('Spaces upload');
+
+        if (fileType === 'video') {
+            // Audio extraction for transcription
+            // console.time('Audio extraction');
+            audioPath = `./public/uploads/audio-${uploadTimestamp}.mp3`;
+            await new Promise((resolve, reject) => {
+                ffmpeg(finalFilePath)
+                    .output(audioPath)
+                    .audioCodec('libmp3lame')
+                    .on('end', resolve)
+                    .on('error', reject)
+                    .run();
+            });
+            // console.timeEnd('Audio extraction');
+        } else {
+            // For audio files, use the uploaded file directly
+            audioPath = finalFilePath;
+        }
+
+        // Transcription IApp
+        const transcriptionResult = await transcribeAudioIApp(audioPath);
+        const transcription = concatenateTranscriptionText(transcriptionResult.output);
+        // const transcription = await transcribeAudioOpenAI(audioPath);
+
+        // GPT processing (same as before)
+        // console.time('GPT processing');
+        const feedbackJson = await processTranscriptionOBLab3(transcription);
+        // console.timeEnd('GPT processing');
+
+        // Prepare and submit lab info
+        const labInfo = {
+            studentId: req.userId,
+            labNumber: 3,
+            subject: 'ob',
+            fileUrl: fileUrl,
+            fileType: fileType,
+            studentAnswer: transcription,
+            studentScore: feedbackJson.totalScore,
+            isPass: feedbackJson.totalScore >= 60,
+            pros: feedbackJson.pros,
+            recommendations: feedbackJson.recommendations,
+        };
+
+        // console.time('Lab submission');
+        await axios.post('http://localhost:3000/api/v1/lab-deployed/submit-lab', labInfo);
+        // console.timeEnd('Lab submission');
+
+        // Send response
+        res.json({
+            feedback: feedbackJson,
+            transcription,
+            passFailStatus: feedbackJson.totalScore >= 60 ? 'Passed' : 'Failed',
+            score: feedbackJson.totalScore,
+            pros: feedbackJson.pros,
+            recommendations: feedbackJson.recommendations,
+            fileUrl: fileUrl,
+            fileType: fileType
+        });
+
+    } catch (error) {
+        console.error('Error processing the file:', error);
+        res.status(500).json({ msg: 'Error processing the file', error: error.message });
+    } finally {
+        // Cleanup
+        // console.log('Cleaning up local files');
+        [finalFilePath, audioPath].forEach(path => {
+            if (path && fs.existsSync(path)) {
+                try {
+                    fs.unlinkSync(path);
+                    // console.log(`Successfully deleted: ${path}`);
+                } catch (deleteError) {
+                    if (deleteError.code !== 'ENOENT') {
+                        console.error(`Failed to delete file: ${path}`, deleteError);
+                    }
+                }
+            }
+        });
+    }
+});
+
+async function processTranscriptionOBLab3(transcription) {
+    const answerKey = `
+
+คำแนะนำการบริหารร่างกายในระยะตั้งครรภ์ และเฉลย
+
+เฉลย
+1.	ท่านจะซักประวัติผู้คลอดรายนี้ในประเด็นใด และดูข้อมูลสำคัญอะไรจากสมุดฝากครรภ์บ้าง
+เฉลย (70 คะแนน)
+•	1. การซักประวัติ เมื่อผู้คลอดเข้ามาในหน่วยคลอด พยาบาลผดุงครรภ์ควรซักประวัติ รวบรวมข้อมูลจากสมุดฝากครรภ์ ดังนี้
+1.1	อาการที่นำมาโรงพยาบาล สอบถามสาเหตุของการตัดสินใจมาโรงพยาบาลของผู้คลอด ได้แก่ อาการ/ลักษณะของการเจ็บครรภ์ เพื่อพิจารณาแยกระหว่างการเจ็บครรภ์จริง กับเจ็บครรภ์เตือน มูกเลือด ถุงน้ำคร่ำแตก เด็กดิ้น ดังรายละเอียดนี้ (10 คะแนน)
+1.1.1 หากผู้คลอดมีอาการเจ็บครรภ์ควรซักถามเกี่ยวกับลักษณะ ตำแหน่งอาการที่เจ็บ 
+ระยะเวลาที่เริ่มเจ็บ ความถี่ (frequency) ระยะเวลาการเจ็บในแต่ละครั้ง (duration) อาการเจ็บนั้นร้าวไปที่ใดหรือไม่ หากนอนพัก อาการเหล่านั้นหายไปหรือไม่  (10 คะแนน)
+ลักษณะ: การหดรัดตัวของมดลูก
+เจ็บครรภ์เตือน
+- มดลูกจะเริ่มมีการหดรัดตัว และการหดรัดตัวไม่สม่ำเสมอ
+- ผู้คลอดรู้สึกปวดบริเวณท้อง หรือปวดบริเวณเหนือสะดือ
+- มดลูกหยุดหดรักตัวได้ ถ้าได้พักหรือหลับ
+- ระยะเวลาในการหดรัดตัวแต่ละครั้ง ความถี่ หรือ ความแรง ของการหดรัดตัวใหม่เพิ่มขึ้น
+เจ็บครรภ์จริง
+- มดลูกจะเริ่มหดรัดตัว ช่วงต้นอาจไม่สม่ำเสมอ แต่การหดรัดตัวจะถี่ขึ้นและสม่ำเสมอมากขึ้น รวมทั้งสามารถคาดเดาได้ว่าจะหดรัดตัวอีกครั้งเมื่อใด 
+- ผู้คลอดจะรู้สึกปวดหลัง มีอาการร้าวลงไปที่หน้าท้องส่วนล่าง หรือร้าวลงไปที่ขา
+- แต่ละครั้งของการหดรัดตัว ระยะเวลาในการหดรัดตัวแต่ละครั้ง ความถี่ ความแรงจะมีการเพิ่มขึ้น
+
+ลักษณะ: ปากมดลูก
+เจ็บครรภ์เตือน
+- อาจพบภาวะปากมดลูกนุ่ม แต่จะไม่พบการบางตัว การเปิดของปากมดลูก
+เจ็บครรภ์จริง
+- ปากมดลูกมีการบางตัว (Effacement) และปากมดลูกเปิด (dilatation) และพบการมีมูกหรือมูกเลือดออกจากปากมดลูก
+			1.1.2 ประเมินการแตกของถุงน้ำคร่ำ กรณีผู้คลอดมีการแตกของถุงน้ำคร่ำ ควรสอบถามเวลาที่ถุงน้ำคร่ำแตก ลักษณะ กลิ่น สี และปริมาณของน้ำคร่ำที่ออกมา กรณีถุงน้ำคร่ำยังไม่แตกให้บันทึกสถานะของถุงน้ำคร่ำด้วยเช่นกัน (10 คะแนน)
+			1.1.3 การดิ้นของทารกในครรภ์ ควรซักถามผู้คลอดเกี่ยวกับลูกดิ้น ว่าปกติ หรือไม่ เพื่อประเมินภาวะสุขภาพของทารกในครรภ์ (5 คะแนน)
+1.2 ซักประวัติข้อมูลส่วนตัว ได้แก่ อายุ ระดับการศึกษา สถานภาพสมรส อาชีพ น้ำหนัก ความสูง จำนวนครั้งของการตั้งครรภ์ (5 คะแนน)
+1.2.1 อายุ เพื่อประเมิน ความต้องการการช่วยเหลือ ความเสี่ยงในระยะคลอด 
+1.2.2 น้ำหนัก โดยพิจารณาน้ำหนักที่เพิ่มขึ้นตลอดระยะการตั้งครรภ์ เพื่อประเมิน ความเสี่ยงการคลอดยากหรือการคลอดติดขัด
+1.2.3 ความสูง ผู้คลอดที่มีส่วนสูงน้อยกว่า 145 เซนติเมตร เสี่ยงต่อการเกิดภาวะ CPD
+1.2.4 จำนวนครั้งของการตั้งครรภ์ เพื่อประเมินระยะเวลาในการคลอด กรณีที่เป็นครรภ์หลัง จะใช้
+ระยะเวลาในการคลอดน้อยกว่าครรภ์แรก 
+1.2	ตรวจสอบกำหนดการคลอด (EDC) เพื่อพิจารณาอายุครรภ์ ควรสอบถามอายุครรภ์ หรือ ดูข้อมูลจากสมุดฝากครรภ์ ว่าครบกำหนดการคลอดหรือไม่ หากอายุครรภ์น้อยกว่า 37 สัปดาห์ จะเพิ่มความเสี่ยง birth asphyxia หรือ หากอายุครรภ์มากกว่า 41 สัปดาห์ จะเพิ่มความเสี่ยงต่อการเกิด meconium aspiration (10 คะแนน)
+1.3	ดูผลตรวจทางห้องปฏิบัติการ เช่น ค่าฮีโมโกลบิน ผลตรวจธาลัสซีเมีย (5 คะแนน)
+1.4 ประวัติการตั้งครรภ์ ได้แก่ จำนวนครั้งที่มาฝากครรภ์ในครรภ์ปัจจุบัน กรณีผู้คลอด มาฝากครรภ์จำนวนน้อยครั้งกว่าการฝากครรภ์ตามเกณฑ์คุณภาพ มักมีโอกาสเกิดภาวะเสี่ยงในระยะตั้งครรภ์ เช่น ทารกน้ำหนักมากหรือน้อยกว่าเกณฑ์ ภาวะความดันโลหิตสูงขณะตั้งครรภ์ ภาวะเบาหวานในระยะตั้งครรภ์ เป็นต้น (5 คะแนน)
+1.5 ประวัติการคลอดในอดีต ควรประเมินว่า มีประวัติการคลอดก่อนกำหนด การใช้สูติศาสตร์หัตถการช่วยคลอด เช่น คีม เครื่องดูดสุญญากาศ ผ่าตัดคลอด หรือภาวะแทรกซ้อนอื่นๆในระยะตั้งครรภ์ คลอด และหลังคลอด เช่น ภาวะเบาหวานในระยะตั้งครรภ์ ภาวะความดันโลหิตสูง ภาวะตกเลือดในระยะคลอดหรือหลังคลอด ภาวะรกค้าง ล้วงรก น้ำหนักของทารกแรกคลอดโดยเฉพาะในรายที่มีน้ำหนักตัวมากกว่า 4000 กรัม สุขภาพของทารกปัจจุบัน กรณีภาวะแท้ง ให้ซักถามเรื่องประวัติการขูดมดลูกด้วย เนื่องจากหากมีประวัติ เคยขูดมดลูก อาจเกิดภาวะรกฝังตัวลึกได้ ไหนครรภ์ปัจจุบัน (5 คะแนน)
+1.6 ประวัติการเจ็บป่วยในครรภ์ปัจจุบัน และในครรภ์ที่ผ่านมา ภาวะแทรกซ้อนทางอายุรกรรม หรือโรค
+ในทางระบบสืบพันธุ์เช่น โรคเบาหวาน ความดันโลหิตสูง โรคหัวใจโรคเลือด โรคติดเชื้อทางเพศสัมพันธ์ อุบัติเหตุที่มีผลกระทบต่อกระดูกเชิงกราน เป็นต้น (5 คะแนน)
+		1.7 ประวัติด้านจิตสังคม ซักถามเกี่ยวกับประสบการณ์การคลอดในครรภ์ที่ผ่านมา ความพร้อมในการตั้งครรภ์ ความคาดหวังต่อเพศของทารก สัมพันธภาพภายในครอบครัว แหล่งสนับสนุนในการดูแลทารกแรกเกิด (5 คะแนน)
+•	2. การตรวจร่างกายทั่วไป ได้แก่ ลักษณะรูปร่างทั่วไป สัญญาณชีพ น้ำหนักตัว พฤติกรรมการแสดงออกของ
+การตั้งครรภ์
+2.1 ลักษณะรูปร่างทั่วไป ได้แก่ ท่าทางลักษณะการเดินที่ผิดปกติ ซึ่งอาจเกิดจากกระดูกเชิงกรานที่ผิดปกติได้ 
+ส่วนสูงโดยเฉพาะในรายที่สูงน้อยกว่า 145 เซนติเมตร อาจมีภาวะช่องเชิงการแคบได้ นอกจากนี้ ควรประเมินสภาพทั่วไปของหญิงตั้งครรภ์ เช่น อาการบวม อาการซีด อาการหายใจหอบ เป็นต้น
+2.2 สัญญาณชีพ ประเมินความดันโลหิต อุณหภูมิร่างกาย อัตราการหายใจ และอัตราการเต้นของชีพจร กรณีตรวจพบ ความดันโลหิตสูงกว่าปกติ ควรให้ผู้คลอดนอนพักสัก 15 นาที แล้วจึงวัดซ้ำอีกครั้ง ควรวัดในช่วงที่มดลูกคลายตัว และให้ผู้คลอดนอนตะแคงเพื่อป้องกันมดลูกกดทับ ซึ่งอาจเกิดภาวะ fetal distress ได้
+2.3 พฤติกรรมการแสดงออกของการเจ็บครรภ์ โดยประเมินว่าสอดคล้องกับการเปิดของปากมดลูกหรือไม่ อาการแสดงของการเจ็บขัง จะมีลักษณะหายใจเร็ว เกร็งตัวโดยเฉพาะในระยะช่วงมดลูกมีการหดรับตัว กระสับกระส่ายบิดตัวไปมา
+
+2.	ท่านจะพิจารณารับผู้คลอดรายนี้ไว้ในโรงพยาบาลหรือไม่ พร้อมอธิบายเหตุผล 
+เฉลย (30 คะแนน) 
+•	รับไว้ในโรงพยาบาล (15 คะแนน) 
+เนื่องจาก
+•	ผู้คลอดมีอาการเจ็บครรภ์จริง
+1.	ปวดหน่วงหัวหน่าว หน้าท้องร้าวไปที่หลัง Interval 3 นาที 10 วินาที Duration 45 วินาที Intensity Moderate (10 คะแนน)
+2.	มีมูกเลือดออกทางช่องคลอด (10 คะแนน)
+3.	Cervix dilated 2 cm. Effacement 75% Membrane intact Station -3 (10 คะแนน)
+
+คำตอบ คะแนนเต็ม 100 คะแนน
+`;
+
+    const checkContent = `
+คุณคือผู้ตรวจประเมินผลการปฏิบัติงานของนักศึกษาพยาบาลที่มีประสบการณ์ โปรดประเมินคำตอบของนักศึกษาจาก 'คำตอบของท่านผู้ทดสอบ' เทียบกับ 'เฉลยและเกณฑ์การให้คะแนน' อย่างละเอียด
+
+**หลักการประเมิน:**
+1.  **การเปรียบเทียบ:** ให้เปรียบเทียบคำตอบของนักศึกษาโดยเน้นความหมายและเนื้อหาที่ถูกต้องและครบถ้วนตาม 'เฉลยและเกณฑ์การให้คะแนน' ไม่ใช่เพียงแค่คำศัพท์ที่ตรงกันทุกคำ
+2.  **การให้คะแนน:** 'เฉลยและเกณฑ์การให้คะแนน' มีประเด็นย่อยพร้อมคะแนนกำกับในวงเล็บ (เช่น (10), (5)) ให้คุณระบุว่าแต่ละประเด็นในเฉลยนั้นมีอยู่ในคำตอบของนักศึกษาหรือไม่
+    *   ถ้าประเด็นนั้นปรากฏและถูกต้องสมบูรณ์: ให้คะแนนเต็มสำหรับประเด็นนั้น
+    *   ถ้าประเด็นนั้นปรากฏแต่ไม่สมบูรณ์หรือไม่ถูกต้องทั้งหมด: ให้พิจารณาให้คะแนนบางส่วนตามความเหมาะสม (เช่น อาจได้ครึ่งหนึ่งของคะแนนเต็มสำหรับประเด็นนั้น)
+    *   ถ้าประเด็นนั้นไม่ปรากฏเลย: ไม่ให้คะแนนสำหรับประเด็นนั้น
+3.  **การคำนวณคะแนนรวม:** คำนวณ 'totalScore' จากผลรวมของคะแนนที่ได้รับจากแต่ละประเด็นย่อยในเฉลย
+4.  **ข้อดี (pros):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาสามารถตอบได้ถูกต้อง ชัดเจน และครบถ้วน โดยอธิบายรายละเอียดว่าทำไมจึงถือว่าทำได้ดี
+5.  **ข้อเสนอแนะ (recommendations):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาตอบได้ไม่สมบูรณ์ คลาดเคลื่อน หรือขาดหายไป พร้อมให้คำแนะนำที่เฉพาะเจาะจงเพื่อปรับปรุงในครั้งต่อไป
+6.  **ข้อควรทราบ:** ไม่ต้องวิจารณ์เรื่องไวยากรณ์ การสะกดคำ หรือประเด็นอื่นที่ไม่เกี่ยวข้องกับเนื้อหาทางการพยาบาล
+
+
+นี่คือคำตอบของท่านผู้ทดสอบ: "${transcription}".
+ที่คือเฉลย: "${answerKey}".
+
+**รูปแบบผลลัพธ์:**
+โปรดสร้างผลการประเมินในรูปแบบ JSON ดังนี้เท่านั้น:
+    {
+      "totalScore": <คะแนนท่านผู้ทดสอบ>,
+      "pros": "<จุดที่ท่านผู้ทดสอบทำได้ดี>",
+      "recommendations": "<ข้อเสนอแนะ>"
+    }
+`;
+
+    const response = await openai.chat.completions.create({
+        messages: [{ role: "system", content: checkContent }],
+        model: "gpt-4o",
+        response_format: { "type": "json_object" }
+    });
+
+    const feedbackJson = JSON.parse(response.choices[0].message.content.trim());
+    console.log(feedbackJson);
+    return feedbackJson;
+};
+
+router.post('/ob/4', authMiddleware, async (req, res) => {
+    const { fileName, totalChunks } = req.body;
+    const tempDir = path.join(__dirname, '../temp');
+    const finalFilePath = path.join(__dirname, '../public/uploads', fileName);
+    let audioPath = null;
+    let fileUrl = null;
+    let fileType = null;
+
+    try {
+        // Reassemble the file from chunks
+        await new Promise((resolve, reject) => {
+            const writeStream = fs.createWriteStream(finalFilePath);
+            writeStream.on('finish', resolve);
+            writeStream.on('error', reject);
+
+            (async () => {
+                for (let i = 0; i < totalChunks; i++) {
+                    const chunkPath = path.join(tempDir, `${req.userId}_${i}`);
+                    const chunkBuffer = await fs.promises.readFile(chunkPath);
+                    writeStream.write(chunkBuffer);
+                    await fs.promises.unlink(chunkPath);
+                }
+                writeStream.end();
+            })();
+        });
+
+        // console.log('File reassembled successfully');
+        const uploadTimestamp = Date.now();
+
+        fileType = getFileType(fileName);
+
+        // Upload the original file to Spaces
+        // console.time('Spaces upload');
+        fileUrl = await uploadToSpaces(finalFilePath, `ob/lab4/${req.userId}/${uploadTimestamp}${path.extname(fileName)}`);
+        // console.timeEnd('Spaces upload');
+
+        if (fileType === 'video') {
+            // Audio extraction for transcription
+            // console.time('Audio extraction');
+            audioPath = `./public/uploads/audio-${uploadTimestamp}.mp3`;
+            await new Promise((resolve, reject) => {
+                ffmpeg(finalFilePath)
+                    .output(audioPath)
+                    .audioCodec('libmp3lame')
+                    .on('end', resolve)
+                    .on('error', reject)
+                    .run();
+            });
+            // console.timeEnd('Audio extraction');
+        } else {
+            // For audio files, use the uploaded file directly
+            audioPath = finalFilePath;
+        }
+
+        // Transcription IApp
+        const transcriptionResult = await transcribeAudioIApp(audioPath);
+        const transcription = concatenateTranscriptionText(transcriptionResult.output);
+        // const transcription = await transcribeAudioOpenAI(audioPath);
+
+        // GPT processing (same as before)
+        // console.time('GPT processing');
+        const feedbackJson = await processTranscriptionOBLab4(transcription);
+        // console.timeEnd('GPT processing');
+
+        // Prepare and submit lab info
+        const labInfo = {
+            studentId: req.userId,
+            labNumber: 4,
+            subject: 'ob',
+            fileUrl: fileUrl,
+            fileType: fileType,
+            studentAnswer: transcription,
+            studentScore: feedbackJson.totalScore,
+            isPass: feedbackJson.totalScore >= 60,
+            pros: feedbackJson.pros,
+            recommendations: feedbackJson.recommendations,
+        };
+
+        // console.time('Lab submission');
+        await axios.post('http://localhost:3000/api/v1/lab-deployed/submit-lab', labInfo);
+        // console.timeEnd('Lab submission');
+
+        // Send response
+        res.json({
+            feedback: feedbackJson,
+            transcription,
+            passFailStatus: feedbackJson.totalScore >= 60 ? 'Passed' : 'Failed',
+            score: feedbackJson.totalScore,
+            pros: feedbackJson.pros,
+            recommendations: feedbackJson.recommendations,
+            fileUrl: fileUrl,
+            fileType: fileType
+        });
+
+    } catch (error) {
+        console.error('Error processing the file:', error);
+        res.status(500).json({ msg: 'Error processing the file', error: error.message });
+    } finally {
+        // Cleanup
+        // console.log('Cleaning up local files');
+        [finalFilePath, audioPath].forEach(path => {
+            if (path && fs.existsSync(path)) {
+                try {
+                    fs.unlinkSync(path);
+                    // console.log(`Successfully deleted: ${path}`);
+                } catch (deleteError) {
+                    if (deleteError.code !== 'ENOENT') {
+                        console.error(`Failed to delete file: ${path}`, deleteError);
+                    }
+                }
+            }
+        });
+    }
+});
+
+async function processTranscriptionOBLab4(transcription) {
+    const answerKey = `
+    
+การดูแลในระยะที่ 1 ของการคลอด (ระยะคลอด) และเฉลย
+
+เฉลย
+1.	ท่านจะประเมินผู้คลอดในด้านใดบ้าง และจะให้การพยาบาลในผู้คลอดรายนี้อย่างไร เฉลย (50 คะแนน)
+	ประเมินความเจ็บปวด: สอบถามระดับความเจ็บปวดของมารดา สังเกตอาการทางกาย เช่น การขยับตัว การแสดงออกทางสีหน้า (10 คะแนน)
+	ประเมินสภาวะของผู้คลอดและสุขภาพของทารกในครรภ์: ตรวจสอบสัญญาณชีพของมารดาและทารกอย่างสม่ำเสมอ (10 คะแนน)
+	ประเมินความก้าวหน้าของการคลอด เช่น การหดรัดตัวของมดลูก การเปิดของปากมดลูก (10 คะแนน)
+	ประเมินเสียงหัวใจทารก เช่น ดูรูปแบบการเกิด pattern เสียงหัวใจทารกร่วมกับการหดรัดตัวของมดลูก (10 คะแนน)
+	ให้ข้อมูลเกี่ยวกับความก้าวหน้าของการคลอดหรือ กระบวนการคลอด เช่น การเปิดของปากมดลูก ผลบวกของการเจ็บครรภ์คลอด ความก้าวหน้าของการคลอด ระยะเวลาของการคลอด แนวทางการรักษา การปฏิบัติตนในระยะคลอด เป็นต้น ความกลัวส่วนใหญ่มักเกิดจากความไม่รู้ ความเข้าใจที่ไม่ถูกต้องเกี่ยวกับกระบวนการคลอด ทำให้ผู้คลอดมีความวิตกกังวลและกลัวเกิดความตึงเครียดทางกายและใจ ส่งผลให้กล้ามเนื้อต่างๆ รวมทั้งมดลูกตึงเครียดไปด้วย มีผลให้การถ่างขยายของปากมดลูกล่าช้า ดังนั้น การให้ความรู้ที่ถูกต้องเกี่ยวกับกระบวนการคลอด จึงเป็นการตัดวงจรกลัว ตึงเครียด เจ็บปวด โดยลดสัญญาณความปวดที่จะส่งไปยังสมอง หรือเป็นการเปลี่ยนแปลงการรับรู้ของผู้คลอดในระยะคลอด (10 คะแนน) 
+	การประคับประคองทางด้านจิตใจ สนับสนุน สามี ของผู้คลอดหรือญาติที่อยู่เป็นเพื่อน ให้สามารถประคับประคองจิตใจผู้คลอด อยู่เป็นเพื่อน ให้กำลังใจ และไม่ปล่อยให้ผู้คลอดเผชิญกับการคลอดตามลำพัง และที่สำคัญที่สุด คือ พยาบาลต้องมีความเข้าอกเข้าใจถึงความต้องการของผู้คลอดเป็นอย่างดี (10 คะแนน)
+	หากความเจ็บปวดรุนแรงมาก: ควรรายงานแพทย์เพื่อพิจารณาการให้ยาแก้ปวด (10 คะแนน)
+ 
+2.	ท่านจะอธิบายวิธีบรรเทาความเจ็บปวดในระยะรอคลอดโดยไม่ใช้ยาขณะที่มี labor pain ให้แก่ผู้คลอดรายนี้อย่างไร เช่น การหายใจ การเพ่งจุดสนใจ การลูบหน้าท้อง เฉลย (50 คะแนน)
+	การเพ่งความสนใจหรือมุ่งความสนใจไปที่จุดใดจุดหนึ่ง: จากแนวความคิดนี้ ลามาช (Lamaze) สูติแพทย์ชาวฝรั่งเศส เป็นผู้เสนอแนวคิดเกี่ยวกับการลดหรือบรรเทาความปวด ด้วยวิธีจิตป้องกันหรือควบคุมจิตใจ (psychoprophyloxis) โดยให้ผู้คลอดมุ่งความสนใจไปยังจุดใดจุดหนึ่ง ในขณะที่มดลูกหดรัดตัว โดยเพ่งของชิ้นเล็กๆ เช่น ภาพหรือแจกันดอกไม้ จินตนาการถึงสถานที่ที่สงบ หรือสิ่งที่ทำให้รู้สึกผ่อนคลาย  นับเลขทีละหนึ่งอย่างช้าๆ เพื่อเบี่ยงเบนความสนใจจากความเจ็บปวด วิธีนี้ต้องอาศัยการฝึกฝน และการเตรียมตัวตั้งแต่ในระยะตั้งครรภ์จึงจะสามารถปฏิบัติได้อย่างมีประสิทธิภาพ (10 คะแนน)
+	เทคนิคการหายใจ: การหายใจจะช่วยให้ผู้คลอดผ่อนคลายความปวดได้ในระดับหนึ่ง เนื่องจากผู้คลอดมุ่งความสนใจมาอยู่ที่ลมหายใจ ทั้งนี้เพื่อให้ผู้คลอดและทารกในครรภ์ได้รับออกซิเจนที่เพียงพอ ร่างกายและจิตใจผ่อนคลาย ลดความไม่สุขสบายและความวิตกกังวล และเบี่ยงเบนความสนใจไปจากการหดรัดตัวของมดลูก เทคนิคการหายใจที่มีผู้นิยมใช้กันมาก คือ เทคนิคการหายใจของ Lamaze ซึ่งแบ่งตามระยะของการคลอด ดังนี้
+ซึ่งผู้คลอดรายนี้ Cervix dilated 5 cm. อยู่ในระยะ Active ตั้งแต่ปากมดลูกเปิด 3-8 เชนติเมตร เป็นระยะที่มดลูกหดรัดตัวรุนแรงมากขึ้น ควรให้หายใจแบบช้าๆ สลับกับการหายใจแบบตื้น เบา เร็ว (shallow accelerated-decelerated pattern) (10 คะแนน)
+	ช่วงมดลูกเริ่มหดรัดตัว (Increment) ให้หายใจล้างปอด 1 ครั้งต่อด้วยการหายใจเข้า-ออกช้าๆ (5 คะแนน)
+	ช่วงมดลูกหดรัดตัวเต็มที่ (acme) ให้เปลี่ยนมาเป็นการหายใจแบบตื้น เบา เร็ว (5 คะแนน)
+	ช่วงมดลูกเริ่มคลายตัว (Decrement) หายใจเข้าออกช้าๆ และเมื่อมดลูกคลายตัวให้หายใจล้างปอดอีกครั้ง (5 คะแนน)
+	สิ่งที่ต้องคำนึงถึงเมื่อใช้เทคนิคการหายใจ คือ ใช้เทคนิคการหายใจเฉพาะขณะที่มดลูกมีการหดรัดตัวเท่านั้น และให้หายใจล้างปอด (Cleaning breath) 1 ครั้ง ทั้งก่อนและหลังมดลูกหดรัดตัวทุกครั้ง โดยหายใจเข้าลึกๆ ยาวๆ และหายใจออกยาวๆ (5 คะแนน)
+	ช่วงการหายใจเข้าและออกจะต้องเท่ากัน เป็นจังหวะสม่ำเสมอ (5 คะแนน)
+	การหายใจเร็วและลึกเกินไปในขณะเดียวกัน (hyperventilation) จะทำให้เกิดความไม่สมดุลระหว่างออกซิเจน และคาร์บอนไดออกไซด์ เกิดอาการง่วงนอน ปวดได้ เมื่อเกิดภาวะดังกล่าวให้หายใจในถุงกระคาษหรือใช้ถุงกระดาษครอบศีรษะ (5 คะแนน)
+	การถู นวด และลูบสัมผัส วิธีการนี้อาจให้ผู้คลอดทำเอง หรือผู้ช่วยทำให้ก็ได้ แต่ให้คำนึงถึงความต้องการของผู้คลอดด้วย เนื่องจากผู้คลอดแต่ละคนจะมีความต้องการไม่เหมือนกัน บางคนจะรู้สึกหงุดหงิด รำคาญไม่ต้องการให้ผู้อื่นมาสัมผัสก็ได้ ในกรณีเช่นนี้ให้เลี่ยง ไปใช้วิธีอื่นแทน เช่น ประคบร้อนหรือเย็นบริเวณที่ปวดก็สามารถช่วยบรรเทาปวดได้ เช่นกัน
+การถูหรือนวด ต้องใช้แรงกดลงพอสมควรโดยกำมือและใช้กำปั้นถูหรือนวดที่บริเวณกระเบนเหน็บ ซึ่งเป็นบริเวณที่มีความเจ็บปวด จึงเป็นวิธีที่ช่วยควบคุมความเจ็บปวด โดยอาศัยหลักการทฤษฎีควบคุมประตู คือ การถูหรือนวดเป็นการกระตุ้นใยประสาทที่มีเส้นผ่าศูนย์กลางขนาดใหญ่ ทำให้ประตูที่ควบคุมการส่งผ่านพลังประสาทที่ไขสันหลังถูกปิดบางส่วนหรือปิดสนิท จึงไม่มีการส่งผ่านพลังประสาท ความรู้สึกปวดจึงลดลง (10 คะแนน)
+	การลูบสัมผัส (effleurage) โดยการใช้ปลายนิ้วมือลูบเป็นวงกลมด้วยจังหวะที่สม่ำเสมอ ที่บริเวณหน้าท้อง หรือหน้าขา ไม่ต้องออกแรงกดบนกล้ามเนื้อเช่นเดียวกับการนวด (10 คะแนน)
+	การลดสิ่งกระตุ้นที่ทำให้รู้สึกไม่สุขสบาย สิ่งกระตุ้นที่ทำให้ผู้คลอดไม่สุขสบาย ทั้งปัจจัยภายในร่างกายและปัจจัยภายนอก เช่น ความร้อน ความเปียกชื้น แสง เสียง ฯลฯ ซึ่งสิ่งกระตุ้นเหล่านี้จะทำให้การรับรู้ต่อความปวดเพิ่มขึ้น ดังนั้นพยาบาลควรให้การพยาบาลและคำแนะนำที่ลดสิ่งกระตุ้น เพื่อให้การรับรู้ต่อความปวดของผู้คลอดลดลง เช่น การดูแลให้ร่างกายและสิ่งแวดล้อมให้สะอาด สงบ การทำความสะอาดอวัยวะสืบพันธุ์ การดูแลผ้าปูที่นอนให้สะอาดและแห้งอยู่เสมอ ดูแลให้บ้วนปาก เพื่อลดความแห้งของปาก วางผ้าเย็นที่หน้าผาก คอ จะช่วยให้ผู้คลอดรู้สึกสุขสบายขึ้น หรือปรับอุณหภูมิห้องให้เหมาะสม ให้อากาศถ่ายเทได้สะดวก ลดเสียงรบกวนลง เป็นต้น (10 คะแนน)
+	การเบี่ยงเบนความสนใจ โดยมุ่งเน้นให้ผู้คลอดเบี่ยงเบนความสนใจต่อความปวด ที่เกิดขึ้น โดยหากิจกรรม หรือมุ่ง ความสนใจไปในเรื่องอื่น ทั้งนี้เพื่อให้ผู้คลอดรับรู้ต่อความปวดลดลง (10 คะแนน)
+	การฟังดนตรี เลือกฟังเสียงดนตรีที่คุ้นเคยหรือชอบ นอกจากช่วยเบี่ยงเบนความสนใจแล้ว ยังเป็นการช่วยผ่อนคลายความตึงเครียดได้อีกด้วย ขณะฟังเพลงควรแนะนำให้ผู้คลอดสร้างจินตนาการกับเสียงดนตรีที่ได้ฟัง ซึ่งจะทำให้รู้สึกผ่อนคลายร่างกายทุกส่วน (10 คะแนน)
+	เทคนิคการผ่อนคลาย (relaxation techniques) เทคนิคการผ่อนคลายมีหลายรูปแบบ เช่น การเกร็งและคลายกล้ามเนื้อ เป็นการเกร็งและคลายกล้ามเนื้อทีละส่วนทั่วร่างกาย เริ่มตั้งแต่หัวแม่เท้าจรดศีรษะ (10 คะแนน)
+	การประคบร้อนหรือเย็น การประคบร้อนหรือเย็นนี้อาจใช้กระเป๋าน้ำร้อน ถุงเย็น ผ้าเย็น ฯลฯ อีกวิธีหนึ่งที่ได้รับความนิยมในปัจจุบัน คือ การแช่น้ำอุ่น (Hydrotherapy) เมื่อผู้คลอดรู้สึกเจ็บครรภ์ถี่ ให้นอนแช่ในอ่างน้ำอุ่นที่มีอุณหภูมิประมาณ 37 องศาเซลเซียส ความอุ่นของน้ำจะทำให้เส้นเลือดขยาย กล้ามเนื้อผ่อนคลายและรู้สึกสุขสบายขึ้น (10 คะแนน)
+
+คำตอบ คะแนนเต็ม 100 คะแนน
+`;
+
+    const checkContent = `
+คุณคือผู้ตรวจประเมินผลการปฏิบัติงานของนักศึกษาพยาบาลที่มีประสบการณ์ โปรดประเมินคำตอบของนักศึกษาจาก 'คำตอบของท่านผู้ทดสอบ' เทียบกับ 'เฉลยและเกณฑ์การให้คะแนน' อย่างละเอียด
+
+**หลักการประเมิน:**
+1.  **การเปรียบเทียบ:** ให้เปรียบเทียบคำตอบของนักศึกษาโดยเน้นความหมายและเนื้อหาที่ถูกต้องและครบถ้วนตาม 'เฉลยและเกณฑ์การให้คะแนน' ไม่ใช่เพียงแค่คำศัพท์ที่ตรงกันทุกคำ
+2.  **การให้คะแนน:** 'เฉลยและเกณฑ์การให้คะแนน' มีประเด็นย่อยพร้อมคะแนนกำกับในวงเล็บ (เช่น (10), (5)) ให้คุณระบุว่าแต่ละประเด็นในเฉลยนั้นมีอยู่ในคำตอบของนักศึกษาหรือไม่
+    *   ถ้าประเด็นนั้นปรากฏและถูกต้องสมบูรณ์: ให้คะแนนเต็มสำหรับประเด็นนั้น
+    *   ถ้าประเด็นนั้นปรากฏแต่ไม่สมบูรณ์หรือไม่ถูกต้องทั้งหมด: ให้พิจารณาให้คะแนนบางส่วนตามความเหมาะสม (เช่น อาจได้ครึ่งหนึ่งของคะแนนเต็มสำหรับประเด็นนั้น)
+    *   ถ้าประเด็นนั้นไม่ปรากฏเลย: ไม่ให้คะแนนสำหรับประเด็นนั้น
+3.  **การคำนวณคะแนนรวม:** คำนวณ 'totalScore' จากผลรวมของคะแนนที่ได้รับจากแต่ละประเด็นย่อยในเฉลย
+4.  **ข้อดี (pros):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาสามารถตอบได้ถูกต้อง ชัดเจน และครบถ้วน โดยอธิบายรายละเอียดว่าทำไมจึงถือว่าทำได้ดี
+5.  **ข้อเสนอแนะ (recommendations):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาตอบได้ไม่สมบูรณ์ คลาดเคลื่อน หรือขาดหายไป พร้อมให้คำแนะนำที่เฉพาะเจาะจงเพื่อปรับปรุงในครั้งต่อไป
+6.  **ข้อควรทราบ:** ไม่ต้องวิจารณ์เรื่องไวยากรณ์ การสะกดคำ หรือประเด็นอื่นที่ไม่เกี่ยวข้องกับเนื้อหาทางการพยาบาล
+
+
+นี่คือคำตอบของท่านผู้ทดสอบ: "${transcription}".
+ที่คือเฉลย: "${answerKey}".
+
+**รูปแบบผลลัพธ์:**
+โปรดสร้างผลการประเมินในรูปแบบ JSON ดังนี้เท่านั้น:
+    {
+      "totalScore": <คะแนนท่านผู้ทดสอบ>,
+      "pros": "<จุดที่ท่านผู้ทดสอบทำได้ดี>",
+      "recommendations": "<ข้อเสนอแนะ>"
+    }
+`;
+
+    const response = await openai.chat.completions.create({
+        messages: [{ role: "system", content: checkContent }],
+        model: "gpt-4o",
+        response_format: { "type": "json_object" }
+    });
+
+    const feedbackJson = JSON.parse(response.choices[0].message.content.trim());
+    console.log(feedbackJson);
+    return feedbackJson;
+};
+
+router.post('/ob/5', authMiddleware, async (req, res) => {
+    const { fileName, totalChunks } = req.body;
+    const tempDir = path.join(__dirname, '../temp');
+    const finalFilePath = path.join(__dirname, '../public/uploads', fileName);
+    let audioPath = null;
+    let fileUrl = null;
+    let fileType = null;
+
+    try {
+        // Reassemble the file from chunks
+        await new Promise((resolve, reject) => {
+            const writeStream = fs.createWriteStream(finalFilePath);
+            writeStream.on('finish', resolve);
+            writeStream.on('error', reject);
+
+            (async () => {
+                for (let i = 0; i < totalChunks; i++) {
+                    const chunkPath = path.join(tempDir, `${req.userId}_${i}`);
+                    const chunkBuffer = await fs.promises.readFile(chunkPath);
+                    writeStream.write(chunkBuffer);
+                    await fs.promises.unlink(chunkPath);
+                }
+                writeStream.end();
+            })();
+        });
+
+        // console.log('File reassembled successfully');
+        const uploadTimestamp = Date.now();
+
+        fileType = getFileType(fileName);
+
+        // Upload the original file to Spaces
+        // console.time('Spaces upload');
+        fileUrl = await uploadToSpaces(finalFilePath, `ob/lab5/${req.userId}/${uploadTimestamp}${path.extname(fileName)}`);
+        // console.timeEnd('Spaces upload');
+
+        if (fileType === 'video') {
+            // Audio extraction for transcription
+            // console.time('Audio extraction');
+            audioPath = `./public/uploads/audio-${uploadTimestamp}.mp3`;
+            await new Promise((resolve, reject) => {
+                ffmpeg(finalFilePath)
+                    .output(audioPath)
+                    .audioCodec('libmp3lame')
+                    .on('end', resolve)
+                    .on('error', reject)
+                    .run();
+            });
+            // console.timeEnd('Audio extraction');
+        } else {
+            // For audio files, use the uploaded file directly
+            audioPath = finalFilePath;
+        }
+
+        // Transcription IApp
+        const transcriptionResult = await transcribeAudioIApp(audioPath);
+        const transcription = concatenateTranscriptionText(transcriptionResult.output);
+        // const transcription = await transcribeAudioOpenAI(audioPath);
+
+        // GPT processing (same as before)
+        // console.time('GPT processing');
+        const feedbackJson = await processTranscriptionOBLab5(transcription);
+        // console.timeEnd('GPT processing');
+
+        // Prepare and submit lab info
+        const labInfo = {
+            studentId: req.userId,
+            labNumber: 5,
+            subject: 'ob',
+            fileUrl: fileUrl,
+            fileType: fileType,
+            studentAnswer: transcription,
+            studentScore: feedbackJson.totalScore,
+            isPass: feedbackJson.totalScore >= 60,
+            pros: feedbackJson.pros,
+            recommendations: feedbackJson.recommendations,
+        };
+
+        // console.time('Lab submission');
+        await axios.post('http://localhost:3000/api/v1/lab-deployed/submit-lab', labInfo);
+        // console.timeEnd('Lab submission');
+
+        // Send response
+        res.json({
+            feedback: feedbackJson,
+            transcription,
+            passFailStatus: feedbackJson.totalScore >= 60 ? 'Passed' : 'Failed',
+            score: feedbackJson.totalScore,
+            pros: feedbackJson.pros,
+            recommendations: feedbackJson.recommendations,
+            fileUrl: fileUrl,
+            fileType: fileType
+        });
+
+    } catch (error) {
+        console.error('Error processing the file:', error);
+        res.status(500).json({ msg: 'Error processing the file', error: error.message });
+    } finally {
+        // Cleanup
+        // console.log('Cleaning up local files');
+        [finalFilePath, audioPath].forEach(path => {
+            if (path && fs.existsSync(path)) {
+                try {
+                    fs.unlinkSync(path);
+                    // console.log(`Successfully deleted: ${path}`);
+                } catch (deleteError) {
+                    if (deleteError.code !== 'ENOENT') {
+                        console.error(`Failed to delete file: ${path}`, deleteError);
+                    }
+                }
+            }
+        });
+    }
+});
+
+async function processTranscriptionOBLab5(transcription) {
+    const answerKey = `
+    
+ข้อมูลผู้ป่วย: คุณสุนิสา มีสุข 30 ปี G1P1001 ปัจจุบัน หลังคลอดวันที่ 3 คลอดปกติ ทารกเพศหญิง น้ำหนัก 3350 กรัม แข็งแรงดี
+ข้อมูลด้านสุขภาพ น้ำหนักก่อนตั้งครรภ์ 65 กิโลกรัม ส่วนสูง 160 เซนติเมตร (BMI 25.4 kg/m²) ขณะตั้งครรภ์ได้รับการวินิจฉัยว่าเป็นเบาหวานขณะตั้งครรภ์ (GDM) ในไตรมาสที่สอง สามารถควบคุมระดับน้ำตาลได้ด้วยการควบคุมอาหาร น้ำหนักก่อนคลอด 83 กิโลกรัม (น้ำหนักขึ้นระหว่างตั้งครรภ์ 18 กิโลกรัม)
+ข้อมูลเพิ่มเติม:
+สัญญาณชีพ: ปกติ (T=37.2°C, P=82/min, R=18/min, BP=115/75 mmHg)
+การตรวจร่างกาย: ยอดมดลูกคลำได้ 3 นิ้วมือใต้ระดับสะดือ, น้ำคาวปลาสีแดงสด (Lochia rubra) ปริมาณน้อย, แผลฝีเย็บไม่มีลักษณะบวมแดง, เต้านมคัดตึงเล็กน้อย หัวนมปกติ ทารกดูดนมได้ดี
+ผลตรวจเลือด: ระดับน้ำตาลในเลือดหลังคลอดกลับมาอยู่ในเกณฑ์ปกติแล้ว
+คำสั่งการรักษาของแพทย์ก่อนจำหน่าย (Discharge Order):
+จำหน่ายกลับบ้านได้ (Discharge today)
+นัดตรวจหลังคลอด 6 สัปดาห์ (Follow up at 6 weeks postpartum)
+ยาที่ให้กลับบ้าน: Ferrous fumarate 1x1 oral pc, Ibuprofen 400 mg 1 tab oral prn for pain
+หลังแพทย์มีคำสั่งให้จำหน่ายกลับบ้านได้ นักศึกษาคำจะให้แนะนำในการปฏิบัติตัวที่บ้านอย่างไร
+
+
+เฉลย
+การดูแลตนเองทั่วไป (Self-Care) 
+ด้านการพักผ่อน (5)
+การดูแลแผลฝีเย็บ วิธีการดูแลความสะอาด การสังเกตลักษณะน้ำคาวปลาที่จะค่อยๆ เปลี่ยนสีและลดปริมาณลง, และอาการผิดปกติที่ควรกลับมาพบแพทย์ (เช่น มีไข้, น้ำคาวปลามีกลิ่นเหม็น) (15)
+หลีกเลี่ยงการยกของหนัก การเกร็งหน้าท้อง หรือการออกกำลังกายที่ต้องกระโดด (5)
+รูปแบบการรับประทานอาหาร 
+ดื่มน้ำให้เพียงพอเพื่อช่วยเรื่องการเลี้ยงลูกด้วยนมมารดา (10)
+เลือกคาร์โบไฮเดรตที่ดี เช่น เลือกทานข้าวกล้อง ขนมปังโฮลวีท แทนข้าวขาว จะช่วยคุมระดับน้ำตาลได้ดีกว่าและอิ่มนานกว่า (10)
+ โปรตีนทุกมื้อโดยเฉพาะโปรตีนดีที่ไม่แปรรูป เช่น ปลา ไข่ ไก่ หรือเต้าหู้ จะช่วยให้ร่างกายซ่อมแซมตัวเองได้ดีและทำให้อิ่ม (5)
+หากจำเป็นต้องรับประทานอาหารว่างสุขภาพ แนะนำทานเป็นผลไม้รสไม่หวานจัด เช่น ฝรั่ง แอปเปิ้ล หรือโยเกิร์ต จะดีกว่าขนมหวาน (5)
+เลือกรับประทานอาหารที่เพิ่มน้ำนม เช่น น้ำขิง แกงเลียง ใบแมงลัก เป็นต้น (5)
+กิจกรรมทางกายเบื้องต้น  แนะนำการเคลื่อนไหวเบาๆ เช่น การเดินในบ้าน ยังไม่ควรออกกำลังกายหนัก ๆ (5)
+การบริหารกล้ามเนื้ออุ้งเชิงกราน (Kegel Exercises) แนะนำให้ขมิบกล้ามเนื้อบริเวณช่องคลอด และทางเปิดของหนทางคลอด (5)
+การนัดหมายและการมาตรวจตามนัด โดยนัดครั้งแรกที่ 6 สัปดาห์ เพื่อประเมินการฟื้นตัวของร่างกายโดยรวม และคือจะมีการ ตรวจคัดกรองเบาหวานหลังคลอด (5) (Postpartum OGTT) เพื่อดูว่าระดับน้ำตาลของของสตรีกลับมาเป็นปกติสมบูรณ์แล้วหรือไม่
+การสังเกตอาการผิดปกติที่ต้องมาตรวจก่อนเวลานัด เช่น มีเลือดออก แผลฝีเย็บบวมแดงปวดมากขึ้น มีอาการคัดตึงเต้านมมาก เต้านมบวมแดงร้อน มีไข้ (10)
+ให้มารดารับประทานยาตามคำสั่งแพทย์ ทั้งนี้ยาเสริมธาตุเหล็กอาจทำให้มีอุจจาระดำได้ และไม่ควรทานพร้อมนม ส่วนยาบรรเทาปวดสามารถรับประทานได้ทุก 4 ถึง 6 ชั่วโมงเมื่อมีอาการปวด (5)
+แนะนำให้พาทารกมารับวัคซีนตามเวลานัด รวมทั้งสังเกตอาการผิดปกติของทารก เช่น มีไข้ มีอาการสะดืออักเสบ เช่น สะดือแดง มีสารคัดหลั่งผิดปกติ บวม เป็นต้น (5)
+แนะนำให้เลี้ยงบุตรด้วยนมมารดาอย่างเดียวจนถึง 6 เดือนหลังคลอด โดยไม่มีอาหารเสริมหรือน้ำ (5)
+ หากระหว่างการเลี้ยงบุตรด้วยนมมารดา มีปัญหา สามารถนำทารกกลับมารับคำปรึกษาที่คลินิกนมแม่หรือ ที่โรงพยาบาลใกล้บ้านได้ (5)
 
 คำตอบ คะแนนเต็ม 100 คะแนน
 `;
