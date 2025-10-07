@@ -61,6 +61,8 @@ import { Subject315ProfessorDashboard } from './pages/315/Subject315ProfessorDas
 import Subject315StudentLabs from './pages/315/Subject315StudentLabs';
 import Subject315LabDetails from './pages/315/Subject315LabDetails';
 import TrialCssd from './components/trial-cssd.jsx'
+{/* VNL2025 */}
+import Surgical1 from './components/VNL-2025/surgical-1.jsx';
 
 // Layouts
 import MainLayout from './layouts/MainLayout';
@@ -143,6 +145,9 @@ function AppContent() {
           <Route path="/student/315/2en" element={<Subject315Lab2En />} />
           <Route path="/student/315/3" element={<Subject315Lab3 />} />
           <Route path="/student/315/3en" element={<Subject315Lab3En />} />
+
+          {/* VNL2025 */}
+          <Route path="/surgical1" element={<Surgical1 />} />
         </Route>
       </Route>
 

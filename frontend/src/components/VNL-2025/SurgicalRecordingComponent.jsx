@@ -1,31 +1,31 @@
-// C:\Users\Bourbon\Desktop\projects\virtual-nursing-lab\virtual-nurse-lab-cmu-2\frontend\src\components\MaternalchildRecordingComponent.jsx
+// SurgicalRecordingComponent.jsx
 
 import React, { useState, useRef, useCallback, useEffect } from 'react';
-import axios from '../api/axios';
+import axios from '../../api/axios';
 import { FaVideo, FaStop, FaRedo, FaCheck, FaUpload, FaLanguage } from 'react-icons/fa';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
 const MAX_RECORDING_TIME = 180; // 3 minutes in seconds
 const CHUNK_SIZE = 1024 * 1024; // 1MB chunks
 
-const LabRecordingComponent = ({ 
-    labNumber, 
-    title, 
-    subtitle, 
-    description, 
+// Removed isLoggedIn from props
+const LabRecordingComponent = ({
+    labNumber,
+    title,
+    subtitle,
+    description,
     questions,
-    imageSrc, // Changed from videoSrc to imageSrc
+    videoSrc,
     attemptsLeft,
     setAttemptsLeft,
     language,
     setLanguage,
     onLanguageChange,
-    isLoggedIn, 
-    disableReadyButton 
+    disableReadyButton
 }) => {
     const [recordingState, setRecordingState] = useState('initial');
     const [recordedBlob, setRecordedBlob] = useState(null);
@@ -37,9 +37,8 @@ const LabRecordingComponent = ({
     const [recommendations, setRecommendations] = useState('');
     const [error, setError] = useState('');
     const [isMediaRecorderSupported, setIsMediaRecorderSupported] = useState(true);
-    const { token } = useAuth();
-    const [uploadProgress, setUploadProgress] = useState(0);
-    const navigate = useNavigate();
+    const { token } = useAuth(); // We still need token for API calls
+    const navigate = useNavigate(); // Still need navigate for potential language changes
 
     const mediaRecorderRef = useRef(null);
     const liveVideoRef = useRef(null);
@@ -81,7 +80,7 @@ const LabRecordingComponent = ({
     }, [recordingState]);
 
     const startCamera = useCallback(async () => {
-        if (disableReadyButton || loading) { // Added || loading here
+        if (disableReadyButton || loading) {
             return;
         }
         try {
@@ -98,10 +97,10 @@ const LabRecordingComponent = ({
             setError('Error accessing camera: ' + err.message);
             setIsMediaRecorderSupported(false);
         }
-    }, [disableReadyButton, loading]); // Added loading to dependency array
+    }, [disableReadyButton, loading]);
 
     const startRecording = useCallback(() => {
-        if (disableReadyButton || loading) { // Added || loading here
+        if (disableReadyButton || loading) {
             return;
         }
         const mimeType = getMimeType();
@@ -115,7 +114,7 @@ const LabRecordingComponent = ({
             videoBitsPerSecond: 600000 // 600 Kbps
         });
         mediaRecorderRef.current = mediaRecorder;
-        
+
         const chunks = [];
         mediaRecorder.ondataavailable = (event) => chunks.push(event.data);
         mediaRecorder.onstop = () => {
@@ -125,11 +124,11 @@ const LabRecordingComponent = ({
                 recordedVideoRef.current.src = URL.createObjectURL(blob);
             }
         };
-        
+
         mediaRecorder.start(1000); // Capture in 1-second intervals
         setRecordingState('recording');
         setTimeElapsed(0);
-        
+
         timerRef.current = setInterval(() => {
             setTimeElapsed((prevTime) => {
                 if (prevTime >= MAX_RECORDING_TIME) {
@@ -139,19 +138,19 @@ const LabRecordingComponent = ({
                 return prevTime + 1;
             });
         }, 1000);
-    }, [disableReadyButton, stopRecording, loading]); // Added loading to dependency array
+    }, [disableReadyButton, stopRecording, loading]);
 
     const retakeRecording = useCallback(() => {
-        if (disableReadyButton || loading) { // Added || loading here
+        if (disableReadyButton || loading) {
             return;
         }
         setRecordedBlob(null);
         setTimeElapsed(0);
         setRecordingState('ready');
-    }, [disableReadyButton, loading]); // Added loading to dependency array
+    }, [disableReadyButton, loading]);
 
     const handleFileUpload = (event) => {
-        if (disableReadyButton || loading) { // Added || loading here
+        if (disableReadyButton || loading) {
             event.preventDefault();
             return;
         }
@@ -166,7 +165,7 @@ const LabRecordingComponent = ({
     };
 
     const onSubmit = useCallback(async () => {
-        if (!recordedBlob || attemptsLeft === 0 || disableReadyButton || loading) return; // Added || loading
+        if (!recordedBlob || attemptsLeft === 0 || disableReadyButton || loading) return;
 
         setLoading(true); // Set loading to true when submission starts
         setError('');
@@ -188,7 +187,7 @@ const LabRecordingComponent = ({
                 formData.append('totalChunks', totalChunks);
 
                 await axios.post('/api/v1/vnl-2025/upload-chunk', formData, {
-                    headers: { 
+                    headers: {
                         'Content-Type': 'multipart/form-data',
                         'Authorization': `Bearer ${token}`
                     }
@@ -220,7 +219,7 @@ const LabRecordingComponent = ({
         } finally {
             setLoading(false); // Set loading back to false when submission finishes (success or error)
         }
-    }, [recordedBlob, token, attemptsLeft, labNumber, setAttemptsLeft, disableReadyButton, loading]); // Added loading to dependency array
+    }, [recordedBlob, token, attemptsLeft, labNumber, setAttemptsLeft, disableReadyButton, loading]);
 
     useEffect(() => {
         return () => {
@@ -234,22 +233,54 @@ const LabRecordingComponent = ({
     }, []);
 
     const handleActionClick = (action) => {
-        if (!isLoggedIn || loading) { // Added || loading here
-            // If not logged in, navigate to signup. If loading, do nothing.
-            if (!isLoggedIn) {
-                navigate('/signup');
-            }
-            return; 
-        } else {
-            if (action === 'startCamera') startCamera();
-            else if (action === 'startRecording') startRecording();
-            else if (action === 'uploadFile') fileInputRef.current.click();
+        if (loading) {
+            return;
         }
+        if (action === 'startCamera') startCamera();
+        else if (action === 'startRecording') startRecording();
+        else if (action === 'uploadFile') fileInputRef.current.click();
     };
 
     return (
         <div className="bg-white min-h-screen flex flex-col items-center justify-center py-12">
             <div className="w-full max-w-2xl p-8">
+
+                {/* === TOP ROW FOR DASHBOARD AND ATTEMPTS === */}
+                <div className="flex justify-between items-center mb-6">
+                    {/* Back to Dashboard Button */}
+                    <div className="text-left">
+                        <a
+                            href="/surgical/dashboard"
+                            className="inline-flex items-center justify-center space-x-2 bg-gray-200 text-gray-700 px-4 py-2 rounded-full hover:bg-gray-300 transition duration-300"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
+                            </svg>
+                            <span>Back to Dashboard</span>
+                        </a>
+                    </div>
+
+                    {/* Attempts Left Display */}
+                    <div className="text-right">
+                        <div className={`
+                            px-4 py-2 rounded-full inline-flex items-center
+                            ${attemptsLeft > 1 ? 'bg-green-100 text-green-800' :
+                            attemptsLeft === 1 ? 'bg-yellow-100 text-yellow-800' :
+                            'bg-red-100 text-red-800'}
+                            transition-colors duration-300
+                        `}>
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+                            </svg>
+                            <span className="font-semibold">
+                                {attemptsLeft === 0 ? 'No attempts left' :
+                                attemptsLeft === 1 ? 'Last attempt' :
+                                `${attemptsLeft} attempts left`}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                {/* === END TOP ROW === */}
 
                 <h1 className="text-2xl font-bold mb-2 text-center text-gray-800">{title}</h1>
                 <h2 className="text-lg mb-6 text-center text-gray-600">{subtitle}</h2>
@@ -259,8 +290,8 @@ const LabRecordingComponent = ({
                 </div>
 
                 <div className="mb-6 rounded-3xl overflow-hidden border-4 border-purple-900 shadow-lg">
-                    <video 
-                        controls 
+                    <video
+                        controls
                         className="w-full"
                         src={videoSrc}
                     >
@@ -269,8 +300,8 @@ const LabRecordingComponent = ({
                 </div>
 
                 <div className="flex justify-center mb-4">
-                    <a 
-                        href="/library/1" 
+                    <a
+                        href="/library/1"
                         className="inline-flex items-center justify-center space-x-2 bg-gradient-to-r from-blue-700 to-blue-900 text-white text-lg font-semibold px-8 py-3 rounded-full hover:from-blue-800 hover:to-blue-950 transition duration-300 shadow-lg"
                     >
                         <span>ขั้นตอนการใช้งาน</span>
@@ -292,19 +323,19 @@ const LabRecordingComponent = ({
                     </label>
                     <div className="mt-1 flex flex-col items-center justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
                         {recordingState !== 'recorded' && isMediaRecorderSupported && (
-                            <video 
-                                ref={liveVideoRef} 
-                                className="w-full mb-4" 
-                                autoPlay 
-                                muted 
+                            <video
+                                ref={liveVideoRef}
+                                className="w-full mb-4"
+                                autoPlay
+                                muted
                                 playsInline
-                                style={{transform: 'scaleX(-1)'}}
+                                style={{ transform: 'scaleX(-1)' }}
                             />
                         )}
                         {recordingState === 'recorded' && (
-                            <video 
-                                ref={recordedVideoRef} 
-                                className="w-full mb-4" 
+                            <video
+                                ref={recordedVideoRef}
+                                className="w-full mb-4"
                                 controls
                                 playsInline
                             />
@@ -315,18 +346,18 @@ const LabRecordingComponent = ({
                                     {recordingState === 'initial' && (
                                         <button
                                             onClick={() => handleActionClick('startCamera')}
-                                            className={`bg-blue-500 text-white px-4 py-2 rounded-full flex items-center ${disableReadyButton || (isLoggedIn && attemptsLeft === 0) || loading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                            disabled={disableReadyButton || (isLoggedIn && attemptsLeft === 0) || loading} // Disable if loading
+                                            className={`bg-blue-500 text-white px-4 py-2 rounded-full flex items-center ${disableReadyButton || (attemptsLeft === 0) || loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                            disabled={disableReadyButton || (attemptsLeft === 0) || loading}
                                         >
                                             <FaVideo className="mr-2" />
-                                            {isLoggedIn ? 'Ready' : 'Sign Up'}
+                                            Ready
                                         </button>
                                     )}
                                     {recordingState === 'ready' && (
                                         <button
                                             onClick={() => handleActionClick('startRecording')}
-                                            className={`bg-red-500 text-white px-4 py-2 rounded-full flex items-center ${disableReadyButton || (isLoggedIn && attemptsLeft === 0) || loading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                            disabled={disableReadyButton || (isLoggedIn && attemptsLeft === 0) || loading} // Disable if loading
+                                            className={`bg-red-500 text-white px-4 py-2 rounded-full flex items-center ${disableReadyButton || (attemptsLeft === 0) || loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                            disabled={disableReadyButton || (attemptsLeft === 0) || loading}
                                         >
                                             <FaVideo className="mr-2" />
                                             Start Recording
@@ -336,7 +367,7 @@ const LabRecordingComponent = ({
                                         <button
                                             onClick={stopRecording}
                                             className="bg-gray-500 text-white px-4 py-2 rounded-full flex items-center"
-                                            disabled={disableReadyButton || loading} // Disable if loading
+                                            disabled={disableReadyButton || loading}
                                         >
                                             <FaStop className="mr-2" />
                                             Stop Recording
@@ -346,11 +377,11 @@ const LabRecordingComponent = ({
                             ) : (
                                 <button
                                     onClick={() => handleActionClick('uploadFile')}
-                                    className={`bg-blue-500 text-white px-4 py-2 rounded-full flex items-center ${disableReadyButton || (isLoggedIn && attemptsLeft === 0) || loading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                    disabled={disableReadyButton || (isLoggedIn && attemptsLeft === 0) || loading} // Disable if loading
+                                    className={`bg-blue-500 text-white px-4 py-2 rounded-full flex items-center ${disableReadyButton || (attemptsLeft === 0) || loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                    disabled={disableReadyButton || (attemptsLeft === 0) || loading}
                                 >
                                     <FaUpload className="mr-2" />
-                                    {isLoggedIn ? 'Upload Video' : 'Sign Up'}
+                                    Upload Video
                                 </button>
                             )}
                             {recordingState === 'recorded' && (
@@ -358,15 +389,15 @@ const LabRecordingComponent = ({
                                     <button
                                         onClick={retakeRecording}
                                         className="bg-yellow-500 text-white px-4 py-2 rounded-full flex items-center"
-                                        disabled={disableReadyButton || loading} // Disable if loading
+                                        disabled={disableReadyButton || loading}
                                     >
                                         <FaRedo className="mr-2" />
                                         Retake
                                     </button>
                                     <button
                                         onClick={onSubmit}
-                                        className={`bg-green-500 text-white px-4 py-2 rounded-full flex items-center ${disableReadyButton || (isLoggedIn && attemptsLeft === 0) || loading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                        disabled={disableReadyButton || (isLoggedIn && attemptsLeft === 0) || loading} // <<<<--- MODIFIED THIS LINE
+                                        className={`bg-green-500 text-white px-4 py-2 rounded-full flex items-center ${disableReadyButton || (attemptsLeft === 0) || loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                        disabled={disableReadyButton || (attemptsLeft === 0) || loading}
                                     >
                                         <FaCheck className="mr-2" />
                                         Submit
@@ -374,13 +405,13 @@ const LabRecordingComponent = ({
                                 </>
                             )}
                         </div>
-                        <input 
-                            type="file" 
-                            ref={fileInputRef} 
-                            onChange={handleFileUpload} 
-                            accept="video/*" 
-                            className="hidden" 
-                            disabled={disableReadyButton || loading} // Disable file input if loading
+                        <input
+                            type="file"
+                            ref={fileInputRef}
+                            onChange={handleFileUpload}
+                            accept="video/*"
+                            className="hidden"
+                            disabled={disableReadyButton || loading}
                         />
                         {(recordingState === 'ready' || recordingState === 'recording') && (
                             <div className="mt-2 w-16 h-16">
@@ -398,11 +429,11 @@ const LabRecordingComponent = ({
                         )}
                     </div>
                 </div>
-                
-                {isLoggedIn && attemptsLeft === 0 && (
+
+                {attemptsLeft === 0 && (
                     <p className="text-red-500 mt-4 text-center">You have used all your attempts for this lab.</p>
                 )}
-                
+
                 {loading && (
                     <div className="mt-4 text-gray-600 text-center">
                         <p>Upload Progress: {uploadProgress.toFixed(2)}%</p>
@@ -462,7 +493,6 @@ LabRecordingComponent.propTypes = {
     language: PropTypes.string.isRequired,
     setLanguage: PropTypes.func.isRequired,
     onLanguageChange: PropTypes.func.isRequired,
-    isLoggedIn: PropTypes.bool.isRequired,
     disableReadyButton: PropTypes.bool,
 };
 
