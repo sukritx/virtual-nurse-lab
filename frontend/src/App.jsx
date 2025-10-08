@@ -72,6 +72,11 @@ import Medical2 from './components/VNL-2025/medical-2.jsx';
 import Medical3 from './components/VNL-2025/medical-3.jsx';
 import Medical4 from './components/VNL-2025/medical-4.jsx';
 import Medical5 from './components/VNL-2025/medical-5.jsx';
+import OB1 from './components/VNL-2025/ob-1.jsx';
+import OB2 from './components/VNL-2025/ob-2.jsx';
+import OB3 from './components/VNL-2025/ob-3.jsx';
+import OB4 from './components/VNL-2025/ob-4.jsx';
+import OB5 from './components/VNL-2025/ob-5.jsx';
 
 // Layouts
 import MainLayout from './layouts/MainLayout';
@@ -166,6 +171,11 @@ function AppContent() {
           <Route path="/medical3" element={<Medical3 />} />
           <Route path="/medical4" element={<Medical4 />} />
           <Route path="/medical5" element={<Medical5 />} />
+          <Route path="/ob1" element={<OB1 />} />
+          <Route path="/ob2" element={<OB2 />} />
+          <Route path="/ob3" element={<OB3 />} />
+          <Route path="/ob4" element={<OB4 />} />
+          <Route path="/ob5" element={<OB5 />} />
         </Route>
       </Route>
 
