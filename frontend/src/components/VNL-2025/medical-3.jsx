@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import axios from '../../api/axios';
-import LabRecordingComponent from './SurgicalRecordingComponent';
+import LabRecordingComponent from './MedicalRecordingComponent';
 
 const MAX_ATTEMPTS = 3;
 

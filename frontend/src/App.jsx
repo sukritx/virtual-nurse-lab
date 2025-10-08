@@ -148,7 +148,6 @@ function AppContent() {
           <Route path="/student/maternalchild19" element={<Maternalchild19 />} />
           <Route path="/student/maternalchild20" element={<Maternalchild20 />} />
           <Route path="/student/lab/:subject/:labNumber/history" element={<LabHistory />} />
-          <Route path="/student/lab/:subject/:labNumber/details" element={<LabDetails />} />
 
           {/* 315 */}
           <Route path="/student/315/dashboard" element={<StudentDashboard315 />} />
