@@ -63,6 +63,10 @@ import Subject315LabDetails from './pages/315/Subject315LabDetails';
 import TrialCssd from './components/trial-cssd.jsx'
 {/* VNL2025 */}
 import Surgical1 from './components/VNL-2025/surgical-1.jsx';
+import Surgical2 from './components/VNL-2025/surgical-2.jsx';
+import Surgical3 from './components/VNL-2025/surgical-3.jsx';
+import Surgical4 from './components/VNL-2025/surgical-4.jsx';
+import Surgical5 from './components/VNL-2025/surgical-5.jsx';
 
 // Layouts
 import MainLayout from './layouts/MainLayout';
@@ -148,6 +152,10 @@ function AppContent() {
 
           {/* VNL2025 */}
           <Route path="/surgical1" element={<Surgical1 />} />
+          <Route path="/surgical2" element={<Surgical2 />} />
+          <Route path="/surgical3" element={<Surgical3 />} />
+          <Route path="/surgical4" element={<Surgical4 />} />
+          <Route path="/surgical5" element={<Surgical5 />} />
         </Route>
       </Route>
 

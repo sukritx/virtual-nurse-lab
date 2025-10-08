@@ -1,4 +1,4 @@
-// surgical-1.jsx
+// surgical-5.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
@@ -7,7 +7,7 @@ import LabRecordingComponent from './SurgicalRecordingComponent';
 
 const MAX_ATTEMPTS = 3;
 
-const Lab1Recording = () => {
+const Lab5Recording = () => {
     const [attemptsLeft, setAttemptsLeft] = useState(MAX_ATTEMPTS);
     const [language, setLanguage] = useState('th');
     const { token } = useAuth(); // Still need token for API calls for logged-in users
@@ -20,9 +20,9 @@ const Lab1Recording = () => {
                 const response = await axios.get('/api/v1/student/surgical/labs', {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
-                const lab1 = response.data.labs.find(lab => lab.labInfo.labNumber === 1);
-                if (lab1) {
-                    setAttemptsLeft(lab1.attemptsLeft);
+                const lab5 = response.data.labs.find(lab => lab.labInfo.labNumber === 5);
+                if (lab5) {
+                    setAttemptsLeft(lab5.attemptsLeft);
                 }
             } catch (error) {
                 console.error('Error fetching lab info:', error);
@@ -55,21 +55,16 @@ const Lab1Recording = () => {
 
     return (
         <LabRecordingComponent
-            labNumber={1}
-            title="สถานการณ์ที่1: การพยาบาลผู้ป่วยก่อนผ่าตัด"
-            subtitle="คำแนะนำก่อนผ่าตัด"
-            description="ผู้ป่วยชายอายุ 25 ปี กระดูกต้นขาขวาหักแบบปิด (Closed Fx. Right femur) จากอุบัติเหตุรถมอเตอร์ไซค์ล้ม ขณะนี้ On skeletal traction with weight 7 kgs. วันนี้แพทย์มีแผนการรักษาให้เตรียมผ่าตัด ดังนี้ 
-                NPO after midnight
-                On 5% D/S/2 1000 cc. IV drip 80 cc./hr.
-                Prep skin ขาขวา
-                Void ก่อนไป OR
-                Pre-medication
-                - Diazepam (5 mg.) 1 tab oral hs.
+            labNumber={5}
+            title="สถานการณ์ที่5: การพยาบาลผู้ป่วยที่ได้รับการใส่เฝือก"
+            subtitle=""
+            description="
+            ผู้ป่วยหญิงอายุ 18 ปี เล่นโทรศัพท์ขณะกำลังเดินเปลี่ยนห้องเรียน สะดุดหกล้ม ข้อเท้าพลิก ได้รับการรักษาโดยการใส่เฝือก (Short leg cast) ดังรูป หลังใส่เฝือกเสร็จแพทย์ให้กลับไปพักผ่อนที่บ้าน
             "
             questions={[
-                "ขอให้ท่านแนะนำการเตรียมร่างกาย ด้านจิตใจ ด้านกฎหมาย และ เอกสารที่เกี่ยวข้องก่อนการผ่าตัดแก่ผู้ป่วยรายนี้"
+                "ขอให้ท่านให้คำแนะนำเรื่อง การดูแลเฝือก แก่ผู้ป่วยรายนี้ โดยให้ครอบคลุม หลังใส่เฝือกใหม่เมื่อเฝือกยังไม่แห้ง และเมื่อเฝือกแห้งแล้ว"
             ]}
-            videoSrc="/surgical/surgical1.mp4"
+            videoSrc="/surgical/surgical5.mp4"
             attemptsLeft={attemptsLeft}
             setAttemptsLeft={setAttemptsLeft}
             language={language}
@@ -79,4 +74,4 @@ const Lab1Recording = () => {
     );
 };
 
-export default Lab1Recording;
+export default Lab5Recording;

@@ -1,4 +1,4 @@
-// surgical-1.jsx
+// surgical-2.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
@@ -7,7 +7,7 @@ import LabRecordingComponent from './SurgicalRecordingComponent';
 
 const MAX_ATTEMPTS = 3;
 
-const Lab1Recording = () => {
+const Lab2Recording = () => {
     const [attemptsLeft, setAttemptsLeft] = useState(MAX_ATTEMPTS);
     const [language, setLanguage] = useState('th');
     const { token } = useAuth(); // Still need token for API calls for logged-in users
@@ -20,9 +20,9 @@ const Lab1Recording = () => {
                 const response = await axios.get('/api/v1/student/surgical/labs', {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
-                const lab1 = response.data.labs.find(lab => lab.labInfo.labNumber === 1);
-                if (lab1) {
-                    setAttemptsLeft(lab1.attemptsLeft);
+                const lab2 = response.data.labs.find(lab => lab.labInfo.labNumber === 2);
+                if (lab2) {
+                    setAttemptsLeft(lab2.attemptsLeft);
                 }
             } catch (error) {
                 console.error('Error fetching lab info:', error);
@@ -55,9 +55,9 @@ const Lab1Recording = () => {
 
     return (
         <LabRecordingComponent
-            labNumber={1}
-            title="สถานการณ์ที่1: การพยาบาลผู้ป่วยก่อนผ่าตัด"
-            subtitle="คำแนะนำก่อนผ่าตัด"
+            labNumber={2}
+            title="สถานการณ์ที่2: การพยาบาลผู้ป่วยก่อนผ่าตัด"
+            subtitle="การเตรียมบริเวณก่อนผ่าตัด"
             description="ผู้ป่วยชายอายุ 25 ปี กระดูกต้นขาขวาหักแบบปิด (Closed Fx. Right femur) จากอุบัติเหตุรถมอเตอร์ไซค์ล้ม ขณะนี้ On skeletal traction with weight 7 kgs. วันนี้แพทย์มีแผนการรักษาให้เตรียมผ่าตัด ดังนี้ 
                 NPO after midnight
                 On 5% D/S/2 1000 cc. IV drip 80 cc./hr.
@@ -67,9 +67,12 @@ const Lab1Recording = () => {
                 - Diazepam (5 mg.) 1 tab oral hs.
             "
             questions={[
-                "ขอให้ท่านแนะนำการเตรียมร่างกาย ด้านจิตใจ ด้านกฎหมาย และ เอกสารที่เกี่ยวข้องก่อนการผ่าตัดแก่ผู้ป่วยรายนี้"
+                "จงอธิบายวัตถุประสงค์ของการเตรียมผิวหนังบริเวณผ่าตัด",
+                "จงอธิบายขอบเขตบริเวณที่จะเตรียมผิวหนัง",
+                "จงอธิบายการเตรียมผิวหนังบริเวณผ่าตัดตอนบ่าย/เย็นก่อนวันผ่าตัด",
+                "จงอธิบายการเตรียมผิวหนังบริเวณผ่าตัดตอนเช้าวันผ่าตัด"
             ]}
-            videoSrc="/surgical/surgical1.mp4"
+            videoSrc="/surgical/surgical2.mp4"
             attemptsLeft={attemptsLeft}
             setAttemptsLeft={setAttemptsLeft}
             language={language}
@@ -79,4 +82,4 @@ const Lab1Recording = () => {
     );
 };
 
-export default Lab1Recording;
+export default Lab2Recording;

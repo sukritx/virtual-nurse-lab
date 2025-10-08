@@ -1,4 +1,4 @@
-// surgical-1.jsx
+// surgical-3.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
@@ -7,7 +7,7 @@ import LabRecordingComponent from './SurgicalRecordingComponent';
 
 const MAX_ATTEMPTS = 3;
 
-const Lab1Recording = () => {
+const Lab3Recording = () => {
     const [attemptsLeft, setAttemptsLeft] = useState(MAX_ATTEMPTS);
     const [language, setLanguage] = useState('th');
     const { token } = useAuth(); // Still need token for API calls for logged-in users
@@ -20,9 +20,9 @@ const Lab1Recording = () => {
                 const response = await axios.get('/api/v1/student/surgical/labs', {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
-                const lab1 = response.data.labs.find(lab => lab.labInfo.labNumber === 1);
-                if (lab1) {
-                    setAttemptsLeft(lab1.attemptsLeft);
+                const lab3 = response.data.labs.find(lab => lab.labInfo.labNumber === 3);
+                if (lab3) {
+                    setAttemptsLeft(lab3.attemptsLeft);
                 }
             } catch (error) {
                 console.error('Error fetching lab info:', error);
@@ -55,21 +55,17 @@ const Lab1Recording = () => {
 
     return (
         <LabRecordingComponent
-            labNumber={1}
-            title="สถานการณ์ที่1: การพยาบาลผู้ป่วยก่อนผ่าตัด"
-            subtitle="คำแนะนำก่อนผ่าตัด"
-            description="ผู้ป่วยชายอายุ 25 ปี กระดูกต้นขาขวาหักแบบปิด (Closed Fx. Right femur) จากอุบัติเหตุรถมอเตอร์ไซค์ล้ม ขณะนี้ On skeletal traction with weight 7 kgs. วันนี้แพทย์มีแผนการรักษาให้เตรียมผ่าตัด ดังนี้ 
-                NPO after midnight
-                On 5% D/S/2 1000 cc. IV drip 80 cc./hr.
-                Prep skin ขาขวา
-                Void ก่อนไป OR
-                Pre-medication
-                - Diazepam (5 mg.) 1 tab oral hs.
+            labNumber={3}
+            title="สถานการณ์ที่3: การพยาบาลผู้ป่วยหลังผ่าตัด"
+            subtitle="การสอนผู้ป่วยก่อนกลับบ้าน"
+            description="
+            ผู้ป่วยหญิงอายุ 65 ปี การศึกษา ม.3 การวินิจฉัยโรค Closed Fx. Rt. Intertrochanteric หลังผ่าตัด ORIF with PFNA Rt leg (Open Reduction and Internal Fixation with Proximal Femoral Nail Antirotation right leg) เมื่อวันที่ 1 ของเดือนนี้
+            อาการปัจจุบัน: อาการทั่วไปดี มีแผลผ่าตัดบริเวณสะโพกขวาปิดก๊อซไว้ แห้งดี ปวดเล็กน้อยเวลาขยับ เดินได้ดีโดยใช้ Walker วันนี้ (หลังผ่าตัดวันที่ 4) แพทย์อนุญาตให้กลับบ้านได้ โดยมีแผนการรักษาก่อนกลับบ้านดังนี้ - D/C - ตัดไหมเมื่อครบ 2 สัปดาห์หลังผ่าตัด - F/U 1 เดือน (Film Rt. Leg ก่อนพบแพทย์) Home-medication - Naproxen (500 mg.) 1 x 2 pc # 10 - Paracetamol (500 mg) 1 x prn q 4-6 hr. # 20 - Caltrate 600 mg 1 x 1 OD pc # 30
             "
             questions={[
-                "ขอให้ท่านแนะนำการเตรียมร่างกาย ด้านจิตใจ ด้านกฎหมาย และ เอกสารที่เกี่ยวข้องก่อนการผ่าตัดแก่ผู้ป่วยรายนี้"
+                "ขอให้ท่านเตรียมผู้ป่วยก่อนกลับบ้านแก่ผู้ป่วยรายนี้ โดยให้ครอบคลุมตามหลัก D-METHOD"
             ]}
-            videoSrc="/surgical/surgical1.mp4"
+            videoSrc="/surgical/surgical3.mp4"
             attemptsLeft={attemptsLeft}
             setAttemptsLeft={setAttemptsLeft}
             language={language}
@@ -79,4 +75,4 @@ const Lab1Recording = () => {
     );
 };
 
-export default Lab1Recording;
+export default Lab3Recording;

@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import axios from '../../api/axios';
-import { FaVideo, FaStop, FaRedo, FaCheck, FaUpload, FaLanguage } from 'react-icons/fa';
+import { FaVideo, FaStop, FaRedo, FaCheck, FaUpload, FaLanguage } from 'react-icons/fa'; // Added FaLanguage
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import { useAuth } from '../../context/AuthContext';
@@ -23,8 +23,8 @@ const LabRecordingComponent = ({
     attemptsLeft,
     setAttemptsLeft,
     language,
-    setLanguage,
-    onLanguageChange,
+    setLanguage, // Retaining setLanguage for completeness, though onLanguageChange is used
+    onLanguageChange, // This prop will be used for the language selector
     disableReadyButton
 }) => {
     const [recordingState, setRecordingState] = useState('initial');
@@ -38,6 +38,7 @@ const LabRecordingComponent = ({
     const [error, setError] = useState('');
     const [isMediaRecorderSupported, setIsMediaRecorderSupported] = useState(true);
     const { token } = useAuth(); // We still need token for API calls
+    const [uploadProgress, setUploadProgress] = useState(0); // Added for upload progress
     const navigate = useNavigate(); // Still need navigate for potential language changes
 
     const mediaRecorderRef = useRef(null);
@@ -245,30 +246,26 @@ const LabRecordingComponent = ({
         <div className="bg-white min-h-screen flex flex-col items-center justify-center py-12">
             <div className="w-full max-w-2xl p-8">
 
-                {/* === TOP ROW FOR DASHBOARD AND ATTEMPTS === */}
-                <div className="flex justify-between items-center mb-6">
-                    {/* Back to Dashboard Button */}
-                    <div className="text-left">
-                        <a
-                            href="/surgical/dashboard"
-                            className="inline-flex items-center justify-center space-x-2 bg-gray-200 text-gray-700 px-4 py-2 rounded-full hover:bg-gray-300 transition duration-300"
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
-                            </svg>
-                            <span>Back to Dashboard</span>
-                        </a>
-                    </div>
+                <div className="mb-6 text-center">
+                    <a
+                        href="/surgical/dashboard"
+                        className="inline-flex items-center justify-center space-x-2 bg-gray-200 text-gray-700 px-4 py-2 rounded-full hover:bg-gray-300 transition duration-300"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
+                        </svg>
+                        <span>Back to Dashboard</span>
+                    </a>
+                </div>
 
-                    {/* Attempts Left Display */}
-                    <div className="text-right">
-                        <div className={`
-                            px-4 py-2 rounded-full inline-flex items-center
-                            ${attemptsLeft > 1 ? 'bg-green-100 text-green-800' :
-                            attemptsLeft === 1 ? 'bg-yellow-100 text-yellow-800' :
-                            'bg-red-100 text-red-800'}
-                            transition-colors duration-300
-                        `}>
+                <div className="mb-6">
+                    <div className={`
+                        px-4 py-2 rounded-full inline-flex items-center
+                        ${attemptsLeft > 1 ? 'bg-green-100 text-green-800' :
+                        attemptsLeft === 1 ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-red-100 text-red-800'}
+                        transition-colors duration-300
+                    `}>
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
                                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
                             </svg>
@@ -278,9 +275,7 @@ const LabRecordingComponent = ({
                                 `${attemptsLeft} attempts left`}
                             </span>
                         </div>
-                    </div>
                 </div>
-                {/* === END TOP ROW === */}
 
                 <h1 className="text-2xl font-bold mb-2 text-center text-gray-800">{title}</h1>
                 <h2 className="text-lg mb-6 text-center text-gray-600">{subtitle}</h2>
