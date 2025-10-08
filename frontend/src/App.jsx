@@ -67,6 +67,11 @@ import Surgical2 from './components/VNL-2025/surgical-2.jsx';
 import Surgical3 from './components/VNL-2025/surgical-3.jsx';
 import Surgical4 from './components/VNL-2025/surgical-4.jsx';
 import Surgical5 from './components/VNL-2025/surgical-5.jsx';
+import Medical1 from './components/VNL-2025/medical-1.jsx';
+import Medical2 from './components/VNL-2025/medical-2.jsx';
+import Medical3 from './components/VNL-2025/medical-3.jsx';
+import Medical4 from './components/VNL-2025/medical-4.jsx';
+import Medical5 from './components/VNL-2025/medical-5.jsx';
 
 // Layouts
 import MainLayout from './layouts/MainLayout';
@@ -156,6 +161,11 @@ function AppContent() {
           <Route path="/surgical3" element={<Surgical3 />} />
           <Route path="/surgical4" element={<Surgical4 />} />
           <Route path="/surgical5" element={<Surgical5 />} />
+          <Route path="/medical1" element={<Medical1 />} />
+          <Route path="/medical2" element={<Medical2 />} />
+          <Route path="/medical3" element={<Medical3 />} />
+          <Route path="/medical4" element={<Medical4 />} />
+          <Route path="/medical5" element={<Medical5 />} />
         </Route>
       </Route>
 
