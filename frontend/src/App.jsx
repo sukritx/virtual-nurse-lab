@@ -77,6 +77,9 @@ import OB2 from './components/VNL-2025/ob-2.jsx';
 import OB3 from './components/VNL-2025/ob-3.jsx';
 import OB4 from './components/VNL-2025/ob-4.jsx';
 import OB5 from './components/VNL-2025/ob-5.jsx';
+import SurgicalStudentDashboard from './pages/VNL2025/SurgicalStudentDashboard.jsx';
+import MedicalStudentDashboard from './pages/VNL2025/MedicalStudentDashboard.jsx';
+import OBStudentDashboard from './pages/VNL2025/OBStudentDashboard.jsx';
 
 // Layouts
 import MainLayout from './layouts/MainLayout';
@@ -160,21 +163,24 @@ function AppContent() {
           <Route path="/student/315/3en" element={<Subject315Lab3En />} />
 
           {/* VNL2025 */}
-          <Route path="/surgical1" element={<Surgical1 />} />
-          <Route path="/surgical2" element={<Surgical2 />} />
-          <Route path="/surgical3" element={<Surgical3 />} />
-          <Route path="/surgical4" element={<Surgical4 />} />
-          <Route path="/surgical5" element={<Surgical5 />} />
-          <Route path="/medical1" element={<Medical1 />} />
-          <Route path="/medical2" element={<Medical2 />} />
-          <Route path="/medical3" element={<Medical3 />} />
-          <Route path="/medical4" element={<Medical4 />} />
-          <Route path="/medical5" element={<Medical5 />} />
-          <Route path="/ob1" element={<OB1 />} />
-          <Route path="/ob2" element={<OB2 />} />
-          <Route path="/ob3" element={<OB3 />} />
-          <Route path="/ob4" element={<OB4 />} />
-          <Route path="/ob5" element={<OB5 />} />
+          <Route path="/student/surgical/1" element={<Surgical1 />} />
+          <Route path="/student/surgical/2" element={<Surgical2 />} />
+          <Route path="/student/surgical/3" element={<Surgical3 />} />
+          <Route path="/student/surgical/4" element={<Surgical4 />} />
+          <Route path="/student/surgical/5" element={<Surgical5 />} />
+          <Route path="/surgical/dashboard" element={<SurgicalStudentDashboard />} />
+          <Route path="/student/medical/1" element={<Medical1 />} />
+          <Route path="/student/medical/2" element={<Medical2 />} />
+          <Route path="/student/medical/3" element={<Medical3 />} />
+          <Route path="/student/medical/4" element={<Medical4 />} />
+          <Route path="/student/medical/5" element={<Medical5 />} />
+          <Route path="/medical/dashboard" element={<MedicalStudentDashboard />} />
+          <Route path="/student/ob/1" element={<OB1 />} />
+          <Route path="/student/ob/2" element={<OB2 />} />
+          <Route path="/student/ob/3" element={<OB3 />} />
+          <Route path="/student/ob/4" element={<OB4 />} />
+          <Route path="/student/ob/5" element={<OB5 />} />
+          <Route path="/ob/dashboard" element={<OBStudentDashboard />} />
         </Route>
       </Route>
 
