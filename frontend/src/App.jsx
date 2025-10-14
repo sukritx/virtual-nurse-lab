@@ -86,12 +86,12 @@ import OBLabHistory from './pages/VNL2025/OBLabHistory.jsx';
 import { SurgicalProfessorDashboard } from './pages/VNL2025/SurgicalProfessorDashboard.jsx';
 import { MedicalProfessorDashboard } from './pages/VNL2025/MedicalProfessorDashboard.jsx';
 import { OBProfessorDashboard } from './pages/VNL2025/OBProfessorDashboard.jsx';
-import { SurgicalStudentLabs } from './pages/VNL2025/SurgicalStudentLabs.jsx';
-import { MedicalStudentLabs } from './pages/VNL2025/MedicalStudentLabs.jsx';
-import { OBStudentLabs } from './pages/VNL2025/OBStudentLabs.jsx';
-import { SurgicalLabDetails } from './pages/VNL2025/SurgicalLabDetails.jsx';
-import { MedicalLabDetails } from './pages/VNL2025/MedicalLabDetails.jsx';
-import { OBLabDetails } from './pages/VNL2025/OBLabDetails.jsx';
+import SurgicalStudentLabs from './pages/VNL2025/SurgicalStudentLabs.jsx';
+import MedicalStudentLabs from './pages/VNL2025/MedicalStudentLabs.jsx';
+import OBStudentLabs from './pages/VNL2025/OBStudentLabs.jsx';
+import SurgicalLabDetails from './pages/VNL2025/SurgicalLabDetails.jsx';
+import MedicalLabDetails from './pages/VNL2025/MedicalLabDetails.jsx';
+import OBLabDetails from './pages/VNL2025/OBLabDetails.jsx';
 
 // Layouts
 import MainLayout from './layouts/MainLayout';
