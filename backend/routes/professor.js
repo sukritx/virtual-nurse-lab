@@ -813,7 +813,7 @@ router.get('/student/:userId/medical/labs', professorAuth, async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 });
-// Get all labs of SURGICAL for a specific student
+// Get all labs of OB for a specific student
 router.get('/student/:userId/ob/labs', professorAuth, async (req, res) => {
   try {
     const student = await User.findOne({ _id: req.params.userId });
@@ -870,6 +870,88 @@ router.get('/student/:userId/ob/labs', professorAuth, async (req, res) => {
     });
   } catch (error) {
     console.error('Error fetching student labs:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+// Get details of a specific lab of SURGICAL for a specific student
+router.get('/student/:userId/lab/surgical/:labNumber', professorAuth, async (req, res) => {
+  try {
+    const student = await User.findOne({ _id: req.params.userId });
+    if (!student) {
+      return res.status(404).json({ message: 'Student not found' });
+    }
+
+    const labInfo = await LabInfo.findOne({ labNumber: req.params.labNumber, subject: 'surgical' });
+    if (!labInfo) {
+      return res.status(404).json({ message: 'Lab not found' });
+    }
+
+    const labSubmissions = await LabSubmission.find({ studentId: student._id, labInfo: labInfo._id })
+      .sort({ attempt: 1 })
+      .exec();
+
+    if (labSubmissions.length === 0) {
+      return res.status(404).json({ message: 'No lab submissions found' });
+    }
+
+    res.json({ labSubmissions });
+  } catch (error) {
+    console.error('Error fetching lab details:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+// Get details of a specific lab of MEDICAL for a specific student
+router.get('/student/:userId/lab/medical/:labNumber', professorAuth, async (req, res) => {
+  try {
+    const student = await User.findOne({ _id: req.params.userId });
+    if (!student) {
+      return res.status(404).json({ message: 'Student not found' });
+    }
+
+    const labInfo = await LabInfo.findOne({ labNumber: req.params.labNumber, subject: 'medical' });
+    if (!labInfo) {
+      return res.status(404).json({ message: 'Lab not found' });
+    }
+
+    const labSubmissions = await LabSubmission.find({ studentId: student._id, labInfo: labInfo._id })
+      .sort({ attempt: 1 })
+      .exec();
+
+    if (labSubmissions.length === 0) {
+      return res.status(404).json({ message: 'No lab submissions found' });
+    }
+
+    res.json({ labSubmissions });
+  } catch (error) {
+    console.error('Error fetching lab details:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+// Get details of a specific lab of OB for a specific student
+router.get('/student/:userId/lab/ob/:labNumber', professorAuth, async (req, res) => {
+  try {
+    const student = await User.findOne({ _id: req.params.userId });
+    if (!student) {
+      return res.status(404).json({ message: 'Student not found' });
+    }
+
+    const labInfo = await LabInfo.findOne({ labNumber: req.params.labNumber, subject: 'ob' });
+    if (!labInfo) {
+      return res.status(404).json({ message: 'Lab not found' });
+    }
+
+    const labSubmissions = await LabSubmission.find({ studentId: student._id, labInfo: labInfo._id })
+      .sort({ attempt: 1 })
+      .exec();
+
+    if (labSubmissions.length === 0) {
+      return res.status(404).json({ message: 'No lab submissions found' });
+    }
+
+    res.json({ labSubmissions });
+  } catch (error) {
+    console.error('Error fetching lab details:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 });

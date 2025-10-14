@@ -89,6 +89,9 @@ import { OBProfessorDashboard } from './pages/VNL2025/OBProfessorDashboard.jsx';
 import { SurgicalStudentLabs } from './pages/VNL2025/SurgicalStudentLabs.jsx';
 import { MedicalStudentLabs } from './pages/VNL2025/MedicalStudentLabs.jsx';
 import { OBStudentLabs } from './pages/VNL2025/OBStudentLabs.jsx';
+import { SurgicalLabDetails } from './pages/VNL2025/SurgicalLabDetails.jsx';
+import { MedicalLabDetails } from './pages/VNL2025/MedicalLabDetails.jsx';
+import { OBLabDetails } from './pages/VNL2025/OBLabDetails.jsx';
 
 // Layouts
 import MainLayout from './layouts/MainLayout';
@@ -215,7 +218,9 @@ function AppContent() {
           <Route path="/professor/surgical/view-labs/:userId" element={<SurgicalStudentLabs />} />
           <Route path="/professor/medical/view-labs/:userId" element={<MedicalStudentLabs />} />
           <Route path="/professor/ob/view-labs/:userId" element={<OBStudentLabs />} />
-
+          <Route path="/professor/surgical/view-lab/:userId/:labNumber" element={<SurgicalLabDetails />} />
+          <Route path="/professor/medical/view-lab/:userId/:labNumber" element={<MedicalLabDetails />} />
+          <Route path="/professor/ob/view-lab/:userId/:labNumber" element={<OBLabDetails />} />
         </Route>
       </Route>
 
