@@ -187,7 +187,7 @@ const LabRecordingComponent = ({
                 formData.append('chunkIndex', chunkIndex);
                 formData.append('totalChunks', totalChunks);
 
-                await axios.post('/api/v1/vnl-2025/upload-chunk', formData, {
+                await axios.post('/api/v1/lab-deployed/upload-chunk', formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
                         'Authorization': `Bearer ${token}`
