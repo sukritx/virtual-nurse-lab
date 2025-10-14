@@ -220,52 +220,115 @@ router.get('/student/:userId/lab/:labNumber', professorAuth, async (req, res) =>
 
 router.get('/download-scores', professorAuth, async (req, res) => {
   try {
-    // Get the professor's university
+    // Get the professor's details
     const professor = await User.findById(req.userId);
     if (!professor || !professor.isProfessor) {
       return res.status(403).json({ message: 'Not authorized' });
     }
 
-    const university = await University.findOne({ professor: professor._id });
-    if (!university) {
-      return res.status(404).json({ message: 'University not found' });
+    // Determine the subject based on professor's universityCode
+    let subjectFilter = {}; // Default to empty, meaning no subject filter (though we'll add one)
+
+    if (professor.universityCode) {
+      const upperUniversityCode = professor.universityCode.toUpperCase();
+      if (upperUniversityCode.startsWith("SUR")) {
+        subjectFilter = { subject: "surgical" }; // Assuming your LabInfo 'subject' field stores "Surgical"
+      } else if (upperUniversityCode.startsWith("MED")) {
+        subjectFilter = { subject: "medical" }; // Assuming your LabInfo 'subject' field stores "Medical"
+      } else if (upperUniversityCode.startsWith("OB")) {
+        subjectFilter = { subject: "ob" };       // Assuming your LabInfo 'subject' field stores "OB"
+      }
+      // Add more else if blocks here if you have other prefixes (e.g., '315' for 'Subject315')
+      else if (professor.university === 'Subject315') {
+          subjectFilter = { subject: 'Subject315' }; // Assuming LabInfo also uses 'Subject315'
+      }
+    } else {
+        // If professor has no universityCode, but has a university (e.g., 'Subject315')
+        if (professor.university === 'Subject315') {
+            subjectFilter = { subject: 'Subject315' };
+        } else {
+            // If no specific universityCode or university is found, what should happen?
+            // Option 1: Return an error
+            return res.status(400).json({ message: "Professor's subject could not be determined." });
+            // Option 2: Fallback to a default subject or all labs (less secure/desired)
+            // subjectFilter = {}; // This would get all labs again. Not what you want.
+        }
     }
 
-    // Fetch all students from the professor's university
-    const students = await User.find({ 
-      _id: { $in: university.students },
-      isProfessor: false, 
-      isAdmin: false 
+    // Fetch relevant lab infos based on the determined subject
+    // Add the subjectFilter to the find query
+    const labInfos = await LabInfo.find(subjectFilter).sort('labNumber');
+
+    if (labInfos.length === 0) {
+        return res.status(404).json({ message: `No labs found for subject: ${subjectFilter.subject || 'unknown'}` });
+    }
+
+    // The rest of the logic remains largely the same, but now it only processes
+    // students for the relevant labs.
+
+    // Get the professor's university
+    // This part seems redundant if professor has their own `university` and `universityCode`
+    // However, if University model is used to link students to professors, keep it.
+    // For now, assuming professor.students directly links students to the professor's "group"
+    // or you filter by the university's registered students.
+    // Re-evaluating based on the `universitySchema`: it has `students: [{type: ObjectId, ref: 'User'}]`
+    // This suggests that a university _object_ groups students.
+    // Let's ensure we fetch students belonging to this professor's university.
+
+    const professorsUniversity = await University.findOne({
+        // We need a way to link the professor to their university.
+        // Assuming `professor.universityCode` or `professor.university` can match `University.registerCode` or `University.universityName`.
+        // If `universityCode` in `User` is a specific `registerCode` from `University` schema, use that.
+        // For 'Subject315', you have `university: "Subject315"`.
+        // Let's assume professor.universityCode should match University.registerCode.
+        // Or, if a professor belongs to a university and has their _id in the `professor` array of a `University` document.
+        professor: professor._id // This is the most direct link based on your schema
     });
 
-    // Fetch all lab infos
-    const labInfos = await LabInfo.find().sort('labNumber');
+    if (!professorsUniversity) {
+        return res.status(404).json({ message: 'Professor is not associated with any university.' });
+    }
+
+
+    // Fetch all students from the professor's associated university
+    const students = await User.find({
+      _id: { $in: professorsUniversity.students }, // Filter students by the ones associated with THIS professor's university
+      isProfessor: false,
+      isAdmin: false
+    });
 
     // Prepare data for CSV
     const data = await Promise.all(students.map(async (student) => {
+      // Collect scores only for the filtered labInfos
       const scores = await Promise.all(labInfos.map(async (labInfo) => {
         const submission = await LabSubmission.findOne({
           studentId: student._id,
-          labInfo: labInfo._id
+          labInfo: labInfo._id // Use the filtered labInfo._id
         }).sort('-attempt');
         return submission ? submission.studentScore : '0';
       }));
 
+      // Dynamically create header IDs and titles for scores based on filtered labs
+      const scoreEntries = Object.fromEntries(labInfos.map((labInfo, index) =>
+        [`Score_${labInfo.labNumber.toString().padStart(2, '0')}`, scores[index]]
+      ));
+
       return {
         StudentID: student.studentId,
         FullName: `${student.firstName} ${student.lastName}`,
-        ...Object.fromEntries(scores.map((score, index) => [`Score_${(index + 1).toString().padStart(2, '0')}`, score]))
+        ...scoreEntries
       };
     }));
 
     // Create CSV
-    const csvStringifier = createObjectCsvStringifier({
-      header: [
-        { id: 'StudentID', title: 'Student ID' },
-        { id: 'FullName', title: 'Full Name' },
-        ...labInfos.map((_, index) => ({ id: `Score_${(index + 1).toString().padStart(2, '0')}`, title: `Score_${(index + 1).toString().padStart(2, '0')}` }))
-      ]
-    });
+    // Dynamically generate header based on the filtered labInfos
+    const csvHeader = [
+      { id: 'StudentID', title: 'Student ID' },
+      { id: 'FullName', title: 'Full Name' },
+      ...labInfos.map(labInfo => ({ id: `Score_${labInfo.labNumber.toString().padStart(2, '0')}`, title: `Score_${labInfo.labNumber.toString().padStart(2, '0')}` }))
+    ];
+
+    const csvStringifier = createObjectCsvStringifier({ header: csvHeader });
 
     const csvString = csvStringifier.getHeaderString() + csvStringifier.stringifyRecords(data);
 
