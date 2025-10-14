@@ -448,4 +448,430 @@ router.get('/student/:userId/lab/315/:labNumber', professorAuth, async (req, res
   }
 });
 
+/* VNL 2025 */
+// get students' SURGICAL lab info
+router.get('/surgical/labs', professorAuth, async (req, res) => {
+  try {
+    const university = await University.findOne({ professor: { $in: [req.userId] } })
+      .populate('students', '_id firstName lastName studentId')
+      .select('students');
+
+    if (!university) {
+      return res.status(404).json({ message: 'University not found' });
+    }
+
+    const students = university.students;
+
+    const allLabs = await LabInfo.find({ subject: 'surgical' }).sort({ labNumber: 1 }).exec();
+
+    const labStats = allLabs.map(lab => ({
+      labNumber: lab.labNumber,
+      completed: 0,
+      total: students.length
+    }));
+
+    const studentLabStatuses = [];
+
+    for (const student of students) {
+      const studentLabs = await LabSubmission.aggregate([
+        { $match: { studentId: student._id } },
+        { $sort: { timestamp: -1 } },
+        {
+          $group: {
+            _id: "$labInfo",
+            submissions: { $push: "$$ROOT" },
+            latestSubmission: { $first: "$$ROOT" }
+          }
+        },
+        {
+          $lookup: {
+            from: "labinfos",
+            localField: "_id",
+            foreignField: "_id",
+            as: "labInfo"
+          }
+        },
+        { $unwind: "$labInfo" }
+      ]);
+
+      const labsStatus = allLabs.map(lab => {
+        const studentLab = studentLabs.find(sl => sl._id.equals(lab._id));
+        if (studentLab) {
+          const hasPassed = studentLab.submissions.some(sub => sub.isPass);
+          if (hasPassed) {
+            labStats.find(stat => stat.labNumber === lab.labNumber).completed++;
+          }
+          return {
+            labNumber: lab.labNumber,
+            isPass: hasPassed,
+            attempt: studentLab.submissions.length
+          };
+        } else {
+          return {
+            labNumber: lab.labNumber,
+            isPass: false,
+            attempt: 0
+          };
+        }
+      });
+
+      studentLabStatuses.push({
+        _id: student._id,
+        studentId: student.studentId,
+        firstName: student.firstName,
+        lastName: student.lastName,
+        labsStatus
+      });
+    }
+
+    res.json({ labStats, studentLabStatuses });
+  } catch (error) {
+    console.error('Error fetching labs:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+// get students' MEDICAL lab info
+router.get('/medical/labs', professorAuth, async (req, res) => {
+  try {
+    const university = await University.findOne({ professor: { $in: [req.userId] } })
+      .populate('students', '_id firstName lastName studentId')
+      .select('students');
+
+    if (!university) {
+      return res.status(404).json({ message: 'University not found' });
+    }
+
+    const students = university.students;
+
+    const allLabs = await LabInfo.find({ subject: 'medical' }).sort({ labNumber: 1 }).exec();
+
+    const labStats = allLabs.map(lab => ({
+      labNumber: lab.labNumber,
+      completed: 0,
+      total: students.length
+    }));
+
+    const studentLabStatuses = [];
+
+    for (const student of students) {
+      const studentLabs = await LabSubmission.aggregate([
+        { $match: { studentId: student._id } },
+        { $sort: { timestamp: -1 } },
+        {
+          $group: {
+            _id: "$labInfo",
+            submissions: { $push: "$$ROOT" },
+            latestSubmission: { $first: "$$ROOT" }
+          }
+        },
+        {
+          $lookup: {
+            from: "labinfos",
+            localField: "_id",
+            foreignField: "_id",
+            as: "labInfo"
+          }
+        },
+        { $unwind: "$labInfo" }
+      ]);
+
+      const labsStatus = allLabs.map(lab => {
+        const studentLab = studentLabs.find(sl => sl._id.equals(lab._id));
+        if (studentLab) {
+          const hasPassed = studentLab.submissions.some(sub => sub.isPass);
+          if (hasPassed) {
+            labStats.find(stat => stat.labNumber === lab.labNumber).completed++;
+          }
+          return {
+            labNumber: lab.labNumber,
+            isPass: hasPassed,
+            attempt: studentLab.submissions.length
+          };
+        } else {
+          return {
+            labNumber: lab.labNumber,
+            isPass: false,
+            attempt: 0
+          };
+        }
+      });
+
+      studentLabStatuses.push({
+        _id: student._id,
+        studentId: student.studentId,
+        firstName: student.firstName,
+        lastName: student.lastName,
+        labsStatus
+      });
+    }
+
+    res.json({ labStats, studentLabStatuses });
+  } catch (error) {
+    console.error('Error fetching labs:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+// get students' OB lab info
+router.get('/medical/labs', professorAuth, async (req, res) => {
+  try {
+    const university = await University.findOne({ professor: { $in: [req.userId] } })
+      .populate('students', '_id firstName lastName studentId')
+      .select('students');
+
+    if (!university) {
+      return res.status(404).json({ message: 'University not found' });
+    }
+
+    const students = university.students;
+
+    const allLabs = await LabInfo.find({ subject: 'ob' }).sort({ labNumber: 1 }).exec();
+
+    const labStats = allLabs.map(lab => ({
+      labNumber: lab.labNumber,
+      completed: 0,
+      total: students.length
+    }));
+
+    const studentLabStatuses = [];
+
+    for (const student of students) {
+      const studentLabs = await LabSubmission.aggregate([
+        { $match: { studentId: student._id } },
+        { $sort: { timestamp: -1 } },
+        {
+          $group: {
+            _id: "$labInfo",
+            submissions: { $push: "$$ROOT" },
+            latestSubmission: { $first: "$$ROOT" }
+          }
+        },
+        {
+          $lookup: {
+            from: "labinfos",
+            localField: "_id",
+            foreignField: "_id",
+            as: "labInfo"
+          }
+        },
+        { $unwind: "$labInfo" }
+      ]);
+
+      const labsStatus = allLabs.map(lab => {
+        const studentLab = studentLabs.find(sl => sl._id.equals(lab._id));
+        if (studentLab) {
+          const hasPassed = studentLab.submissions.some(sub => sub.isPass);
+          if (hasPassed) {
+            labStats.find(stat => stat.labNumber === lab.labNumber).completed++;
+          }
+          return {
+            labNumber: lab.labNumber,
+            isPass: hasPassed,
+            attempt: studentLab.submissions.length
+          };
+        } else {
+          return {
+            labNumber: lab.labNumber,
+            isPass: false,
+            attempt: 0
+          };
+        }
+      });
+
+      studentLabStatuses.push({
+        _id: student._id,
+        studentId: student.studentId,
+        firstName: student.firstName,
+        lastName: student.lastName,
+        labsStatus
+      });
+    }
+
+    res.json({ labStats, studentLabStatuses });
+  } catch (error) {
+    console.error('Error fetching labs:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+// Get all labs of SURGICAL for a specific student
+router.get('/student/:userId/surgical/labs', professorAuth, async (req, res) => {
+  try {
+    const student = await User.findOne({ _id: req.params.userId });
+    if (!student) {
+      return res.status(404).json({ message: 'Student not found' });
+    }
+
+    const university = student.university ? await University.findOne({ universityName: student.university }) : null;
+
+    const labInfos = await LabInfo.find({ subject: 'surgical' }).select('labNumber');
+    const labSubmissions = await LabSubmission.aggregate([
+      { $match: { studentId: student._id } },
+      { $sort: { timestamp: -1 } },
+      {
+        $group: {
+          _id: "$labInfo",
+          submissions: { $push: "$$ROOT" },
+          latestSubmission: { $first: "$$ROOT" }
+        }
+      }
+    ]);
+
+    const labs = labInfos.map(labInfo => {
+      const labSubmission = labSubmissions.find(sub => sub._id.equals(labInfo._id));
+      if (labSubmission) {
+        const hasPassed = labSubmission.submissions.some(sub => sub.isPass);
+        return {
+          labNumber: labInfo.labNumber,
+          isPass: hasPassed,
+          latestAttempt: {
+            isPass: labSubmission.latestSubmission.isPass,
+            timestamp: labSubmission.latestSubmission.timestamp
+          },
+          attemptCount: labSubmission.submissions.length
+        };
+      } else {
+        return {
+          labNumber: labInfo.labNumber,
+          isPass: null,
+          latestAttempt: null,
+          attemptCount: 0
+        };
+      }
+    });
+
+    res.json({
+      student: {
+        firstName: student.firstName,
+        lastName: student.lastName,
+        studentId: student.studentId,
+        university: university ? university.universityName : 'N/A'
+      },
+      labs
+    });
+  } catch (error) {
+    console.error('Error fetching student labs:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+// Get all labs of MEDICAL for a specific student
+router.get('/student/:userId/medical/labs', professorAuth, async (req, res) => {
+  try {
+    const student = await User.findOne({ _id: req.params.userId });
+    if (!student) {
+      return res.status(404).json({ message: 'Student not found' });
+    }
+
+    const university = student.university ? await University.findOne({ universityName: student.university }) : null;
+
+    const labInfos = await LabInfo.find({ subject: 'medical' }).select('labNumber');
+    const labSubmissions = await LabSubmission.aggregate([
+      { $match: { studentId: student._id } },
+      { $sort: { timestamp: -1 } },
+      {
+        $group: {
+          _id: "$labInfo",
+          submissions: { $push: "$$ROOT" },
+          latestSubmission: { $first: "$$ROOT" }
+        }
+      }
+    ]);
+
+    const labs = labInfos.map(labInfo => {
+      const labSubmission = labSubmissions.find(sub => sub._id.equals(labInfo._id));
+      if (labSubmission) {
+        const hasPassed = labSubmission.submissions.some(sub => sub.isPass);
+        return {
+          labNumber: labInfo.labNumber,
+          isPass: hasPassed,
+          latestAttempt: {
+            isPass: labSubmission.latestSubmission.isPass,
+            timestamp: labSubmission.latestSubmission.timestamp
+          },
+          attemptCount: labSubmission.submissions.length
+        };
+      } else {
+        return {
+          labNumber: labInfo.labNumber,
+          isPass: null,
+          latestAttempt: null,
+          attemptCount: 0
+        };
+      }
+    });
+
+    res.json({
+      student: {
+        firstName: student.firstName,
+        lastName: student.lastName,
+        studentId: student.studentId,
+        university: university ? university.universityName : 'N/A'
+      },
+      labs
+    });
+  } catch (error) {
+    console.error('Error fetching student labs:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+// Get all labs of SURGICAL for a specific student
+router.get('/student/:userId/ob/labs', professorAuth, async (req, res) => {
+  try {
+    const student = await User.findOne({ _id: req.params.userId });
+    if (!student) {
+      return res.status(404).json({ message: 'Student not found' });
+    }
+
+    const university = student.university ? await University.findOne({ universityName: student.university }) : null;
+
+    const labInfos = await LabInfo.find({ subject: 'ob' }).select('labNumber');
+    const labSubmissions = await LabSubmission.aggregate([
+      { $match: { studentId: student._id } },
+      { $sort: { timestamp: -1 } },
+      {
+        $group: {
+          _id: "$labInfo",
+          submissions: { $push: "$$ROOT" },
+          latestSubmission: { $first: "$$ROOT" }
+        }
+      }
+    ]);
+
+    const labs = labInfos.map(labInfo => {
+      const labSubmission = labSubmissions.find(sub => sub._id.equals(labInfo._id));
+      if (labSubmission) {
+        const hasPassed = labSubmission.submissions.some(sub => sub.isPass);
+        return {
+          labNumber: labInfo.labNumber,
+          isPass: hasPassed,
+          latestAttempt: {
+            isPass: labSubmission.latestSubmission.isPass,
+            timestamp: labSubmission.latestSubmission.timestamp
+          },
+          attemptCount: labSubmission.submissions.length
+        };
+      } else {
+        return {
+          labNumber: labInfo.labNumber,
+          isPass: null,
+          latestAttempt: null,
+          attemptCount: 0
+        };
+      }
+    });
+
+    res.json({
+      student: {
+        firstName: student.firstName,
+        lastName: student.lastName,
+        studentId: student.studentId,
+        university: university ? university.universityName : 'N/A'
+      },
+      labs
+    });
+  } catch (error) {
+    console.error('Error fetching student labs:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
 module.exports = router;
