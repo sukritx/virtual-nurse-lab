@@ -34,7 +34,7 @@ router.get('/labs', authMiddleware, async (req, res) => {
     }
 });
 
-// used by both maternalandchild and 315
+// used by maternalandchild, 315, and VNL2025
 router.get('/:subject/:labNumber/history', authMiddleware, async (req, res) => {
     try {
         const studentId = req.userId;
