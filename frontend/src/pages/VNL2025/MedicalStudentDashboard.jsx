@@ -57,7 +57,7 @@ const MedicalStudentDashboard = () => {
               </button>
               {lab.isPass !== null && (
                 <button
-                  onClick={() => navigate(`/student/medical/${lab.labInfo.labNumber}/history`)}
+                  onClick={() => navigate(`/medical/${lab.labInfo.labNumber}/history`)}
                   className="mt-4 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition duration-200"
                 >
                   View Lab History

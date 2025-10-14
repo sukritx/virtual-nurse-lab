@@ -181,21 +181,21 @@ function AppContent() {
           <Route path="/student/surgical/4" element={<Surgical4 />} />
           <Route path="/student/surgical/5" element={<Surgical5 />} />
           <Route path="/surgical/dashboard" element={<SurgicalStudentDashboard />} />
-          <Route path="/surgical/:labNumber/history" element={<SurgicalLabHistory />} />
+          <Route path="/:subject/:labNumber/history" element={<SurgicalLabHistory />} />
           <Route path="/student/medical/1" element={<Medical1 />} />
           <Route path="/student/medical/2" element={<Medical2 />} />
           <Route path="/student/medical/3" element={<Medical3 />} />
           <Route path="/student/medical/4" element={<Medical4 />} />
           <Route path="/student/medical/5" element={<Medical5 />} />
           <Route path="/medical/dashboard" element={<MedicalStudentDashboard />} />
-          <Route path="/medical/:labNumber/history" element={<MedicalLabHistory />} />
+          <Route path="/:subject/:labNumber/history" element={<MedicalLabHistory />} />
           <Route path="/student/ob/1" element={<OB1 />} />
           <Route path="/student/ob/2" element={<OB2 />} />
           <Route path="/student/ob/3" element={<OB3 />} />
           <Route path="/student/ob/4" element={<OB4 />} />
           <Route path="/student/ob/5" element={<OB5 />} />
           <Route path="/ob/dashboard" element={<OBStudentDashboard />} />
-          <Route path="/ob/:labNumber/history" element={<OBLabHistory />} />
+          <Route path="/:subject/:labNumber/history" element={<OBLabHistory />} />
         </Route>
       </Route>
 
