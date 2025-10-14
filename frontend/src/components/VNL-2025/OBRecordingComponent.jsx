@@ -187,7 +187,7 @@ const LabRecordingComponent = ({
                 formData.append('chunkIndex', chunkIndex);
                 formData.append('totalChunks', totalChunks);
 
-                await axios.post('/api/v1/lab-deployed/upload-chunk', formData, {
+                await axios.post('/api/v1/vnl2025/upload-chunk', formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
                         'Authorization': `Bearer ${token}`
@@ -197,7 +197,7 @@ const LabRecordingComponent = ({
                 setUploadProgress(((chunkIndex + 1) / totalChunks) * 100);
             }
 
-            const response = await axios.post(`/api/v1/ob/${labNumber}`, {
+            const response = await axios.post(`/api/v1/vnl2025/ob/${labNumber}`, {
                 fileName,
                 totalChunks
             }, {
