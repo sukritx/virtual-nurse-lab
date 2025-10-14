@@ -10,7 +10,7 @@ const dotenv = require('dotenv').config();
 const JWT_SECRET = process.env.JWT_SECRET
 
 const signupBody = zod.object({
-    username: zod.string().min(1).regex(/^[a-z0-9]+$/, { message: "Username must contain only lowercase letters and numbers" }),
+    username: zod.string().min(1).regex(/^[a-z0-9_]+$/, { message: "Username must contain only lowercase letters, numbers, and underscores" }),
     firstName: zod.string().min(1).regex(/^[a-zA-Z]+$/, { message: "First name must contain only letters" }),
     lastName: zod.string().min(1).regex(/^[a-zA-Z]+$/, { message: "Last name must contain only letters" }),
     password: zod.string().min(6, { message: "Password must be at least 6 characters long" }),

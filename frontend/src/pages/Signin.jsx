@@ -15,7 +15,7 @@ export const Signin = () => {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
   const { login } = useAuth();
-  const [generalError, setGeneralError] = useState(""); // Add for general errors
+  const [generalError, setGeneralError] = useState("");
 
   const handleSignin = async () => {
     setGeneralError(""); // Clear previous errors
@@ -24,31 +24,55 @@ export const Signin = () => {
         username,
         password,
       });
-      const { token, user } = response.data; // Ensure 'user' object contains 'registerCode'
+      const { token, user } = response.data; // Expects user object with roles and registerCode
       login(token, user);
 
-      // Decode the token to get user information (roles)
+      // Decode the token to get user information (additional checks for safety/completeness)
       const decodedToken = jwtDecode(token);
 
-      // --- Redirection Logic ---
+      // --- Centralized Redirection Logic ---
 
-      // 1. Role-based redirections (as existing)
+      // 1. Admin redirection (Highest Priority)
       if (decodedToken.isAdmin) {
         navigate("/admin/dashboard");
         return;
       }
-      if (decodedToken.isProfessor && user.university === "Subject315") {
-        navigate("/professor/315/dashboard");
-        return;
-      }
+
+      // 2. Professor Redirection
+      // This block will handle all professor-specific redirections.
       if (decodedToken.isProfessor) {
+        // Try specific registerCode redirects first for professors
+        if (user && user.universityCode) {
+          const upperRegisterCode = user.universityCode.toUpperCase();
+          if (upperRegisterCode.startsWith("SUR")) {
+            navigate("/professor/surgical/dashboard");
+            return;
+          }
+          if (upperRegisterCode.startsWith("MED")) {
+            navigate("/professor/medical/dashboard");
+            return;
+          }
+          if (upperRegisterCode.startsWith("OB")) {
+            navigate("/professor/ob/dashboard");
+            return;
+          }
+        }
+
+        // Fallback for professors with 'Subject315' university, if no registerCode prefix matched
+        if (user && user.university === "Subject315") {
+          navigate("/professor/315/dashboard");
+          return;
+        }
+
+        // Default professor dashboard if no other specific professor route matches
         navigate("/professor/dashboard");
-        return;
+        return; // Ensure to exit after professor redirection
       }
 
-      // 2. Register Code based redirection (assuming user object from backend contains registerCode)
-      if (user && user.registerCode) {
-        const upperRegisterCode = user.registerCode.toUpperCase();
+      // 3. Student Redirection (only reached if not Admin or Professor)
+      // Try specific registerCode redirects for students
+      if (user && user.universityCode) {
+        const upperRegisterCode = user.universityCode.toUpperCase();
         if (upperRegisterCode.startsWith("SUR")) {
           navigate("/surgical/dashboard");
           return;
@@ -63,7 +87,7 @@ export const Signin = () => {
         }
       }
 
-      // 3. Existing university-based redirections for students (if registerCode didn't match)
+      // 4. Fallback for students based on university (if no specific registerCode matched)
       if (user && user.university === "Subject315") {
         navigate("/student/315/dashboard");
         return;
@@ -73,8 +97,9 @@ export const Signin = () => {
         return;
       }
 
-      // 4. Default student dashboard
+      // 5. Default student dashboard (if none of the above conditions were met)
       navigate("/student/dashboard");
+
     } catch (error) {
       console.error("Error during signin:", error);
 

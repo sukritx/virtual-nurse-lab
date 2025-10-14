@@ -82,7 +82,7 @@ export const SurgicalProfessorDashboard = () => {
       <header className="w-full mt-10">
       </header>
       <main className="w-full max-w-7xl px-4 text-center">
-        <h1 className="text-4xl font-bold mb-8">Professor (315) Dashboard</h1>
+        <h1 className="text-4xl font-bold mb-8">Professor Surgical Dashboard</h1>
         <div className="flex flex-wrap justify-between items-center mb-8">
           <div className="text-lg">Statistics</div>
           <div className="text-lg">Registered students: {university.students.length}/{university.numberOfStudents}</div>

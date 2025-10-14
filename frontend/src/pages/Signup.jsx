@@ -7,44 +7,65 @@ import { SubHeading } from "../components/SubHeading";
 import axios from "../api/axios";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { jwtDecode } from "jwt-decode"; // Add jwtDecode for signin logic
+// jwtDecode is not used in Signup, so it can be removed or kept if planning future use
+// import { jwtDecode } from "jwt-decode";
 
 // Helper function for redirection logic
 const redirectUser = (navigate, user, registerCode) => {
   if (user) {
-    // Role-based redirection (if applicable, e.g., for professors/admins signing up)
-    // Currently, signup does not handle isAdmin/isProfessor, but adding it for completeness
-    // if (user.isAdmin) {
-    //   navigate("/admin/dashboard");
-    //   return;
-    // }
-    // if (user.isProfessor && user.university === 'Subject315') {
-    //   navigate("/professor/315/dashboard");
-    //   return;
-    // }
-    // if (user.isProfessor) {
-    //   navigate("/professor/dashboard");
-    //   return;
-    // }
+    // 1. Admin redirection (highest priority)
+    // Note: This check assumes `user.isAdmin` is available in the `user` object returned from signup.
+    // If your signup doesn't set isAdmin, this block won't be active until that's implemented.
+    if (user.isAdmin) {
+      navigate("/admin/dashboard");
+      return;
+    }
 
-    // Register Code based redirection for students
-    if (registerCode) {
+    // 2. Professor redirection based on registerCode
+    // Note: This check assumes `user.isProfessor` is available in the `user` object returned from signup.
+    // If your signup doesn't set isProfessor, this block won't be active until that's implemented.
+    if (user.isProfessor && registerCode) {
       const upperRegisterCode = registerCode.toUpperCase();
       if (upperRegisterCode.startsWith("SUR")) {
-        navigate("/surgical/dashboard");
+        navigate("/professor/surgical/dashboard"); // Professor Surgical Dashboard
         return;
       }
       if (upperRegisterCode.startsWith("MED")) {
-        navigate("/medical/dashboard");
+        navigate("/professor/medical/dashboard"); // Professor Medical Dashboard
         return;
       }
       if (upperRegisterCode.startsWith("OB")) {
-        navigate("/ob/dashboard");
+        navigate("/professor/ob/dashboard"); // Professor OB Dashboard
+        return;
+      }
+      // Fallback for professors without a specific registerCode prefix (e.g., Subject315)
+      if (user.university === "Subject315") {
+        navigate("/professor/315/dashboard");
+        return;
+      }
+      // Default professor dashboard if no specific match
+      navigate("/professor/dashboard");
+      return;
+    }
+
+    // 3. Student redirection based on registerCode (if not admin/professor)
+    if (registerCode) {
+      const upperRegisterCode = registerCode.toUpperCase();
+      if (upperUpperRegisterCode.startsWith("SUR")) {
+        navigate("/surgical/dashboard"); // Student Surgical Dashboard
+        return;
+      }
+      if (upperRegisterCode.startsWith("MED")) {
+        navigate("/medical/dashboard"); // Student Medical Dashboard
+        return;
+      }
+      if (upperRegisterCode.startsWith("OB")) {
+        navigate("/ob/dashboard"); // Student OB Dashboard
         return;
       }
     }
 
-    // Existing university-based redirections
+    // 4. Existing university-based redirections for students (if registerCode didn't match specific type)
     if (user.university === "Subject315") {
       navigate("/student/315/dashboard");
       return;
@@ -54,7 +75,7 @@ const redirectUser = (navigate, user, registerCode) => {
       return;
     }
 
-    // Default student dashboard
+    // 5. Default student dashboard
     navigate("/student/dashboard");
     return;
   }
@@ -66,6 +87,7 @@ export const Signup = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [studentId, setStudentId] = useState("");
+  // Reverted to registerCode
   const [registerCode, setRegisterCode] = useState("");
   const navigate = useNavigate();
   const { login } = useAuth();
@@ -78,9 +100,9 @@ export const Signup = () => {
 
     switch (name) {
       case "username":
-        if (!/^[a-z0-9]+$/.test(value)) {
+        if (!/^[a-z0-9_]+$/.test(value)) {
           errorMessage =
-            "Username must contain only lowercase letters and numbers";
+            "Username must contain only lowercase letters, numbers, and underscores";
         }
         break;
       case "firstName":
@@ -101,9 +123,10 @@ export const Signup = () => {
           errorMessage = "Student ID must contain only numbers";
         }
         break;
+      // registerCode validation (alphanumeric 6 chars)
       case "registerCode":
-        if (!/^[a-zA-Z]{6}$/.test(value)) {
-          errorMessage = "Register code must be 6 letters (A-Z, a-z)";
+        if (!/^[a-zA-Z0-9]{6}$/.test(value)) {
+          errorMessage = "Register code must be 6 alphanumeric characters";
         }
         break;
     }
@@ -116,13 +139,13 @@ export const Signup = () => {
     let processedValue = value;
 
     if (name === "username") {
-      processedValue = value.toLowerCase();
+      processedValue = value.toLowerCase().replace(/[^a-z0-9_]/g, "");
     } else if (name === "firstName" || name === "lastName") {
       processedValue = value.replace(/[^a-zA-Z]/g, "");
     } else if (name === "studentId") {
       processedValue = value.replace(/[^0-9]/g, "");
     } else if (name === "registerCode") {
-      processedValue = value.replace(/[^a-zA-Z]/g, "").slice(0, 6);
+      processedValue = value.replace(/[^a-zA-Z0-9]/g, "").slice(0, 6);
     }
 
     switch (name) {
@@ -142,7 +165,7 @@ export const Signup = () => {
         setStudentId(processedValue);
         break;
       case "registerCode":
-        setRegisterCode(processedValue); // Use processed value for register code
+        setRegisterCode(processedValue);
         break;
     }
 
@@ -203,6 +226,8 @@ export const Signup = () => {
       login(token, user);
 
       // Call the new redirection helper function
+      // user.isProfessor and user.isAdmin should be part of the 'user' object returned from signup API.
+      // If not, this logic will default to student paths.
       redirectUser(navigate, user, registerCode);
     } catch (error) {
       console.error("Error during signup:", error);
@@ -242,7 +267,7 @@ export const Signup = () => {
             onChange={handleInputChange}
             name="firstName"
             value={firstName}
-            placeholder="supassara"
+            placeholder="Supassara"
             label={"First Name*"}
             error={errors.firstName}
           />
@@ -250,7 +275,7 @@ export const Signup = () => {
             onChange={handleInputChange}
             name="lastName"
             value={lastName}
-            placeholder="jaidee"
+            placeholder="Jaidee"
             label={"Last Name*"}
             error={errors.lastName}
           />
@@ -258,7 +283,7 @@ export const Signup = () => {
             onChange={handleInputChange}
             name="username"
             value={username}
-            placeholder="username"
+            placeholder="my_username"
             label={"Username*"}
             error={errors.username}
           />
@@ -281,11 +306,11 @@ export const Signup = () => {
           />
           <InputBox
             onChange={handleInputChange}
-            name="registerCode"
-            value={registerCode}
-            placeholder="SURGIC"
-            label={"Register Code*"}
-            error={errors.registerCode}
+            name="registerCode" // Stays as registerCode
+            value={registerCode} // Stays as registerCode state
+            placeholder="ABC123"
+            label={"Register Code*"} // Label stays Register Code
+            error={errors.registerCode} // Error key stays registerCode
           />
           <div className="pt-4">
             <Button onClick={handleSignup} label={"Sign up"} disabled={isLoading} />
