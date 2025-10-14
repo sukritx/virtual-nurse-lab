@@ -83,6 +83,12 @@ import OBStudentDashboard from './pages/VNL2025/OBStudentDashboard.jsx';
 import SurgicalLabHistory from './pages/VNL2025/SurgicalLabHistory.jsx';
 import MedicalLabHistory from './pages/VNL2025/MedicalLabHistory.jsx';
 import OBLabHistory from './pages/VNL2025/OBLabHistory.jsx';
+import { SurgicalProfessorDashboard } from './pages/VNL2025/SurgicalProfessorDashboard.jsx';
+import { MedicalProfessorDashboard } from './pages/VNL2025/MedicalProfessorDashboard.jsx';
+import { OBProfessorDashboard } from './pages/VNL2025/OBProfessorDashboard.jsx';
+import { SurgicalStudentLabs } from './pages/VNL2025/SurgicalStudentLabs.jsx';
+import { MedicalStudentLabs } from './pages/VNL2025/MedicalStudentLabs.jsx';
+import { OBStudentLabs } from './pages/VNL2025/OBStudentLabs.jsx';
 
 // Layouts
 import MainLayout from './layouts/MainLayout';
@@ -201,6 +207,15 @@ function AppContent() {
           <Route path="/professor/315/dashboard" element={<Subject315ProfessorDashboard />} />
           <Route path="/professor/315/view-labs/:userId" element={<Subject315StudentLabs />} />
           <Route path="/professor/315/view-lab/:userId/:labNumber" element={<Subject315LabDetails />} />
+
+          {/* VNL2025 */}
+          <Route path="/professor/surgical/dashboard" element={<SurgicalProfessorDashboard />} />
+          <Route path="/professor/medical/dashboard" element={<MedicalProfessorDashboard />} />
+          <Route path="/professor/ob/dashboard" element={<OBProfessorDashboard />} />
+          <Route path="/professor/surgical/view-labs/:userId" element={<SurgicalStudentLabs />} />
+          <Route path="/professor/medical/view-labs/:userId" element={<MedicalStudentLabs />} />
+          <Route path="/professor/ob/view-labs/:userId" element={<OBStudentLabs />} />
+
         </Route>
       </Route>
 

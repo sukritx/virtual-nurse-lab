@@ -612,7 +612,7 @@ router.get('/medical/labs', professorAuth, async (req, res) => {
   }
 });
 // get students' OB lab info
-router.get('/medical/labs', professorAuth, async (req, res) => {
+router.get('/ob/labs', professorAuth, async (req, res) => {
   try {
     const university = await University.findOne({ professor: { $in: [req.userId] } })
       .populate('students', '_id firstName lastName studentId')
