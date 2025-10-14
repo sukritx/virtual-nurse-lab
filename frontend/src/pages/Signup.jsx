@@ -4,9 +4,61 @@ import { Button } from "../components/Button";
 import { Heading } from "../components/Heading";
 import { InputBox } from "../components/InputBox";
 import { SubHeading } from "../components/SubHeading";
-import axios from '../api/axios';
+import axios from "../api/axios";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from "../context/AuthContext";
+import { jwtDecode } from "jwt-decode"; // Add jwtDecode for signin logic
+
+// Helper function for redirection logic
+const redirectUser = (navigate, user, registerCode) => {
+  if (user) {
+    // Role-based redirection (if applicable, e.g., for professors/admins signing up)
+    // Currently, signup does not handle isAdmin/isProfessor, but adding it for completeness
+    // if (user.isAdmin) {
+    //   navigate("/admin/dashboard");
+    //   return;
+    // }
+    // if (user.isProfessor && user.university === 'Subject315') {
+    //   navigate("/professor/315/dashboard");
+    //   return;
+    // }
+    // if (user.isProfessor) {
+    //   navigate("/professor/dashboard");
+    //   return;
+    // }
+
+    // Register Code based redirection for students
+    if (registerCode) {
+      const upperRegisterCode = registerCode.toUpperCase();
+      if (upperRegisterCode.startsWith("SUR")) {
+        navigate("/surgical/dashboard");
+        return;
+      }
+      if (upperRegisterCode.startsWith("MED")) {
+        navigate("/medical/dashboard");
+        return;
+      }
+      if (upperRegisterCode.startsWith("OB")) {
+        navigate("/ob/dashboard");
+        return;
+      }
+    }
+
+    // Existing university-based redirections
+    if (user.university === "Subject315") {
+      navigate("/student/315/dashboard");
+      return;
+    }
+    if (user.university === "Trial-CSSD") {
+      navigate("/cssd");
+      return;
+    }
+
+    // Default student dashboard
+    navigate("/student/dashboard");
+    return;
+  }
+};
 
 export const Signup = () => {
   const [firstName, setFirstName] = useState("");
@@ -22,33 +74,36 @@ export const Signup = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const validateInput = (name, value) => {
-    let errorMessage = '';
+    let errorMessage = "";
 
     switch (name) {
-      case 'username':
+      case "username":
         if (!/^[a-z0-9]+$/.test(value)) {
-          errorMessage = "Username must contain only lowercase letters and numbers";
+          errorMessage =
+            "Username must contain only lowercase letters and numbers";
         }
         break;
-      case 'firstName':
-      case 'lastName':
+      case "firstName":
+      case "lastName":
         if (!/^[a-zA-Z]+$/.test(value)) {
-          errorMessage = `${name === 'firstName' ? 'First' : 'Last'} name must contain only letters`;
+          errorMessage = `${
+            name === "firstName" ? "First" : "Last"
+          } name must contain only letters`;
         }
         break;
-      case 'password':
+      case "password":
         if (value.length < 6) {
           errorMessage = "Password must be at least 6 characters long";
         }
         break;
-      case 'studentId':
+      case "studentId":
         if (!/^[0-9]+$/.test(value)) {
           errorMessage = "Student ID must contain only numbers";
         }
         break;
-      case 'registerCode':
-        if (value.length === 0) {
-          errorMessage = "Register code cannot be empty";
+      case "registerCode":
+        if (!/^[a-zA-Z]{6}$/.test(value)) {
+          errorMessage = "Register code must be 6 letters (A-Z, a-z)";
         }
         break;
     }
@@ -59,38 +114,40 @@ export const Signup = () => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     let processedValue = value;
-    
-    if (name === 'username') {
+
+    if (name === "username") {
       processedValue = value.toLowerCase();
-    } else if (name === 'firstName' || name === 'lastName') {
-      processedValue = value.replace(/[^a-zA-Z]/g, '');
-    } else if (name === 'studentId') {
-      processedValue = value.replace(/[^0-9]/g, '');
+    } else if (name === "firstName" || name === "lastName") {
+      processedValue = value.replace(/[^a-zA-Z]/g, "");
+    } else if (name === "studentId") {
+      processedValue = value.replace(/[^0-9]/g, "");
+    } else if (name === "registerCode") {
+      processedValue = value.replace(/[^a-zA-Z]/g, "").slice(0, 6);
     }
 
     switch (name) {
-      case 'firstName':
+      case "firstName":
         setFirstName(processedValue);
         break;
-      case 'lastName':
+      case "lastName":
         setLastName(processedValue);
         break;
-      case 'username':
+      case "username":
         setUsername(processedValue);
         break;
-      case 'password':
+      case "password":
         setPassword(value); // Keep original input for password
         break;
-      case 'studentId':
+      case "studentId":
         setStudentId(processedValue);
         break;
-      case 'registerCode':
-        setRegisterCode(value); // Keep original input for register code
+      case "registerCode":
+        setRegisterCode(processedValue); // Use processed value for register code
         break;
     }
 
     const errorMessage = validateInput(name, processedValue);
-    setErrors(prev => ({ ...prev, [name]: errorMessage }));
+    setErrors((prev) => ({ ...prev, [name]: errorMessage }));
   };
 
   const handleSignup = async () => {
@@ -99,11 +156,26 @@ export const Signup = () => {
     setGeneralError("");
 
     // Validate all fields
-    const fieldsToValidate = ['username', 'firstName', 'lastName', 'password', 'studentId', 'registerCode'];
+    const fieldsToValidate = [
+      "username",
+      "firstName",
+      "lastName",
+      "password",
+      "studentId",
+      "registerCode",
+    ];
     let newErrors = {};
-    
-    fieldsToValidate.forEach(field => {
-      const errorMessage = validateInput(field, eval(field));
+
+    fieldsToValidate.forEach((field) => {
+      const valueToValidate = {
+        username,
+        firstName,
+        lastName,
+        password,
+        studentId,
+        registerCode,
+      }[field];
+      const errorMessage = validateInput(field, valueToValidate);
       if (errorMessage) {
         newErrors[field] = errorMessage;
       }
@@ -125,26 +197,22 @@ export const Signup = () => {
         lastName,
         password,
         studentId,
-        registerCode
+        registerCode,
       });
       const { token, user } = response.data;
       login(token, user);
-      if (user && user.university === 'Subject315') {
-        navigate('/student/315/dashboard');
-      } else if (user && user.university === 'Trial-CSSD') {
-        navigate("/cssd");
-      } else {
-        navigate('/student/dashboard');
-      }
+
+      // Call the new redirection helper function
+      redirectUser(navigate, user, registerCode);
     } catch (error) {
       console.error("Error during signup:", error);
       if (error.response?.data?.errors) {
         const serverErrors = error.response.data.errors;
         const newErrors = {};
-        serverErrors.forEach(err => {
+        serverErrors.forEach((err) => {
           newErrors[err.field] = err.message;
         });
-        setErrors(prevErrors => ({ ...prevErrors, ...newErrors }));
+        setErrors((prevErrors) => ({ ...prevErrors, ...newErrors }));
         setGeneralError("Please correct the errors and try again.");
       } else if (error.response?.data?.message) {
         setGeneralError(error.response.data.message);
@@ -167,17 +235,66 @@ export const Signup = () => {
         <div className="rounded-lg bg-white text-center p-6 shadow-md">
           <Heading label={"Sign up"} />
           <SubHeading label={"ใส่ข้อมูลของตนเองเพื่อลงทะเบียน"} />
-          {generalError && <div className="text-red-500 mb-4">{generalError}</div>}
-          <InputBox onChange={handleInputChange} name="firstName" value={firstName} placeholder="supassara" label={"First Name*"} error={errors.firstName} />
-          <InputBox onChange={handleInputChange} name="lastName" value={lastName} placeholder="jaidee" label={"Last Name*"} error={errors.lastName} />
-          <InputBox onChange={handleInputChange} name="username" value={username} placeholder="username" label={"Username*"} error={errors.username} />
-          <InputBox onChange={handleInputChange} name="password" value={password} type="password" placeholder="password123" label={"Password*"} error={errors.password} />
-          <InputBox onChange={handleInputChange} name="studentId" value={studentId} placeholder="12345678" label={"Student ID*"} error={errors.studentId} />
-          <InputBox onChange={handleInputChange} name="registerCode" value={registerCode} placeholder="registercode123" label={"Register Code*"} error={errors.registerCode} />
+          {generalError && (
+            <div className="text-red-500 mb-4">{generalError}</div>
+          )}
+          <InputBox
+            onChange={handleInputChange}
+            name="firstName"
+            value={firstName}
+            placeholder="supassara"
+            label={"First Name*"}
+            error={errors.firstName}
+          />
+          <InputBox
+            onChange={handleInputChange}
+            name="lastName"
+            value={lastName}
+            placeholder="jaidee"
+            label={"Last Name*"}
+            error={errors.lastName}
+          />
+          <InputBox
+            onChange={handleInputChange}
+            name="username"
+            value={username}
+            placeholder="username"
+            label={"Username*"}
+            error={errors.username}
+          />
+          <InputBox
+            onChange={handleInputChange}
+            name="password"
+            value={password}
+            type="password"
+            placeholder="password123"
+            label={"Password*"}
+            error={errors.password}
+          />
+          <InputBox
+            onChange={handleInputChange}
+            name="studentId"
+            value={studentId}
+            placeholder="12345678"
+            label={"Student ID*"}
+            error={errors.studentId}
+          />
+          <InputBox
+            onChange={handleInputChange}
+            name="registerCode"
+            value={registerCode}
+            placeholder="SURGIC"
+            label={"Register Code*"}
+            error={errors.registerCode}
+          />
           <div className="pt-4">
             <Button onClick={handleSignup} label={"Sign up"} disabled={isLoading} />
           </div>
-          <BottomWarning label={"Already have an account?"} buttonText={"Sign in"} to={"/signin"} />
+          <BottomWarning
+            label={"Already have an account?"}
+            buttonText={"Sign in"}
+            to={"/signin"}
+          />
         </div>
       </div>
     </div>
