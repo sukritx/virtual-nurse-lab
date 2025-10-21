@@ -51,7 +51,7 @@ const redirectUser = (navigate, user, registerCode) => {
     // 3. Student redirection based on registerCode (if not admin/professor)
     if (registerCode) {
       const upperRegisterCode = registerCode.toUpperCase();
-      if (upperUpperRegisterCode.startsWith("SUR")) {
+      if (upperRegisterCode.startsWith("SUR")) {
         navigate("/surgical/dashboard"); // Student Surgical Dashboard
         return;
       }
