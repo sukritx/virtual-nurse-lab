@@ -124,7 +124,7 @@ async function transcribeAudioElevenLabs(audioPath) {
     try {
         const audioData = fs.createReadStream(audioPath);
         
-        const transcription = await elevenlabs.speechToText.convert({
+        const result = await elevenlabs.speechToText.convert({
             file: audioData,
             modelId: "scribe_v2",
             tagAudioEvents: true,
@@ -132,7 +132,16 @@ async function transcribeAudioElevenLabs(audioPath) {
             diarize: true,
         });
 
-        return transcription;
+        // ElevenLabs returns the transcription text directly as a string
+        // If it returns an object, extract the text property
+        if (typeof result === 'string') {
+            return result;
+        } else if (result && typeof result === 'object') {
+            // Handle object response - try common property names
+            return result.text || result.transcription || result.content || JSON.stringify(result);
+        }
+        
+        return String(result);
     } catch (error) {
         console.error('Error transcribing audio with ElevenLabs:', error);
         throw new Error(`Transcription failed: ${error.message}`);
