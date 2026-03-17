@@ -122,61 +122,84 @@ async function transcribeAudioOpenAI(audioPath) {
 
 async function transcribeAudioElevenLabs(audioPath) {
     try {
-        const audioData = fs.createReadStream(audioPath);
-        
+        console.log('==============================================');
         console.log('Starting ElevenLabs transcription for:', audioPath);
+        console.log('==============================================');
         
         // Check if file exists and get its size
         const stats = fs.statSync(audioPath);
         console.log('Audio file size:', stats.size, 'bytes');
 
-        // Use FormData for file upload
-        const formData = new FormData();
-        formData.append('file', fs.createReadStream(audioPath));
-        formData.append('model_id', 'scribe_v2');
-        formData.append('tag_audio_events', 'true');
-        formData.append('diarize', 'true');
+        // Use the official ElevenLabs SDK
+        const audioData = fs.createReadStream(audioPath);
         
-        const response = await axios.post(
-            'https://api.elevenlabs.io/v1/scribe',
-            formData,
-            {
-                headers: {
-                    'Accept': 'application/json',
-                    ...formData.getHeaders()
-                },
-                params: {
-                    api_key: process.env.ELEVENLABS_API_KEY
-                }
-            }
-        );
+        console.log('Calling ElevenLabs SDK speechToText.convert with model: scribe_v2...');
+        
+        // Use the SDK's speechToText.convert method
+        const result = await elevenlabs.speechToText.convert({
+            file: audioData,
+            modelId: "scribe_v2",
+        });
 
-        console.log('ElevenLabs raw result:', JSON.stringify(response.data, null, 2));
+        console.log('ElevenLabs raw result type:', typeof result);
+        console.log('ElevenLabs raw result:', JSON.stringify(result, null, 2));
 
-        const result = response.data;
-
-        // Handle different response formats
-        if (typeof result === 'string') {
-            return result;
-        } else if (result && typeof result === 'object') {
-            // Try common property names for transcription text
-            return result.text || result.transcription || result.content || result.text || JSON.stringify(result);
+        // Handle response according to ElevenLabs documentation
+        // The response should have 'text' field containing the transcription
+        if (!result) {
+            console.warn('ElevenLabs returned empty response');
+            throw new Error('Empty response from ElevenLabs');
         }
         
-        return String(result);
-    } catch (error) {
-        console.error('Error transcribing audio with ElevenLabs:');
-        console.error('Status:', error.response?.status);
-        console.error('Status Text:', error.response?.statusText);
-        console.error('Response Data:', error.response?.data);
-        console.error('Error Message:', error.message);
+        // Extract transcription text from response
+        let transcriptionText = '';
         
-        // If ElevenLabs fails, try fallback to OpenAI Whisper
-        console.log('Falling back to OpenAI Whisper for transcription...');
+        if (typeof result === 'string') {
+            transcriptionText = result;
+        } else if (result && typeof result === 'object') {
+            // According to docs, response has 'text' field
+            transcriptionText = result.text || result.transcription || result.content || JSON.stringify(result);
+        } else {
+            transcriptionText = String(result);
+        }
+        
+        if (!transcriptionText || transcriptionText.trim() === '') {
+            console.warn('ElevenLabs returned empty transcription text');
+            throw new Error('Empty transcription text from ElevenLabs');
+        }
+        
+        console.log('Extracted transcription:', transcriptionText.substring(0, 200) + '...');
+        console.log('==============================================');
+        console.log('ElevenLabs transcription SUCCESS');
+        console.log('==============================================');
+        
+        return transcriptionText;
+    } catch (error) {
+        console.error('==============================================');
+        console.error('ELEVENLABS TRANSCRIPTION ERROR');
+        console.error('==============================================');
+        console.error('Error name:', error.name);
+        console.error('Error message:', error.message);
+        console.error('Error stack:', error.stack);
+        if (error.response) {
+            console.error('Status:', error.response.status);
+            console.error('Status Text:', error.response.statusText);
+            console.error('Response Headers:', JSON.stringify(error.response.headers));
+            console.error('Response Data:', JSON.stringify(error.response.data));
+        }
+        console.error('==============================================');
+        console.log('ElevenLabs transcription failed. Falling back to OpenAI Whisper...');
+        console.log('==============================================');
+        
+        // Fallback to OpenAI Whisper
         try {
-            return await transcribeAudioOpenAI(audioPath);
+            console.log('Starting OpenAI Whisper fallback...');
+            const fallbackResult = await transcribeAudioOpenAI(audioPath);
+            console.log('OpenAI Whisper fallback SUCCESS');
+            return fallbackResult;
         } catch (fallbackError) {
-            throw new Error(`Transcription failed: ${error.message}`);
+            console.error('Fallback also failed:', fallbackError.message);
+            throw new Error(`Transcription failed: ElevenLabs - ${error.message}, Fallback - ${fallbackError.message}`);
         }
     }
 }
