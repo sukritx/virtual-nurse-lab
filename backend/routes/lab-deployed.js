@@ -12,6 +12,7 @@ const { S3Client } = require("@aws-sdk/client-s3");
 const { createPresignedPost } = require("@aws-sdk/s3-presigned-post");
 const { Upload } = require("@aws-sdk/lib-storage");
 const OpenAI = require('openai');
+const { ElevenLabsClient } = require("@elevenlabs/elevenlabs-js");
 
 const { User, LabSubmission, LabInfo } = require('../db');
 const { authMiddleware, fileSizeErrorHandler } = require('../middleware');
@@ -30,6 +31,10 @@ const s3Client = new S3Client({
 
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
+});
+
+const elevenlabs = new ElevenLabsClient({
+    apiKey: process.env.ELEVENLABS_API_KEY,
 });
 
 function getFileType(fileName) {
@@ -112,6 +117,90 @@ async function transcribeAudioOpenAI(audioPath) {
     } catch (error) {
         console.error('Error transcribing audio with OpenAI:', error);
         throw new Error(`Transcription failed: ${error.message}`);
+    }
+}
+
+async function transcribeAudioElevenLabs(audioPath) {
+    try {
+        console.log('==============================================');
+        console.log('Starting ElevenLabs transcription for:', audioPath);
+        console.log('==============================================');
+
+        // Check if file exists and get its size
+        const stats = fs.statSync(audioPath);
+        console.log('Audio file size:', stats.size, 'bytes');
+
+        // Use the official ElevenLabs SDK
+        const audioData = fs.createReadStream(audioPath);
+
+        console.log('Calling ElevenLabs SDK speechToText.convert with model: scribe_v2...');
+
+        // Use the SDK's speechToText.convert method
+        const result = await elevenlabs.speechToText.convert({
+            file: audioData,
+            modelId: "scribe_v2",
+        });
+
+        console.log('ElevenLabs raw result type:', typeof result);
+        console.log('ElevenLabs raw result:', JSON.stringify(result, null, 2));
+
+        // Handle response according to ElevenLabs documentation
+        // The response should have 'text' field containing the transcription
+        if (!result) {
+            console.warn('ElevenLabs returned empty response');
+            throw new Error('Empty response from ElevenLabs');
+        }
+
+        // Extract transcription text from response
+        let transcriptionText = '';
+
+        if (typeof result === 'string') {
+            transcriptionText = result;
+        } else if (result && typeof result === 'object') {
+            // According to docs, response has 'text' field
+            transcriptionText = result.text || result.transcription || result.content || JSON.stringify(result);
+        } else {
+            transcriptionText = String(result);
+        }
+
+        if (!transcriptionText || transcriptionText.trim() === '') {
+            console.warn('ElevenLabs returned empty transcription text');
+            throw new Error('Empty transcription text from ElevenLabs');
+        }
+
+        console.log('Extracted transcription:', transcriptionText.substring(0, 200) + '...');
+        console.log('==============================================');
+        console.log('ElevenLabs transcription SUCCESS');
+        console.log('==============================================');
+
+        return transcriptionText;
+    } catch (error) {
+        console.error('==============================================');
+        console.error('ELEVENLABS TRANSCRIPTION ERROR');
+        console.error('==============================================');
+        console.error('Error name:', error.name);
+        console.error('Error message:', error.message);
+        console.error('Error stack:', error.stack);
+        if (error.response) {
+            console.error('Status:', error.response.status);
+            console.error('Status Text:', error.response.statusText);
+            console.error('Response Headers:', JSON.stringify(error.response.headers));
+            console.error('Response Data:', JSON.stringify(error.response.data));
+        }
+        console.error('==============================================');
+        console.log('ElevenLabs transcription failed. Falling back to OpenAI Whisper...');
+        console.log('==============================================');
+
+        // Fallback to OpenAI Whisper
+        try {
+            console.log('Starting OpenAI Whisper fallback...');
+            const fallbackResult = await transcribeAudioOpenAI(audioPath);
+            console.log('OpenAI Whisper fallback SUCCESS');
+            return fallbackResult;
+        } catch (fallbackError) {
+            console.error('Fallback also failed:', fallbackError.message);
+            throw new Error(`Transcription failed: ElevenLabs - ${error.message}, Fallback - ${fallbackError.message}`);
+        }
     }
 }
 
@@ -236,7 +325,7 @@ router.post('/upload-test', authMiddleware, async (req, res) => {
 
         // Transcription
         // console.time('Transcription');
-        const transcription = await transcribeAudioOpenAI(audioPath);
+        const transcription = await transcribeAudioElevenLabs(audioPath);
         // console.timeEnd('Transcription');
 
         // GPT processing (same as before)
@@ -351,10 +440,8 @@ router.post('/upload-test', authMiddleware, async (req, res) => {
 
         // Transcription
         console.time('Transcription');
-        const transcriptionResult = await transcribeAudioIApp(audioPath);
+        const transcription = await transcribeAudioElevenLabs(audioPath);
         console.timeEnd('Transcription');
-
-        const transcription = concatenateTranscriptionText(transcriptionResult.output);
 
         // GPT processing (same as before)
         console.time('GPT processing');
@@ -475,7 +562,7 @@ router.post('/maternalchild-1', authMiddleware, async (req, res) => {
         // Transcription IApp
         // const transcriptionResult = await transcribeAudioIApp(audioPath);
         // const transcription = concatenateTranscriptionText(transcriptionResult.output);
-        const transcription = await transcribeAudioOpenAI(audioPath);
+        const transcription = await transcribeAudioElevenLabs(audioPath);
 
         // GPT processing (same as before)
         // console.time('GPT processing');
@@ -590,7 +677,7 @@ router.post('/upload-1-cn', authMiddleware, async (req, res) => {
 
         // Transcription
         // console.time('Transcription');
-        const transcription = await transcribeAudioOpenAI(audioPath);
+        const transcription = await transcribeAudioElevenLabs(audioPath);
         // console.timeEnd('Transcription');
 
         // GPT processing (same as before)
@@ -797,7 +884,7 @@ router.post('/upload-1-en', authMiddleware, async (req, res) => {
 
         // Transcription
         // console.time('Transcription');
-        const transcription = await transcribeAudioOpenAI(audioPath);
+        const transcription = await transcribeAudioElevenLabs(audioPath);
         // console.timeEnd('Transcription');
 
         // GPT processing (same as before)
@@ -987,7 +1074,7 @@ router.post('/upload-1-jp', authMiddleware, async (req, res) => {
 
         // Transcription
         // console.time('Transcription');
-        const transcription = await transcribeAudioOpenAI(audioPath);
+        const transcription = await transcribeAudioElevenLabs(audioPath);
         // console.timeEnd('Transcription');
 
         // GPT processing (same as before)
@@ -1163,7 +1250,7 @@ router.post('/maternalchild-1-indo', authMiddleware, async (req, res) => {
 
         // Transcription
         // console.time('Transcription');
-        const transcription = await transcribeAudioOpenAI(audioPath);
+        const transcription = await transcribeAudioElevenLabs(audioPath);
         // console.timeEnd('Transcription');
 
         // GPT processing (same as before)
@@ -1365,7 +1452,7 @@ router.post('/maternalchild-2', authMiddleware, async (req, res) => {
         // Transcription IApp
         // const transcriptionResult = await transcribeAudioIApp(audioPath);
         // const transcription = concatenateTranscriptionText(transcriptionResult.output);
-        const transcription = await transcribeAudioOpenAI(audioPath);
+        const transcription = await transcribeAudioElevenLabs(audioPath);
 
         // GPT processing (same as before)
         // console.time('GPT processing');
@@ -1479,7 +1566,7 @@ router.post('/maternalchild-3', authMiddleware, async (req, res) => {
         // Transcription IApp
         // const transcriptionResult = await transcribeAudioIApp(audioPath);
         // const transcription = concatenateTranscriptionText(transcriptionResult.output);
-        const transcription = await transcribeAudioOpenAI(audioPath);
+        const transcription = await transcribeAudioElevenLabs(audioPath);
 
         // GPT processing (same as before)
         // console.time('GPT processing');
@@ -1593,7 +1680,7 @@ router.post('/maternalchild-4', authMiddleware, async (req, res) => {
         // Transcription IApp
         // const transcriptionResult = await transcribeAudioIApp(audioPath);
         // const transcription = concatenateTranscriptionText(transcriptionResult.output);
-        const transcription = await transcribeAudioOpenAI(audioPath);
+        const transcription = await transcribeAudioElevenLabs(audioPath);
 
         // GPT processing (same as before)
         // console.time('GPT processing');
@@ -1708,7 +1795,7 @@ router.post('/maternalchild-4-en', authMiddleware, async (req, res) => {
         // Transcription IApp
         // const transcriptionResult = await transcribeAudioIApp(audioPath);
         // const transcription = concatenateTranscriptionText(transcriptionResult.output);
-        const transcription = await transcribeAudioOpenAI(audioPath);
+        const transcription = await transcribeAudioElevenLabs(audioPath);
 
         // GPT processing (same as before)
         // console.time('GPT processing');
@@ -1872,7 +1959,7 @@ router.post('/maternalchild-4-cn', authMiddleware, async (req, res) => {
         // Transcription IApp
         // const transcriptionResult = await transcribeAudioIApp(audioPath);
         // const transcription = concatenateTranscriptionText(transcriptionResult.output);
-        const transcription = await transcribeAudioOpenAI(audioPath);
+        const transcription = await transcribeAudioElevenLabs(audioPath);
 
         // GPT processing (same as before)
         // console.time('GPT processing');
@@ -2040,7 +2127,7 @@ router.post('/maternalchild-5', authMiddleware, async (req, res) => {
         // Transcription IApp
         // const transcriptionResult = await transcribeAudioIApp(audioPath);
         // const transcription = concatenateTranscriptionText(transcriptionResult.output);
-        const transcription = await transcribeAudioOpenAI(audioPath);
+        const transcription = await transcribeAudioElevenLabs(audioPath);
 
         // GPT processing (same as before)
         // console.time('GPT processing');
@@ -2154,7 +2241,7 @@ router.post('/maternalchild-6', authMiddleware, async (req, res) => {
         // Transcription IApp
         // const transcriptionResult = await transcribeAudioIApp(audioPath);
         // const transcription = concatenateTranscriptionText(transcriptionResult.output);
-        const transcription = await transcribeAudioOpenAI(audioPath);
+        const transcription = await transcribeAudioElevenLabs(audioPath);
 
         // GPT processing (same as before)
         // console.time('GPT processing');
@@ -2268,7 +2355,7 @@ router.post('/maternalchild-7', authMiddleware, async (req, res) => {
         // Transcription IApp
         // const transcriptionResult = await transcribeAudioIApp(audioPath);
         // const transcription = concatenateTranscriptionText(transcriptionResult.output);
-        const transcription = await transcribeAudioOpenAI(audioPath);
+        const transcription = await transcribeAudioElevenLabs(audioPath);
 
         // GPT processing (same as before)
         // console.time('GPT processing');
@@ -2382,7 +2469,7 @@ router.post('/maternalchild-8', authMiddleware, async (req, res) => {
         // Transcription IApp
         // const transcriptionResult = await transcribeAudioIApp(audioPath);
         // const transcription = concatenateTranscriptionText(transcriptionResult.output);
-        const transcription = await transcribeAudioOpenAI(audioPath);
+        const transcription = await transcribeAudioElevenLabs(audioPath);
 
         // GPT processing (same as before)
         // console.time('GPT processing');
@@ -2496,7 +2583,7 @@ router.post('/maternalchild-9', authMiddleware, async (req, res) => {
         // Transcription IApp
         // const transcriptionResult = await transcribeAudioIApp(audioPath);
         // const transcription = concatenateTranscriptionText(transcriptionResult.output);
-        const transcription = await transcribeAudioOpenAI(audioPath);
+        const transcription = await transcribeAudioElevenLabs(audioPath);
 
         // GPT processing (same as before)
         // console.time('GPT processing');
@@ -2610,7 +2697,7 @@ router.post('/maternalchild-10', authMiddleware, async (req, res) => {
         // Transcription IApp
         // const transcriptionResult = await transcribeAudioIApp(audioPath);
         // const transcription = concatenateTranscriptionText(transcriptionResult.output);
-        const transcription = await transcribeAudioOpenAI(audioPath);
+        const transcription = await transcribeAudioElevenLabs(audioPath);
 
         // GPT processing (same as before)
         // console.time('GPT processing');
@@ -3245,7 +3332,7 @@ router.post('/maternalchild-11', authMiddleware, async (req, res) => {
         // Transcription IApp
         // const transcriptionResult = await transcribeAudioIApp(audioPath);
         // const transcription = concatenateTranscriptionText(transcriptionResult.output);
-        const transcription = await transcribeAudioOpenAI(audioPath);
+        const transcription = await transcribeAudioElevenLabs(audioPath);
 
         // GPT processing (same as before)
         // console.time('GPT processing');
@@ -3430,7 +3517,7 @@ router.post('/maternalchild-12', authMiddleware, async (req, res) => {
         // Transcription IApp
         // const transcriptionResult = await transcribeAudioIApp(audioPath);
         // const transcription = concatenateTranscriptionText(transcriptionResult.output);
-        const transcription = await transcribeAudioOpenAI(audioPath);
+        const transcription = await transcribeAudioElevenLabs(audioPath);
 
         // GPT processing (same as before)
         // console.time('GPT processing');
@@ -3629,7 +3716,7 @@ router.post('/maternalchild-13', authMiddleware, async (req, res) => {
         // Transcription IApp
         // const transcriptionResult = await transcribeAudioIApp(audioPath);
         // const transcription = concatenateTranscriptionText(transcriptionResult.output);
-        const transcription = await transcribeAudioOpenAI(audioPath);
+        const transcription = await transcribeAudioElevenLabs(audioPath);
 
         // GPT processing (same as before)
         // console.time('GPT processing');
@@ -3814,7 +3901,7 @@ router.post('/maternalchild-14', authMiddleware, async (req, res) => {
         // Transcription IApp
         // const transcriptionResult = await transcribeAudioIApp(audioPath);
         // const transcription = concatenateTranscriptionText(transcriptionResult.output);
-        const transcription = await transcribeAudioOpenAI(audioPath);
+        const transcription = await transcribeAudioElevenLabs(audioPath);
 
         // GPT processing (same as before)
         // console.time('GPT processing');
@@ -3988,7 +4075,7 @@ router.post('/maternalchild-15', authMiddleware, async (req, res) => {
         // Transcription IApp
         // const transcriptionResult = await transcribeAudioIApp(audioPath);
         // const transcription = concatenateTranscriptionText(transcriptionResult.output);
-        const transcription = await transcribeAudioOpenAI(audioPath);
+        const transcription = await transcribeAudioElevenLabs(audioPath);
 
         // GPT processing (same as before)
         // console.time('GPT processing');
@@ -4184,7 +4271,7 @@ router.post('/maternalchild-16', authMiddleware, async (req, res) => {
         // Transcription IApp
         // const transcriptionResult = await transcribeAudioIApp(audioPath);
         // const transcription = concatenateTranscriptionText(transcriptionResult.output);
-        const transcription = await transcribeAudioOpenAI(audioPath);
+        const transcription = await transcribeAudioElevenLabs(audioPath);
 
         // GPT processing (same as before)
         // console.time('GPT processing');
@@ -4384,7 +4471,7 @@ router.post('/maternalchild-17', authMiddleware, async (req, res) => {
         // Transcription IApp
         // const transcriptionResult = await transcribeAudioIApp(audioPath);
         // const transcription = concatenateTranscriptionText(transcriptionResult.output);
-        const transcription = await transcribeAudioOpenAI(audioPath);
+        const transcription = await transcribeAudioElevenLabs(audioPath);
 
         // GPT processing (same as before)
         // console.time('GPT processing');
@@ -4550,7 +4637,7 @@ router.post('/maternalchild-18', authMiddleware, async (req, res) => {
         // Transcription IApp
         // const transcriptionResult = await transcribeAudioIApp(audioPath);
         // const transcription = concatenateTranscriptionText(transcriptionResult.output);
-        const transcription = await transcribeAudioOpenAI(audioPath);
+        const transcription = await transcribeAudioElevenLabs(audioPath);
 
         // GPT processing (same as before)
         // console.time('GPT processing');
@@ -4725,7 +4812,7 @@ router.post('/maternalchild-19', authMiddleware, async (req, res) => {
         // Transcription IApp
         // const transcriptionResult = await transcribeAudioIApp(audioPath);
         // const transcription = concatenateTranscriptionText(transcriptionResult.output);
-        const transcription = await transcribeAudioOpenAI(audioPath);
+        const transcription = await transcribeAudioElevenLabs(audioPath);
 
         // GPT processing (same as before)
         // console.time('GPT processing');
@@ -4905,7 +4992,7 @@ router.post('/maternalchild-20', authMiddleware, async (req, res) => {
         // Transcription IApp
         // const transcriptionResult = await transcribeAudioIApp(audioPath);
         // const transcription = concatenateTranscriptionText(transcriptionResult.output);
-        const transcription = await transcribeAudioOpenAI(audioPath);
+        const transcription = await transcribeAudioElevenLabs(audioPath);
 
         // GPT processing (same as before)
         // console.time('GPT processing');
@@ -5070,12 +5157,10 @@ router.post('/315-1', authMiddleware, async (req, res) => {
         } else {
             // For audio files, use the uploaded file directly
             audioPath = finalFilePath;
-        }
+         }
 
-        // Transcription IApp
-        const transcriptionResult = await transcribeAudioIApp(audioPath);
-        const transcription = concatenateTranscriptionText(transcriptionResult.output);
-        // const transcription = await transcribeAudioOpenAI(audioPath);
+        // Transcription
+        const transcription = await transcribeAudioElevenLabs(audioPath);
 
         // GPT processing (same as before)
         // console.time('GPT processing');
@@ -5248,7 +5333,7 @@ router.post('/315-1-en', authMiddleware, async (req, res) => {
         // Transcription IApp
         // const transcriptionResult = await transcribeAudioIApp(audioPath);
         // const transcription = concatenateTranscriptionText(transcriptionResult.output);
-        const transcription = await transcribeAudioOpenAI(audioPath);
+        const transcription = await transcribeAudioElevenLabs(audioPath);
 
         // GPT processing (same as before)
         // console.time('GPT processing');
@@ -5411,12 +5496,10 @@ router.post('/315-2', authMiddleware, async (req, res) => {
         } else {
             // For audio files, use the uploaded file directly
             audioPath = finalFilePath;
-        }
+         }
 
-        // Transcription IApp
-        const transcriptionResult = await transcribeAudioIApp(audioPath);
-        const transcription = concatenateTranscriptionText(transcriptionResult.output);
-        // const transcription = await transcribeAudioOpenAI(audioPath);
+        // Transcription
+        const transcription = await transcribeAudioElevenLabs(audioPath);
 
         // GPT processing (same as before)
         // console.time('GPT processing');
@@ -5582,7 +5665,7 @@ router.post('/315-2-en', authMiddleware, async (req, res) => {
         // Transcription IApp
         // const transcriptionResult = await transcribeAudioIApp(audioPath);
         // const transcription = concatenateTranscriptionText(transcriptionResult.output);
-        const transcription = await transcribeAudioOpenAI(audioPath);
+        const transcription = await transcribeAudioElevenLabs(audioPath);
 
         // GPT processing (same as before)
         // console.time('GPT processing');
@@ -5735,12 +5818,10 @@ router.post('/315-3', authMiddleware, async (req, res) => {
         } else {
             // For audio files, use the uploaded file directly
             audioPath = finalFilePath;
-        }
+         }
 
-        // Transcription IApp
-        const transcriptionResult = await transcribeAudioIApp(audioPath);
-        const transcription = concatenateTranscriptionText(transcriptionResult.output);
-        // const transcription = await transcribeAudioOpenAI(audioPath);
+        // Transcription
+        const transcription = await transcribeAudioElevenLabs(audioPath);
 
         // GPT processing (same as before)
         // console.time('GPT processing');
@@ -5910,7 +5991,7 @@ router.post('/315-3-en', authMiddleware, async (req, res) => {
         // Transcription IApp
         // const transcriptionResult = await transcribeAudioIApp(audioPath);
         // const transcription = concatenateTranscriptionText(transcriptionResult.output);
-        const transcription = await transcribeAudioOpenAI(audioPath);
+        const transcription = await transcribeAudioElevenLabs(audioPath);
 
         // GPT processing (same as before)
         // console.time('GPT processing');

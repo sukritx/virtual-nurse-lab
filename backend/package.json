@@ -16,6 +16,7 @@
     "@aws-sdk/lib-storage": "^3.620.0",
     "@aws-sdk/s3-presigned-post": "^3.623.0",
     "@aws-sdk/s3-request-presigner": "^3.623.0",
+    "@elevenlabs/elevenlabs-js": "^2.44.0",
     "@types/mongoose": "^5.11.97",
     "aws-sdk": "^2.1667.0",
     "axios": "^1.7.2",
@@ -37,7 +38,6 @@
     "multer-s3": "^3.0.1",
     "openai": "^4.51.0",
     "stream": "^0.0.3",
-    "zod": "^3.22.4",
-    "@elevenlabs/elevenlabs-js": "^1.0.0"
+    "zod": "^3.22.4"
   }
 }
