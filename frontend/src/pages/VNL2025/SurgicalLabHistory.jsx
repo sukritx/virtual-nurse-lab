@@ -41,7 +41,7 @@ const SurgicalLabHistory = () => {
     if (selectedAttempt.fileType === 'video') {
       return (
         <video key={selectedAttempt._id} width="100%" controls>
-          <source src={selectedAttempt.fileUrl} type="video/mp4" />
+          <source src={selectedAttempt.fileUrl} type={selectedAttempt.fileUrl?.includes('.webm') ? 'video/webm' : 'video/mp4'} />
           Your browser does not support the video tag.
         </video>
       );

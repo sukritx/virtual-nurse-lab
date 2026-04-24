@@ -38,17 +38,29 @@ const MedicalLabHistory = () => {
   const renderMediaElement = () => {
     if (!selectedAttempt) return null;
 
+    // Get the actual file type from the URL extension
+    const getMimeType = (url) => {
+      if (url.includes('.webm')) return 'video/webm';
+      if (url.includes('.mp4')) return 'video/mp4';
+      if (url.includes('.m4a')) return 'audio/mp4';
+      if (url.includes('.wav')) return 'audio/wav';
+      if (url.includes('.mp3')) return 'audio/mpeg';
+      return 'video/mp4'; // default
+    };
+
     if (selectedAttempt.fileType === 'video') {
+      const mimeType = getMimeType(selectedAttempt.fileUrl);
       return (
         <video key={selectedAttempt._id} width="100%" controls>
-          <source src={selectedAttempt.fileUrl} type="video/mp4" />
+          <source src={selectedAttempt.fileUrl} type={mimeType} />
           Your browser does not support the video tag.
         </video>
       );
     } else if (selectedAttempt.fileType === 'audio') {
+      const mimeType = getMimeType(selectedAttempt.fileUrl);
       return (
         <audio key={selectedAttempt._id} width="100%" controls>
-          <source src={selectedAttempt.fileUrl} type="audio/mpeg" />
+          <source src={selectedAttempt.fileUrl} type={mimeType} />
           Your browser does not support the audio tag.
         </audio>
       );
