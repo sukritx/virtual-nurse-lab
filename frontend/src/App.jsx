@@ -92,6 +92,17 @@ import OBStudentLabs from './pages/VNL2025/OBStudentLabs.jsx';
 import SurgicalLabDetails from './pages/VNL2025/SurgicalLabDetails.jsx';
 import MedicalLabDetails from './pages/VNL2025/MedicalLabDetails.jsx';
 import OBLabDetails from './pages/VNL2025/OBLabDetails.jsx';
+import Fundamental1 from './components/VNL-2025/fundamental-1.jsx';
+import Fundamental1En from './components/VNL-2025/fundamental-1en.jsx';
+import Fundamental2 from './components/VNL-2025/fundamental-2.jsx';
+import Fundamental2En from './components/VNL-2025/fundamental-2en.jsx';
+import Fundamental3 from './components/VNL-2025/fundamental-3.jsx';
+import Fundamental3En from './components/VNL-2025/fundamental-3en.jsx';
+import FundamentalStudentDashboard from './pages/VNL2025/FundamentalStudentDashboard.jsx';
+import FundamentalProfessorDashboard from './pages/VNL2025/FundamentalProfessorDashboard.jsx';
+import FundamentalStudentLabs from './pages/VNL2025/FundamentalStudentLabs.jsx';
+import FundamentalLabDetails from './pages/VNL2025/FundamentalLabDetails.jsx';
+import FundamentalLabHistory from './pages/VNL2025/FundamentalLabHistory.jsx';
 
 // Layouts
 import MainLayout from './layouts/MainLayout';
@@ -181,21 +192,29 @@ function AppContent() {
           <Route path="/student/surgical/4" element={<Surgical4 />} />
           <Route path="/student/surgical/5" element={<Surgical5 />} />
           <Route path="/surgical/dashboard" element={<SurgicalStudentDashboard />} />
-          <Route path="/:subject/:labNumber/history" element={<SurgicalLabHistory />} />
+          <Route path="/surgical/:labNumber/history" element={<SurgicalLabHistory />} />
           <Route path="/student/medical/1" element={<Medical1 />} />
           <Route path="/student/medical/2" element={<Medical2 />} />
           <Route path="/student/medical/3" element={<Medical3 />} />
           <Route path="/student/medical/4" element={<Medical4 />} />
           <Route path="/student/medical/5" element={<Medical5 />} />
           <Route path="/medical/dashboard" element={<MedicalStudentDashboard />} />
-          <Route path="/:subject/:labNumber/history" element={<MedicalLabHistory />} />
+          <Route path="/medical/:labNumber/history" element={<MedicalLabHistory />} />
           <Route path="/student/ob/1" element={<OB1 />} />
           <Route path="/student/ob/2" element={<OB2 />} />
           <Route path="/student/ob/3" element={<OB3 />} />
           <Route path="/student/ob/4" element={<OB4 />} />
           <Route path="/student/ob/5" element={<OB5 />} />
           <Route path="/ob/dashboard" element={<OBStudentDashboard />} />
-          <Route path="/:subject/:labNumber/history" element={<OBLabHistory />} />
+          <Route path="/ob/:labNumber/history" element={<OBLabHistory />} />
+          <Route path="/student/fundamental/1" element={<Fundamental1 />} />
+          <Route path="/student/fundamental/1en" element={<Fundamental1En />} />
+          <Route path="/student/fundamental/2" element={<Fundamental2 />} />
+          <Route path="/student/fundamental/2en" element={<Fundamental2En />} />
+          <Route path="/student/fundamental/3" element={<Fundamental3 />} />
+          <Route path="/student/fundamental/3en" element={<Fundamental3En />} />
+          <Route path="/fundamental/dashboard" element={<FundamentalStudentDashboard />} />
+          <Route path="/fundamental/:labNumber/history" element={<FundamentalLabHistory />} />
         </Route>
       </Route>
 
@@ -221,6 +240,9 @@ function AppContent() {
           <Route path="/professor/surgical/view-lab/:userId/:labNumber" element={<SurgicalLabDetails />} />
           <Route path="/professor/medical/view-lab/:userId/:labNumber" element={<MedicalLabDetails />} />
           <Route path="/professor/ob/view-lab/:userId/:labNumber" element={<OBLabDetails />} />
+          <Route path="/professor/fundamental/dashboard" element={<FundamentalProfessorDashboard />} />
+          <Route path="/professor/fundamental/view-labs/:userId" element={<FundamentalStudentLabs />} />
+          <Route path="/professor/fundamental/view-lab/:userId/:labNumber" element={<FundamentalLabDetails />} />
         </Route>
       </Route>
 

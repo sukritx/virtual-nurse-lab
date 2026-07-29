@@ -2,6 +2,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require("cors");
+const path = require('path');
 const rootRouter = require("./routes/index");
 
 const dotenv = require('dotenv').config();
@@ -36,6 +37,8 @@ app.use(cors({
   credentials: true
 }));
 app.use(express.json());
+
+app.use("/uploads", express.static(path.join(__dirname, "public/uploads")));
 
 app.use("/api/v1", rootRouter);
 

@@ -3,7 +3,7 @@ import axios from '../../api/axios';
 import { useAuth } from '../../context/AuthContext';
 import { useParams } from 'react-router-dom';
 
-const OBLabHistory = () => {
+const FundamentalLabHistory = () => {
   const [labHistory, setLabHistory] = useState([]);
   const [selectedAttempt, setSelectedAttempt] = useState(null);
   const { token } = useAuth();
@@ -15,7 +15,7 @@ const OBLabHistory = () => {
 
   const fetchLabHistory = async () => {
     try {
-      const response = await axios.get(`/api/v1/student/ob/${labNumber}/history`, {
+      const response = await axios.get(`/api/v1/student/fundamental/${labNumber}/history`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -93,4 +93,4 @@ const OBLabHistory = () => {
   );
 };
 
-export default OBLabHistory;
+export default FundamentalLabHistory;

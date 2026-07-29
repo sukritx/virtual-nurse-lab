@@ -56,6 +56,10 @@ export const Signin = () => {
             navigate("/professor/ob/dashboard");
             return;
           }
+          if (upperRegisterCode.startsWith("FUN")) {
+            navigate("/professor/fundamental/dashboard");
+            return;
+          }
         }
 
         // Fallback for professors with 'Subject315' university, if no registerCode prefix matched
@@ -83,6 +87,10 @@ export const Signin = () => {
         }
         if (upperRegisterCode.startsWith("OB")) {
           navigate("/ob/dashboard");
+          return;
+        }
+        if (upperRegisterCode.startsWith("FUN")) {
+          navigate("/fundamental/dashboard");
           return;
         }
       }

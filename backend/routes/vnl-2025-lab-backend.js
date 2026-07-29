@@ -48,11 +48,17 @@ function getFileType(fileName) {
 
 // Function to upload file to DigitalOcean Spaces
 async function uploadToSpaces(filePath, fileName) {
+    if (process.env.LOCAL_DEV === 'true') {
+        const localUrl = `/uploads/${path.basename(filePath)}`;
+        console.log("Local dev mode - skipping Spaces upload, serving from:", localUrl);
+        return localUrl;
+    }
+
     const fileStream = fs.createReadStream(filePath);
 
     const params = {
         Bucket: process.env.DO_SPACES_BUCKET,
-        Key: fileName,  // This should not include the bucket name
+        Key: fileName,
         Body: fileStream,
         ACL: 'public-read'
     };
@@ -65,8 +71,7 @@ async function uploadToSpaces(filePath, fileName) {
 
         const result = await upload.done();
         console.log("Upload successful:", result);
-        
-        // Construct the correct URL
+
         const cdnUrl = `https://${process.env.DO_SPACES_BUCKET}.${process.env.DO_SPACES_CDN_ENDPOINT}/${fileName}`;
         return cdnUrl;
     } catch (err) {
@@ -370,7 +375,7 @@ router.post('/upload-test', authMiddleware, async (req, res) => {
         // Cleanup
         // console.log('Cleaning up local files');
         [finalFilePath, audioPath].forEach(path => {
-            if (path && fs.existsSync(path)) {
+            if (path && process.env.LOCAL_DEV !== 'true' && fs.existsSync(path)) {
                 try {
                     fs.unlinkSync(path);
                     // console.log(`Successfully deleted: ${path}`);
@@ -487,7 +492,7 @@ router.post('/upload-test', authMiddleware, async (req, res) => {
         // Cleanup
         console.log('Cleaning up local files');
         [finalFilePath, audioPath].forEach(path => {
-            if (path && fs.existsSync(path)) {
+            if (path && process.env.LOCAL_DEV !== 'true' && fs.existsSync(path)) {
                 try {
                     fs.unlinkSync(path);
                     console.log(`Successfully deleted: ${path}`);
@@ -607,7 +612,7 @@ router.post('/surgical/1', authMiddleware, async (req, res) => {
         // Cleanup
         // console.log('Cleaning up local files');
         [finalFilePath, audioPath].forEach(path => {
-            if (path && fs.existsSync(path)) {
+            if (path && process.env.LOCAL_DEV !== 'true' && fs.existsSync(path)) {
                 try {
                     fs.unlinkSync(path);
                     // console.log(`Successfully deleted: ${path}`);
@@ -668,8 +673,8 @@ async function processTranscriptionSurgicalLab1(transcription) {
     *   ถ้าประเด็นนั้นปรากฏแต่ไม่สมบูรณ์หรือไม่ถูกต้องทั้งหมด: ให้พิจารณาให้คะแนนบางส่วนตามความเหมาะสม (เช่น อาจได้ครึ่งหนึ่งของคะแนนเต็มสำหรับประเด็นนั้น)
     *   ถ้าประเด็นนั้นไม่ปรากฏเลย: ไม่ให้คะแนนสำหรับประเด็นนั้น
 3.  **การคำนวณคะแนนรวม:** คำนวณ 'totalScore' จากผลรวมของคะแนนที่ได้รับจากแต่ละประเด็นย่อยในเฉลย
-4.  **ข้อดี (pros):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาสามารถตอบได้ถูกต้อง ชัดเจน และครบถ้วน โดยอธิบายรายละเอียดว่าทำไมจึงถือว่าทำได้ดี
-5.  **ข้อเสนอแนะ (recommendations):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาตอบได้ไม่สมบูรณ์ คลาดเคลื่อน หรือขาดหายไป พร้อมให้คำแนะนำที่เฉพาะเจาะจงเพื่อปรับปรุงในครั้งต่อไป
+4.  **ข้อดี (pros):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาสามารถตอบได้ถูกต้อง ชัดเจน และครบถ้วน โดยอธิบายรายละเอียดว่าทำไมจึงถือว่าทำได้ดี พร้อมระบุคะแนนของแต่ละประเด็นในวงเล็บ เช่น (15 คะแนน)
+5.  **ข้อเสนอแนะ (recommendations):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาตอบได้ไม่สมบูรณ์ คลาดเคลื่อน หรือขาดหายไป พร้อมให้คำแนะนำที่เฉพาะเจาะจงเพื่อปรับปรุงในครั้งต่อไป พร้อมระบุคะแนนของแต่ละประเด็นในวงเล็บ เช่น (15 คะแนน)
 6.  **ข้อควรทราบ:** ไม่ต้องวิจารณ์เรื่องไวยากรณ์ การสะกดคำ หรือประเด็นอื่นที่ไม่เกี่ยวข้องกับเนื้อหาทางการพยาบาล
 
 
@@ -798,7 +803,7 @@ router.post('/surgical/2', authMiddleware, async (req, res) => {
         // Cleanup
         // console.log('Cleaning up local files');
         [finalFilePath, audioPath].forEach(path => {
-            if (path && fs.existsSync(path)) {
+            if (path && process.env.LOCAL_DEV !== 'true' && fs.existsSync(path)) {
                 try {
                     fs.unlinkSync(path);
                     // console.log(`Successfully deleted: ${path}`);
@@ -863,8 +868,8 @@ async function processTranscriptionSurgicalLab2(transcription) {
     *   ถ้าประเด็นนั้นปรากฏแต่ไม่สมบูรณ์หรือไม่ถูกต้องทั้งหมด: ให้พิจารณาให้คะแนนบางส่วนตามความเหมาะสม (เช่น อาจได้ครึ่งหนึ่งของคะแนนเต็มสำหรับประเด็นนั้น)
     *   ถ้าประเด็นนั้นไม่ปรากฏเลย: ไม่ให้คะแนนสำหรับประเด็นนั้น
 3.  **การคำนวณคะแนนรวม:** คำนวณ 'totalScore' จากผลรวมของคะแนนที่ได้รับจากแต่ละประเด็นย่อยในเฉลย
-4.  **ข้อดี (pros):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาสามารถตอบได้ถูกต้อง ชัดเจน และครบถ้วน โดยอธิบายรายละเอียดว่าทำไมจึงถือว่าทำได้ดี
-5.  **ข้อเสนอแนะ (recommendations):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาตอบได้ไม่สมบูรณ์ คลาดเคลื่อน หรือขาดหายไป พร้อมให้คำแนะนำที่เฉพาะเจาะจงเพื่อปรับปรุงในครั้งต่อไป
+4.  **ข้อดี (pros):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาสามารถตอบได้ถูกต้อง ชัดเจน และครบถ้วน โดยอธิบายรายละเอียดว่าทำไมจึงถือว่าทำได้ดี พร้อมระบุคะแนนของแต่ละประเด็นในวงเล็บ เช่น (15 คะแนน)
+5.  **ข้อเสนอแนะ (recommendations):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาตอบได้ไม่สมบูรณ์ คลาดเคลื่อน หรือขาดหายไป พร้อมให้คำแนะนำที่เฉพาะเจาะจงเพื่อปรับปรุงในครั้งต่อไป พร้อมระบุคะแนนของแต่ละประเด็นในวงเล็บ เช่น (15 คะแนน)
 6.  **ข้อควรทราบ:** ไม่ต้องวิจารณ์เรื่องไวยากรณ์ การสะกดคำ หรือประเด็นอื่นที่ไม่เกี่ยวข้องกับเนื้อหาทางการพยาบาล
 
 
@@ -993,7 +998,7 @@ router.post('/surgical/3', authMiddleware, async (req, res) => {
         // Cleanup
         // console.log('Cleaning up local files');
         [finalFilePath, audioPath].forEach(path => {
-            if (path && fs.existsSync(path)) {
+            if (path && process.env.LOCAL_DEV !== 'true' && fs.existsSync(path)) {
                 try {
                     fs.unlinkSync(path);
                     // console.log(`Successfully deleted: ${path}`);
@@ -1062,8 +1067,8 @@ async function processTranscriptionSurgicalLab3(transcription) {
     *   ถ้าประเด็นนั้นปรากฏแต่ไม่สมบูรณ์หรือไม่ถูกต้องทั้งหมด: ให้พิจารณาให้คะแนนบางส่วนตามความเหมาะสม (เช่น อาจได้ครึ่งหนึ่งของคะแนนเต็มสำหรับประเด็นนั้น)
     *   ถ้าประเด็นนั้นไม่ปรากฏเลย: ไม่ให้คะแนนสำหรับประเด็นนั้น
 3.  **การคำนวณคะแนนรวม:** คำนวณ 'totalScore' จากผลรวมของคะแนนที่ได้รับจากแต่ละประเด็นย่อยในเฉลย
-4.  **ข้อดี (pros):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาสามารถตอบได้ถูกต้อง ชัดเจน และครบถ้วน โดยอธิบายรายละเอียดว่าทำไมจึงถือว่าทำได้ดี
-5.  **ข้อเสนอแนะ (recommendations):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาตอบได้ไม่สมบูรณ์ คลาดเคลื่อน หรือขาดหายไป พร้อมให้คำแนะนำที่เฉพาะเจาะจงเพื่อปรับปรุงในครั้งต่อไป
+4.  **ข้อดี (pros):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาสามารถตอบได้ถูกต้อง ชัดเจน และครบถ้วน โดยอธิบายรายละเอียดว่าทำไมจึงถือว่าทำได้ดี พร้อมระบุคะแนนของแต่ละประเด็นในวงเล็บ เช่น (15 คะแนน)
+5.  **ข้อเสนอแนะ (recommendations):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาตอบได้ไม่สมบูรณ์ คลาดเคลื่อน หรือขาดหายไป พร้อมให้คำแนะนำที่เฉพาะเจาะจงเพื่อปรับปรุงในครั้งต่อไป พร้อมระบุคะแนนของแต่ละประเด็นในวงเล็บ เช่น (15 คะแนน)
 6.  **ข้อควรทราบ:** ไม่ต้องวิจารณ์เรื่องไวยากรณ์ การสะกดคำ หรือประเด็นอื่นที่ไม่เกี่ยวข้องกับเนื้อหาทางการพยาบาล
 
 
@@ -1192,7 +1197,7 @@ router.post('/surgical/4', authMiddleware, async (req, res) => {
         // Cleanup
         // console.log('Cleaning up local files');
         [finalFilePath, audioPath].forEach(path => {
-            if (path && fs.existsSync(path)) {
+            if (path && process.env.LOCAL_DEV !== 'true' && fs.existsSync(path)) {
                 try {
                     fs.unlinkSync(path);
                     // console.log(`Successfully deleted: ${path}`);
@@ -1240,8 +1245,8 @@ async function processTranscriptionSurgicalLab4(transcription) {
     *   ถ้าประเด็นนั้นปรากฏแต่ไม่สมบูรณ์หรือไม่ถูกต้องทั้งหมด: ให้พิจารณาให้คะแนนบางส่วนตามความเหมาะสม (เช่น อาจได้ครึ่งหนึ่งของคะแนนเต็มสำหรับประเด็นนั้น)
     *   ถ้าประเด็นนั้นไม่ปรากฏเลย: ไม่ให้คะแนนสำหรับประเด็นนั้น
 3.  **การคำนวณคะแนนรวม:** คำนวณ 'totalScore' จากผลรวมของคะแนนที่ได้รับจากแต่ละประเด็นย่อยในเฉลย
-4.  **ข้อดี (pros):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาสามารถตอบได้ถูกต้อง ชัดเจน และครบถ้วน โดยอธิบายรายละเอียดว่าทำไมจึงถือว่าทำได้ดี
-5.  **ข้อเสนอแนะ (recommendations):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาตอบได้ไม่สมบูรณ์ คลาดเคลื่อน หรือขาดหายไป พร้อมให้คำแนะนำที่เฉพาะเจาะจงเพื่อปรับปรุงในครั้งต่อไป
+4.  **ข้อดี (pros):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาสามารถตอบได้ถูกต้อง ชัดเจน และครบถ้วน โดยอธิบายรายละเอียดว่าทำไมจึงถือว่าทำได้ดี พร้อมระบุคะแนนของแต่ละประเด็นในวงเล็บ เช่น (15 คะแนน)
+5.  **ข้อเสนอแนะ (recommendations):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาตอบได้ไม่สมบูรณ์ คลาดเคลื่อน หรือขาดหายไป พร้อมให้คำแนะนำที่เฉพาะเจาะจงเพื่อปรับปรุงในครั้งต่อไป พร้อมระบุคะแนนของแต่ละประเด็นในวงเล็บ เช่น (15 คะแนน)
 6.  **ข้อควรทราบ:** ไม่ต้องวิจารณ์เรื่องไวยากรณ์ การสะกดคำ หรือประเด็นอื่นที่ไม่เกี่ยวข้องกับเนื้อหาทางการพยาบาล
 
 
@@ -1370,7 +1375,7 @@ router.post('/surgical/5', authMiddleware, async (req, res) => {
         // Cleanup
         // console.log('Cleaning up local files');
         [finalFilePath, audioPath].forEach(path => {
-            if (path && fs.existsSync(path)) {
+            if (path && process.env.LOCAL_DEV !== 'true' && fs.existsSync(path)) {
                 try {
                     fs.unlinkSync(path);
                     // console.log(`Successfully deleted: ${path}`);
@@ -1421,8 +1426,8 @@ async function processTranscriptionSurgicalLab5(transcription) {
     *   ถ้าประเด็นนั้นปรากฏแต่ไม่สมบูรณ์หรือไม่ถูกต้องทั้งหมด: ให้พิจารณาให้คะแนนบางส่วนตามความเหมาะสม (เช่น อาจได้ครึ่งหนึ่งของคะแนนเต็มสำหรับประเด็นนั้น)
     *   ถ้าประเด็นนั้นไม่ปรากฏเลย: ไม่ให้คะแนนสำหรับประเด็นนั้น
 3.  **การคำนวณคะแนนรวม:** คำนวณ 'totalScore' จากผลรวมของคะแนนที่ได้รับจากแต่ละประเด็นย่อยในเฉลย
-4.  **ข้อดี (pros):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาสามารถตอบได้ถูกต้อง ชัดเจน และครบถ้วน โดยอธิบายรายละเอียดว่าทำไมจึงถือว่าทำได้ดี
-5.  **ข้อเสนอแนะ (recommendations):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาตอบได้ไม่สมบูรณ์ คลาดเคลื่อน หรือขาดหายไป พร้อมให้คำแนะนำที่เฉพาะเจาะจงเพื่อปรับปรุงในครั้งต่อไป
+4.  **ข้อดี (pros):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาสามารถตอบได้ถูกต้อง ชัดเจน และครบถ้วน โดยอธิบายรายละเอียดว่าทำไมจึงถือว่าทำได้ดี พร้อมระบุคะแนนของแต่ละประเด็นในวงเล็บ เช่น (15 คะแนน)
+5.  **ข้อเสนอแนะ (recommendations):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาตอบได้ไม่สมบูรณ์ คลาดเคลื่อน หรือขาดหายไป พร้อมให้คำแนะนำที่เฉพาะเจาะจงเพื่อปรับปรุงในครั้งต่อไป พร้อมระบุคะแนนของแต่ละประเด็นในวงเล็บ เช่น (15 คะแนน)
 6.  **ข้อควรทราบ:** ไม่ต้องวิจารณ์เรื่องไวยากรณ์ การสะกดคำ หรือประเด็นอื่นที่ไม่เกี่ยวข้องกับเนื้อหาทางการพยาบาล
 
 
@@ -1554,7 +1559,7 @@ router.post('/medical/1', authMiddleware, async (req, res) => {
         // Cleanup
         // console.log('Cleaning up local files');
         [finalFilePath, audioPath].forEach(path => {
-            if (path && fs.existsSync(path)) {
+            if (path && process.env.LOCAL_DEV !== 'true' && fs.existsSync(path)) {
                 try {
                     fs.unlinkSync(path);
                     // console.log(`Successfully deleted: ${path}`);
@@ -1598,8 +1603,8 @@ async function processTranscriptionMedicalLab1(transcription) {
     *   ถ้าประเด็นนั้นปรากฏแต่ไม่สมบูรณ์หรือไม่ถูกต้องทั้งหมด: ให้พิจารณาให้คะแนนบางส่วนตามความเหมาะสม (เช่น อาจได้ครึ่งหนึ่งของคะแนนเต็มสำหรับประเด็นนั้น)
     *   ถ้าประเด็นนั้นไม่ปรากฏเลย: ไม่ให้คะแนนสำหรับประเด็นนั้น
 3.  **การคำนวณคะแนนรวม:** คำนวณ 'totalScore' จากผลรวมของคะแนนที่ได้รับจากแต่ละประเด็นย่อยในเฉลย
-4.  **ข้อดี (pros):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาสามารถตอบได้ถูกต้อง ชัดเจน และครบถ้วน โดยอธิบายรายละเอียดว่าทำไมจึงถือว่าทำได้ดี
-5.  **ข้อเสนอแนะ (recommendations):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาตอบได้ไม่สมบูรณ์ คลาดเคลื่อน หรือขาดหายไป พร้อมให้คำแนะนำที่เฉพาะเจาะจงเพื่อปรับปรุงในครั้งต่อไป
+4.  **ข้อดี (pros):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาสามารถตอบได้ถูกต้อง ชัดเจน และครบถ้วน โดยอธิบายรายละเอียดว่าทำไมจึงถือว่าทำได้ดี พร้อมระบุคะแนนของแต่ละประเด็นในวงเล็บ เช่น (15 คะแนน)
+5.  **ข้อเสนอแนะ (recommendations):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาตอบได้ไม่สมบูรณ์ คลาดเคลื่อน หรือขาดหายไป พร้อมให้คำแนะนำที่เฉพาะเจาะจงเพื่อปรับปรุงในครั้งต่อไป พร้อมระบุคะแนนของแต่ละประเด็นในวงเล็บ เช่น (15 คะแนน)
 6.  **ข้อควรทราบ:** ไม่ต้องวิจารณ์เรื่องไวยากรณ์ การสะกดคำ หรือประเด็นอื่นที่ไม่เกี่ยวข้องกับเนื้อหาทางการพยาบาล
 
 
@@ -1728,7 +1733,7 @@ router.post('/medical/2', authMiddleware, async (req, res) => {
         // Cleanup
         // console.log('Cleaning up local files');
         [finalFilePath, audioPath].forEach(path => {
-            if (path && fs.existsSync(path)) {
+            if (path && process.env.LOCAL_DEV !== 'true' && fs.existsSync(path)) {
                 try {
                     fs.unlinkSync(path);
                     // console.log(`Successfully deleted: ${path}`);
@@ -1772,8 +1777,8 @@ async function processTranscriptionMedicalLab2(transcription) {
     *   ถ้าประเด็นนั้นปรากฏแต่ไม่สมบูรณ์หรือไม่ถูกต้องทั้งหมด: ให้พิจารณาให้คะแนนบางส่วนตามความเหมาะสม (เช่น อาจได้ครึ่งหนึ่งของคะแนนเต็มสำหรับประเด็นนั้น)
     *   ถ้าประเด็นนั้นไม่ปรากฏเลย: ไม่ให้คะแนนสำหรับประเด็นนั้น
 3.  **การคำนวณคะแนนรวม:** คำนวณ 'totalScore' จากผลรวมของคะแนนที่ได้รับจากแต่ละประเด็นย่อยในเฉลย
-4.  **ข้อดี (pros):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาสามารถตอบได้ถูกต้อง ชัดเจน และครบถ้วน โดยอธิบายรายละเอียดว่าทำไมจึงถือว่าทำได้ดี
-5.  **ข้อเสนอแนะ (recommendations):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาตอบได้ไม่สมบูรณ์ คลาดเคลื่อน หรือขาดหายไป พร้อมให้คำแนะนำที่เฉพาะเจาะจงเพื่อปรับปรุงในครั้งต่อไป
+4.  **ข้อดี (pros):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาสามารถตอบได้ถูกต้อง ชัดเจน และครบถ้วน โดยอธิบายรายละเอียดว่าทำไมจึงถือว่าทำได้ดี พร้อมระบุคะแนนของแต่ละประเด็นในวงเล็บ เช่น (15 คะแนน)
+5.  **ข้อเสนอแนะ (recommendations):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาตอบได้ไม่สมบูรณ์ คลาดเคลื่อน หรือขาดหายไป พร้อมให้คำแนะนำที่เฉพาะเจาะจงเพื่อปรับปรุงในครั้งต่อไป พร้อมระบุคะแนนของแต่ละประเด็นในวงเล็บ เช่น (15 คะแนน)
 6.  **ข้อควรทราบ:** ไม่ต้องวิจารณ์เรื่องไวยากรณ์ การสะกดคำ หรือประเด็นอื่นที่ไม่เกี่ยวข้องกับเนื้อหาทางการพยาบาล
 
 
@@ -1901,7 +1906,7 @@ router.post('/medical/3', authMiddleware, async (req, res) => {
         // Cleanup
         // console.log('Cleaning up local files');
         [finalFilePath, audioPath].forEach(path => {
-            if (path && fs.existsSync(path)) {
+            if (path && process.env.LOCAL_DEV !== 'true' && fs.existsSync(path)) {
                 try {
                     fs.unlinkSync(path);
                     // console.log(`Successfully deleted: ${path}`);
@@ -1945,8 +1950,8 @@ async function processTranscriptionMedicalLab3(transcription) {
     *   ถ้าประเด็นนั้นปรากฏแต่ไม่สมบูรณ์หรือไม่ถูกต้องทั้งหมด: ให้พิจารณาให้คะแนนบางส่วนตามความเหมาะสม (เช่น อาจได้ครึ่งหนึ่งของคะแนนเต็มสำหรับประเด็นนั้น)
     *   ถ้าประเด็นนั้นไม่ปรากฏเลย: ไม่ให้คะแนนสำหรับประเด็นนั้น
 3.  **การคำนวณคะแนนรวม:** คำนวณ 'totalScore' จากผลรวมของคะแนนที่ได้รับจากแต่ละประเด็นย่อยในเฉลย
-4.  **ข้อดี (pros):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาสามารถตอบได้ถูกต้อง ชัดเจน และครบถ้วน โดยอธิบายรายละเอียดว่าทำไมจึงถือว่าทำได้ดี
-5.  **ข้อเสนอแนะ (recommendations):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาตอบได้ไม่สมบูรณ์ คลาดเคลื่อน หรือขาดหายไป พร้อมให้คำแนะนำที่เฉพาะเจาะจงเพื่อปรับปรุงในครั้งต่อไป
+4.  **ข้อดี (pros):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาสามารถตอบได้ถูกต้อง ชัดเจน และครบถ้วน โดยอธิบายรายละเอียดว่าทำไมจึงถือว่าทำได้ดี พร้อมระบุคะแนนของแต่ละประเด็นในวงเล็บ เช่น (15 คะแนน)
+5.  **ข้อเสนอแนะ (recommendations):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาตอบได้ไม่สมบูรณ์ คลาดเคลื่อน หรือขาดหายไป พร้อมให้คำแนะนำที่เฉพาะเจาะจงเพื่อปรับปรุงในครั้งต่อไป พร้อมระบุคะแนนของแต่ละประเด็นในวงเล็บ เช่น (15 คะแนน)
 6.  **ข้อควรทราบ:** ไม่ต้องวิจารณ์เรื่องไวยากรณ์ การสะกดคำ หรือประเด็นอื่นที่ไม่เกี่ยวข้องกับเนื้อหาทางการพยาบาล
 
 
@@ -2074,7 +2079,7 @@ router.post('/medical/4', authMiddleware, async (req, res) => {
         // Cleanup
         // console.log('Cleaning up local files');
         [finalFilePath, audioPath].forEach(path => {
-            if (path && fs.existsSync(path)) {
+            if (path && process.env.LOCAL_DEV !== 'true' && fs.existsSync(path)) {
                 try {
                     fs.unlinkSync(path);
                     // console.log(`Successfully deleted: ${path}`);
@@ -2117,8 +2122,8 @@ async function processTranscriptionMedicalLab4(transcription) {
     *   ถ้าประเด็นนั้นปรากฏแต่ไม่สมบูรณ์หรือไม่ถูกต้องทั้งหมด: ให้พิจารณาให้คะแนนบางส่วนตามความเหมาะสม (เช่น อาจได้ครึ่งหนึ่งของคะแนนเต็มสำหรับประเด็นนั้น)
     *   ถ้าประเด็นนั้นไม่ปรากฏเลย: ไม่ให้คะแนนสำหรับประเด็นนั้น
 3.  **การคำนวณคะแนนรวม:** คำนวณ 'totalScore' จากผลรวมของคะแนนที่ได้รับจากแต่ละประเด็นย่อยในเฉลย
-4.  **ข้อดี (pros):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาสามารถตอบได้ถูกต้อง ชัดเจน และครบถ้วน โดยอธิบายรายละเอียดว่าทำไมจึงถือว่าทำได้ดี
-5.  **ข้อเสนอแนะ (recommendations):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาตอบได้ไม่สมบูรณ์ คลาดเคลื่อน หรือขาดหายไป พร้อมให้คำแนะนำที่เฉพาะเจาะจงเพื่อปรับปรุงในครั้งต่อไป
+4.  **ข้อดี (pros):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาสามารถตอบได้ถูกต้อง ชัดเจน และครบถ้วน โดยอธิบายรายละเอียดว่าทำไมจึงถือว่าทำได้ดี พร้อมระบุคะแนนของแต่ละประเด็นในวงเล็บ เช่น (15 คะแนน)
+5.  **ข้อเสนอแนะ (recommendations):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาตอบได้ไม่สมบูรณ์ คลาดเคลื่อน หรือขาดหายไป พร้อมให้คำแนะนำที่เฉพาะเจาะจงเพื่อปรับปรุงในครั้งต่อไป พร้อมระบุคะแนนของแต่ละประเด็นในวงเล็บ เช่น (15 คะแนน)
 6.  **ข้อควรทราบ:** ไม่ต้องวิจารณ์เรื่องไวยากรณ์ การสะกดคำ หรือประเด็นอื่นที่ไม่เกี่ยวข้องกับเนื้อหาทางการพยาบาล
 
 
@@ -2246,7 +2251,7 @@ router.post('/medical/5', authMiddleware, async (req, res) => {
         // Cleanup
         // console.log('Cleaning up local files');
         [finalFilePath, audioPath].forEach(path => {
-            if (path && fs.existsSync(path)) {
+            if (path && process.env.LOCAL_DEV !== 'true' && fs.existsSync(path)) {
                 try {
                     fs.unlinkSync(path);
                     // console.log(`Successfully deleted: ${path}`);
@@ -2290,8 +2295,8 @@ async function processTranscriptionMedicalLab5(transcription) {
     *   ถ้าประเด็นนั้นปรากฏแต่ไม่สมบูรณ์หรือไม่ถูกต้องทั้งหมด: ให้พิจารณาให้คะแนนบางส่วนตามความเหมาะสม (เช่น อาจได้ครึ่งหนึ่งของคะแนนเต็มสำหรับประเด็นนั้น)
     *   ถ้าประเด็นนั้นไม่ปรากฏเลย: ไม่ให้คะแนนสำหรับประเด็นนั้น
 3.  **การคำนวณคะแนนรวม:** คำนวณ 'totalScore' จากผลรวมของคะแนนที่ได้รับจากแต่ละประเด็นย่อยในเฉลย
-4.  **ข้อดี (pros):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาสามารถตอบได้ถูกต้อง ชัดเจน และครบถ้วน โดยอธิบายรายละเอียดว่าทำไมจึงถือว่าทำได้ดี
-5.  **ข้อเสนอแนะ (recommendations):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาตอบได้ไม่สมบูรณ์ คลาดเคลื่อน หรือขาดหายไป พร้อมให้คำแนะนำที่เฉพาะเจาะจงเพื่อปรับปรุงในครั้งต่อไป
+4.  **ข้อดี (pros):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาสามารถตอบได้ถูกต้อง ชัดเจน และครบถ้วน โดยอธิบายรายละเอียดว่าทำไมจึงถือว่าทำได้ดี พร้อมระบุคะแนนของแต่ละประเด็นในวงเล็บ เช่น (15 คะแนน)
+5.  **ข้อเสนอแนะ (recommendations):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาตอบได้ไม่สมบูรณ์ คลาดเคลื่อน หรือขาดหายไป พร้อมให้คำแนะนำที่เฉพาะเจาะจงเพื่อปรับปรุงในครั้งต่อไป พร้อมระบุคะแนนของแต่ละประเด็นในวงเล็บ เช่น (15 คะแนน)
 6.  **ข้อควรทราบ:** ไม่ต้องวิจารณ์เรื่องไวยากรณ์ การสะกดคำ หรือประเด็นอื่นที่ไม่เกี่ยวข้องกับเนื้อหาทางการพยาบาล
 
 
@@ -2422,7 +2427,7 @@ router.post('/ob/1', authMiddleware, async (req, res) => {
         // Cleanup
         // console.log('Cleaning up local files');
         [finalFilePath, audioPath].forEach(path => {
-            if (path && fs.existsSync(path)) {
+            if (path && process.env.LOCAL_DEV !== 'true' && fs.existsSync(path)) {
                 try {
                     fs.unlinkSync(path);
                     // console.log(`Successfully deleted: ${path}`);
@@ -2491,8 +2496,8 @@ Initial Prenatal Assessment (เฉลย)
     *   ถ้าประเด็นนั้นปรากฏแต่ไม่สมบูรณ์หรือไม่ถูกต้องทั้งหมด: ให้พิจารณาให้คะแนนบางส่วนตามความเหมาะสม (เช่น อาจได้ครึ่งหนึ่งของคะแนนเต็มสำหรับประเด็นนั้น)
     *   ถ้าประเด็นนั้นไม่ปรากฏเลย: ไม่ให้คะแนนสำหรับประเด็นนั้น
 3.  **การคำนวณคะแนนรวม:** คำนวณ 'totalScore' จากผลรวมของคะแนนที่ได้รับจากแต่ละประเด็นย่อยในเฉลย
-4.  **ข้อดี (pros):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาสามารถตอบได้ถูกต้อง ชัดเจน และครบถ้วน โดยอธิบายรายละเอียดว่าทำไมจึงถือว่าทำได้ดี
-5.  **ข้อเสนอแนะ (recommendations):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาตอบได้ไม่สมบูรณ์ คลาดเคลื่อน หรือขาดหายไป พร้อมให้คำแนะนำที่เฉพาะเจาะจงเพื่อปรับปรุงในครั้งต่อไป
+4.  **ข้อดี (pros):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาสามารถตอบได้ถูกต้อง ชัดเจน และครบถ้วน โดยอธิบายรายละเอียดว่าทำไมจึงถือว่าทำได้ดี พร้อมระบุคะแนนของแต่ละประเด็นในวงเล็บ เช่น (15 คะแนน)
+5.  **ข้อเสนอแนะ (recommendations):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาตอบได้ไม่สมบูรณ์ คลาดเคลื่อน หรือขาดหายไป พร้อมให้คำแนะนำที่เฉพาะเจาะจงเพื่อปรับปรุงในครั้งต่อไป พร้อมระบุคะแนนของแต่ละประเด็นในวงเล็บ เช่น (15 คะแนน)
 6.  **ข้อควรทราบ:** ไม่ต้องวิจารณ์เรื่องไวยากรณ์ การสะกดคำ หรือประเด็นอื่นที่ไม่เกี่ยวข้องกับเนื้อหาทางการพยาบาล
 
 
@@ -2620,7 +2625,7 @@ router.post('/ob/2', authMiddleware, async (req, res) => {
         // Cleanup
         // console.log('Cleaning up local files');
         [finalFilePath, audioPath].forEach(path => {
-            if (path && fs.existsSync(path)) {
+            if (path && process.env.LOCAL_DEV !== 'true' && fs.existsSync(path)) {
                 try {
                     fs.unlinkSync(path);
                     // console.log(`Successfully deleted: ${path}`);
@@ -2690,8 +2695,8 @@ async function processTranscriptionOBLab2(transcription) {
     *   ถ้าประเด็นนั้นปรากฏแต่ไม่สมบูรณ์หรือไม่ถูกต้องทั้งหมด: ให้พิจารณาให้คะแนนบางส่วนตามความเหมาะสม (เช่น อาจได้ครึ่งหนึ่งของคะแนนเต็มสำหรับประเด็นนั้น)
     *   ถ้าประเด็นนั้นไม่ปรากฏเลย: ไม่ให้คะแนนสำหรับประเด็นนั้น
 3.  **การคำนวณคะแนนรวม:** คำนวณ 'totalScore' จากผลรวมของคะแนนที่ได้รับจากแต่ละประเด็นย่อยในเฉลย
-4.  **ข้อดี (pros):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาสามารถตอบได้ถูกต้อง ชัดเจน และครบถ้วน โดยอธิบายรายละเอียดว่าทำไมจึงถือว่าทำได้ดี
-5.  **ข้อเสนอแนะ (recommendations):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาตอบได้ไม่สมบูรณ์ คลาดเคลื่อน หรือขาดหายไป พร้อมให้คำแนะนำที่เฉพาะเจาะจงเพื่อปรับปรุงในครั้งต่อไป
+4.  **ข้อดี (pros):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาสามารถตอบได้ถูกต้อง ชัดเจน และครบถ้วน โดยอธิบายรายละเอียดว่าทำไมจึงถือว่าทำได้ดี พร้อมระบุคะแนนของแต่ละประเด็นในวงเล็บ เช่น (15 คะแนน)
+5.  **ข้อเสนอแนะ (recommendations):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาตอบได้ไม่สมบูรณ์ คลาดเคลื่อน หรือขาดหายไป พร้อมให้คำแนะนำที่เฉพาะเจาะจงเพื่อปรับปรุงในครั้งต่อไป พร้อมระบุคะแนนของแต่ละประเด็นในวงเล็บ เช่น (15 คะแนน)
 6.  **ข้อควรทราบ:** ไม่ต้องวิจารณ์เรื่องไวยากรณ์ การสะกดคำ หรือประเด็นอื่นที่ไม่เกี่ยวข้องกับเนื้อหาทางการพยาบาล
 
 
@@ -2819,7 +2824,7 @@ router.post('/ob/3', authMiddleware, async (req, res) => {
         // Cleanup
         // console.log('Cleaning up local files');
         [finalFilePath, audioPath].forEach(path => {
-            if (path && fs.existsSync(path)) {
+            if (path && process.env.LOCAL_DEV !== 'true' && fs.existsSync(path)) {
                 try {
                     fs.unlinkSync(path);
                     // console.log(`Successfully deleted: ${path}`);
@@ -2905,8 +2910,8 @@ async function processTranscriptionOBLab3(transcription) {
     *   ถ้าประเด็นนั้นปรากฏแต่ไม่สมบูรณ์หรือไม่ถูกต้องทั้งหมด: ให้พิจารณาให้คะแนนบางส่วนตามความเหมาะสม (เช่น อาจได้ครึ่งหนึ่งของคะแนนเต็มสำหรับประเด็นนั้น)
     *   ถ้าประเด็นนั้นไม่ปรากฏเลย: ไม่ให้คะแนนสำหรับประเด็นนั้น
 3.  **การคำนวณคะแนนรวม:** คำนวณ 'totalScore' จากผลรวมของคะแนนที่ได้รับจากแต่ละประเด็นย่อยในเฉลย
-4.  **ข้อดี (pros):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาสามารถตอบได้ถูกต้อง ชัดเจน และครบถ้วน โดยอธิบายรายละเอียดว่าทำไมจึงถือว่าทำได้ดี
-5.  **ข้อเสนอแนะ (recommendations):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาตอบได้ไม่สมบูรณ์ คลาดเคลื่อน หรือขาดหายไป พร้อมให้คำแนะนำที่เฉพาะเจาะจงเพื่อปรับปรุงในครั้งต่อไป
+4.  **ข้อดี (pros):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาสามารถตอบได้ถูกต้อง ชัดเจน และครบถ้วน โดยอธิบายรายละเอียดว่าทำไมจึงถือว่าทำได้ดี พร้อมระบุคะแนนของแต่ละประเด็นในวงเล็บ เช่น (15 คะแนน)
+5.  **ข้อเสนอแนะ (recommendations):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาตอบได้ไม่สมบูรณ์ คลาดเคลื่อน หรือขาดหายไป พร้อมให้คำแนะนำที่เฉพาะเจาะจงเพื่อปรับปรุงในครั้งต่อไป พร้อมระบุคะแนนของแต่ละประเด็นในวงเล็บ เช่น (15 คะแนน)
 6.  **ข้อควรทราบ:** ไม่ต้องวิจารณ์เรื่องไวยากรณ์ การสะกดคำ หรือประเด็นอื่นที่ไม่เกี่ยวข้องกับเนื้อหาทางการพยาบาล
 
 
@@ -3034,7 +3039,7 @@ router.post('/ob/4', authMiddleware, async (req, res) => {
         // Cleanup
         // console.log('Cleaning up local files');
         [finalFilePath, audioPath].forEach(path => {
-            if (path && fs.existsSync(path)) {
+            if (path && process.env.LOCAL_DEV !== 'true' && fs.existsSync(path)) {
                 try {
                     fs.unlinkSync(path);
                     // console.log(`Successfully deleted: ${path}`);
@@ -3095,8 +3100,8 @@ async function processTranscriptionOBLab4(transcription) {
     *   ถ้าประเด็นนั้นปรากฏแต่ไม่สมบูรณ์หรือไม่ถูกต้องทั้งหมด: ให้พิจารณาให้คะแนนบางส่วนตามความเหมาะสม (เช่น อาจได้ครึ่งหนึ่งของคะแนนเต็มสำหรับประเด็นนั้น)
     *   ถ้าประเด็นนั้นไม่ปรากฏเลย: ไม่ให้คะแนนสำหรับประเด็นนั้น
 3.  **การคำนวณคะแนนรวม:** คำนวณ 'totalScore' จากผลรวมของคะแนนที่ได้รับจากแต่ละประเด็นย่อยในเฉลย
-4.  **ข้อดี (pros):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาสามารถตอบได้ถูกต้อง ชัดเจน และครบถ้วน โดยอธิบายรายละเอียดว่าทำไมจึงถือว่าทำได้ดี
-5.  **ข้อเสนอแนะ (recommendations):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาตอบได้ไม่สมบูรณ์ คลาดเคลื่อน หรือขาดหายไป พร้อมให้คำแนะนำที่เฉพาะเจาะจงเพื่อปรับปรุงในครั้งต่อไป
+4.  **ข้อดี (pros):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาสามารถตอบได้ถูกต้อง ชัดเจน และครบถ้วน โดยอธิบายรายละเอียดว่าทำไมจึงถือว่าทำได้ดี พร้อมระบุคะแนนของแต่ละประเด็นในวงเล็บ เช่น (15 คะแนน)
+5.  **ข้อเสนอแนะ (recommendations):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาตอบได้ไม่สมบูรณ์ คลาดเคลื่อน หรือขาดหายไป พร้อมให้คำแนะนำที่เฉพาะเจาะจงเพื่อปรับปรุงในครั้งต่อไป พร้อมระบุคะแนนของแต่ละประเด็นในวงเล็บ เช่น (15 คะแนน)
 6.  **ข้อควรทราบ:** ไม่ต้องวิจารณ์เรื่องไวยากรณ์ การสะกดคำ หรือประเด็นอื่นที่ไม่เกี่ยวข้องกับเนื้อหาทางการพยาบาล
 
 
@@ -3224,7 +3229,7 @@ router.post('/ob/5', authMiddleware, async (req, res) => {
         // Cleanup
         // console.log('Cleaning up local files');
         [finalFilePath, audioPath].forEach(path => {
-            if (path && fs.existsSync(path)) {
+            if (path && process.env.LOCAL_DEV !== 'true' && fs.existsSync(path)) {
                 try {
                     fs.unlinkSync(path);
                     // console.log(`Successfully deleted: ${path}`);
@@ -3287,8 +3292,8 @@ async function processTranscriptionOBLab5(transcription) {
     *   ถ้าประเด็นนั้นปรากฏแต่ไม่สมบูรณ์หรือไม่ถูกต้องทั้งหมด: ให้พิจารณาให้คะแนนบางส่วนตามความเหมาะสม (เช่น อาจได้ครึ่งหนึ่งของคะแนนเต็มสำหรับประเด็นนั้น)
     *   ถ้าประเด็นนั้นไม่ปรากฏเลย: ไม่ให้คะแนนสำหรับประเด็นนั้น
 3.  **การคำนวณคะแนนรวม:** คำนวณ 'totalScore' จากผลรวมของคะแนนที่ได้รับจากแต่ละประเด็นย่อยในเฉลย
-4.  **ข้อดี (pros):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาสามารถตอบได้ถูกต้อง ชัดเจน และครบถ้วน โดยอธิบายรายละเอียดว่าทำไมจึงถือว่าทำได้ดี
-5.  **ข้อเสนอแนะ (recommendations):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาตอบได้ไม่สมบูรณ์ คลาดเคลื่อน หรือขาดหายไป พร้อมให้คำแนะนำที่เฉพาะเจาะจงเพื่อปรับปรุงในครั้งต่อไป
+4.  **ข้อดี (pros):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาสามารถตอบได้ถูกต้อง ชัดเจน และครบถ้วน โดยอธิบายรายละเอียดว่าทำไมจึงถือว่าทำได้ดี พร้อมระบุคะแนนของแต่ละประเด็นในวงเล็บ เช่น (15 คะแนน)
+5.  **ข้อเสนอแนะ (recommendations):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาตอบได้ไม่สมบูรณ์ คลาดเคลื่อน หรือขาดหายไป พร้อมให้คำแนะนำที่เฉพาะเจาะจงเพื่อปรับปรุงในครั้งต่อไป พร้อมระบุคะแนนของแต่ละประเด็นในวงเล็บ เช่น (15 คะแนน)
 6.  **ข้อควรทราบ:** ไม่ต้องวิจารณ์เรื่องไวยากรณ์ การสะกดคำ หรือประเด็นอื่นที่ไม่เกี่ยวข้องกับเนื้อหาทางการพยาบาล
 
 
@@ -3303,6 +3308,647 @@ async function processTranscriptionOBLab5(transcription) {
       "recommendations": "<ข้อเสนอแนะ>"
     }
 `;
+
+    const response = await openai.chat.completions.create({
+        messages: [{ role: "system", content: checkContent }],
+        model: "gpt-4o",
+        response_format: { "type": "json_object" }
+    });
+
+    const feedbackJson = JSON.parse(response.choices[0].message.content.trim());
+    console.log(feedbackJson);
+    return feedbackJson;
+};
+
+// Fundamental Nursing routes
+router.post('/fundamental/1', authMiddleware, async (req, res) => {
+    const { fileName, totalChunks, language } = req.body;
+    const tempDir = path.join(__dirname, '../temp');
+    const finalFilePath = path.join(__dirname, '../public/uploads', fileName);
+    let audioPath = null;
+    let fileUrl = null;
+    let fileType = null;
+
+    try {
+        await new Promise((resolve, reject) => {
+            const writeStream = fs.createWriteStream(finalFilePath);
+            writeStream.on('finish', resolve);
+            writeStream.on('error', reject);
+
+            (async () => {
+                for (let i = 0; i < totalChunks; i++) {
+                    const chunkPath = path.join(tempDir, `${req.userId}_${i}`);
+                    const chunkBuffer = await fs.promises.readFile(chunkPath);
+                    writeStream.write(chunkBuffer);
+                    await fs.promises.unlink(chunkPath);
+                }
+                writeStream.end();
+            })();
+        });
+
+        const uploadTimestamp = Date.now();
+        fileType = getFileType(fileName);
+
+        fileUrl = await uploadToSpaces(finalFilePath, `fundamental/lab1/${req.userId}/${uploadTimestamp}${path.extname(fileName)}`);
+
+        if (fileType === 'video') {
+            audioPath = `./public/uploads/audio-${uploadTimestamp}.mp3`;
+            await new Promise((resolve, reject) => {
+                ffmpeg(finalFilePath)
+                    .output(audioPath)
+                    .audioCodec('libmp3lame')
+                    .on('end', resolve)
+                    .on('error', reject)
+                    .run();
+            });
+        } else {
+            audioPath = finalFilePath;
+        }
+
+        const transcription = await transcribeAudioElevenLabs(audioPath);
+
+        const feedbackJson = await processTranscriptionFundamentalLab1(transcription, language || 'th');
+
+        const labInfo = {
+            studentId: req.userId,
+            labNumber: 1,
+            subject: 'fundamental',
+            fileUrl: fileUrl,
+            fileType: fileType,
+            studentAnswer: transcription,
+            studentScore: Math.min(100, feedbackJson.totalScore),
+            isPass: feedbackJson.totalScore >= 60,
+            pros: feedbackJson.pros,
+            recommendations: feedbackJson.recommendations,
+        };
+
+        await axios.post('http://localhost:3000/api/v1/lab-deployed/submit-lab', labInfo);
+
+        res.json({
+            feedback: feedbackJson,
+            transcription,
+            passFailStatus: feedbackJson.totalScore >= 60 ? 'Passed' : 'Failed',
+            score: Math.min(100, feedbackJson.totalScore),
+            pros: feedbackJson.pros,
+            recommendations: feedbackJson.recommendations,
+            fileUrl: fileUrl,
+            fileType: fileType
+        });
+
+    } catch (error) {
+        console.error('Error processing the file:', error);
+        res.status(500).json({ msg: 'Error processing the file', error: error.message });
+    } finally {
+        if (process.env.LOCAL_DEV !== 'true') {
+            [finalFilePath, audioPath].forEach(path => {
+                if (path && process.env.LOCAL_DEV !== 'true' && fs.existsSync(path)) {
+                    try {
+                        fs.unlinkSync(path);
+                    } catch (deleteError) {
+                        if (deleteError.code !== 'ENOENT') {
+                            console.error(`Failed to delete file: ${path}`, deleteError);
+                        }
+                    }
+                }
+            });
+        }
+    }
+});
+
+router.post('/fundamental/2', authMiddleware, async (req, res) => {
+    const { fileName, totalChunks, language } = req.body;
+    const tempDir = path.join(__dirname, '../temp');
+    const finalFilePath = path.join(__dirname, '../public/uploads', fileName);
+    let audioPath = null;
+    let fileUrl = null;
+    let fileType = null;
+
+    try {
+        await new Promise((resolve, reject) => {
+            const writeStream = fs.createWriteStream(finalFilePath);
+            writeStream.on('finish', resolve);
+            writeStream.on('error', reject);
+
+            (async () => {
+                for (let i = 0; i < totalChunks; i++) {
+                    const chunkPath = path.join(tempDir, `${req.userId}_${i}`);
+                    const chunkBuffer = await fs.promises.readFile(chunkPath);
+                    writeStream.write(chunkBuffer);
+                    await fs.promises.unlink(chunkPath);
+                }
+                writeStream.end();
+            })();
+        });
+
+        const uploadTimestamp = Date.now();
+        fileType = getFileType(fileName);
+
+        fileUrl = await uploadToSpaces(finalFilePath, `fundamental/lab2/${req.userId}/${uploadTimestamp}${path.extname(fileName)}`);
+
+        if (fileType === 'video') {
+            audioPath = `./public/uploads/audio-${uploadTimestamp}.mp3`;
+            await new Promise((resolve, reject) => {
+                ffmpeg(finalFilePath)
+                    .output(audioPath)
+                    .audioCodec('libmp3lame')
+                    .on('end', resolve)
+                    .on('error', reject)
+                    .run();
+            });
+        } else {
+            audioPath = finalFilePath;
+        }
+
+        const transcription = await transcribeAudioElevenLabs(audioPath);
+
+        const feedbackJson = await processTranscriptionFundamentalLab2(transcription, language || 'th');
+
+        const labInfo = {
+            studentId: req.userId,
+            labNumber: 2,
+            subject: 'fundamental',
+            fileUrl: fileUrl,
+            fileType: fileType,
+            studentAnswer: transcription,
+            studentScore: Math.min(100, feedbackJson.totalScore),
+            isPass: feedbackJson.totalScore >= 60,
+            pros: feedbackJson.pros,
+            recommendations: feedbackJson.recommendations,
+        };
+
+        await axios.post('http://localhost:3000/api/v1/lab-deployed/submit-lab', labInfo);
+
+        res.json({
+            feedback: feedbackJson,
+            transcription,
+            passFailStatus: feedbackJson.totalScore >= 60 ? 'Passed' : 'Failed',
+            score: Math.min(100, feedbackJson.totalScore),
+            pros: feedbackJson.pros,
+            recommendations: feedbackJson.recommendations,
+            fileUrl: fileUrl,
+            fileType: fileType
+        });
+
+    } catch (error) {
+        console.error('Error processing the file:', error);
+        res.status(500).json({ msg: 'Error processing the file', error: error.message });
+    } finally {
+        if (process.env.LOCAL_DEV !== 'true') {
+            [finalFilePath, audioPath].forEach(path => {
+                if (path && process.env.LOCAL_DEV !== 'true' && fs.existsSync(path)) {
+                    try {
+                        fs.unlinkSync(path);
+                    } catch (deleteError) {
+                        if (deleteError.code !== 'ENOENT') {
+                            console.error(`Failed to delete file: ${path}`, deleteError);
+                        }
+                    }
+                }
+            });
+        }
+    }
+});
+
+router.post('/fundamental/3', authMiddleware, async (req, res) => {
+    const { fileName, totalChunks, language } = req.body;
+    const tempDir = path.join(__dirname, '../temp');
+    const finalFilePath = path.join(__dirname, '../public/uploads', fileName);
+    let audioPath = null;
+    let fileUrl = null;
+    let fileType = null;
+
+    try {
+        await new Promise((resolve, reject) => {
+            const writeStream = fs.createWriteStream(finalFilePath);
+            writeStream.on('finish', resolve);
+            writeStream.on('error', reject);
+
+            (async () => {
+                for (let i = 0; i < totalChunks; i++) {
+                    const chunkPath = path.join(tempDir, `${req.userId}_${i}`);
+                    const chunkBuffer = await fs.promises.readFile(chunkPath);
+                    writeStream.write(chunkBuffer);
+                    await fs.promises.unlink(chunkPath);
+                }
+                writeStream.end();
+            })();
+        });
+
+        const uploadTimestamp = Date.now();
+        fileType = getFileType(fileName);
+
+        fileUrl = await uploadToSpaces(finalFilePath, `fundamental/lab3/${req.userId}/${uploadTimestamp}${path.extname(fileName)}`);
+
+        if (fileType === 'video') {
+            audioPath = `./public/uploads/audio-${uploadTimestamp}.mp3`;
+            await new Promise((resolve, reject) => {
+                ffmpeg(finalFilePath)
+                    .output(audioPath)
+                    .audioCodec('libmp3lame')
+                    .on('end', resolve)
+                    .on('error', reject)
+                    .run();
+            });
+        } else {
+            audioPath = finalFilePath;
+        }
+
+        const transcription = await transcribeAudioElevenLabs(audioPath);
+
+        const feedbackJson = await processTranscriptionFundamentalLab3(transcription, language || 'th');
+
+        const labInfo = {
+            studentId: req.userId,
+            labNumber: 3,
+            subject: 'fundamental',
+            fileUrl: fileUrl,
+            fileType: fileType,
+            studentAnswer: transcription,
+            studentScore: Math.min(100, feedbackJson.totalScore),
+            isPass: feedbackJson.totalScore >= 60,
+            pros: feedbackJson.pros,
+            recommendations: feedbackJson.recommendations,
+        };
+
+        await axios.post('http://localhost:3000/api/v1/lab-deployed/submit-lab', labInfo);
+
+        res.json({
+            feedback: feedbackJson,
+            transcription,
+            passFailStatus: feedbackJson.totalScore >= 60 ? 'Passed' : 'Failed',
+            score: Math.min(100, feedbackJson.totalScore),
+            pros: feedbackJson.pros,
+            recommendations: feedbackJson.recommendations,
+            fileUrl: fileUrl,
+            fileType: fileType
+        });
+
+    } catch (error) {
+        console.error('Error processing the file:', error);
+        res.status(500).json({ msg: 'Error processing the file', error: error.message });
+    } finally {
+        if (process.env.LOCAL_DEV !== 'true') {
+            [finalFilePath, audioPath].forEach(path => {
+                if (path && process.env.LOCAL_DEV !== 'true' && fs.existsSync(path)) {
+                    try {
+                        fs.unlinkSync(path);
+                    } catch (deleteError) {
+                        if (deleteError.code !== 'ENOENT') {
+                            console.error(`Failed to delete file: ${path}`, deleteError);
+                        }
+                    }
+                }
+            });
+        }
+    }
+});
+
+async function processTranscriptionFundamentalLab1(transcription, language = 'th') {
+    const thaiAnswerKey = `
+สถานการณ์: ผู้ป่วยสูงอายุ 68 ปี หลังผ่าตัดช่องท้องวันที่ 2 มีสายสวนปัสสาวะ Foley catheter เบอร์ 14 Fr ต่อกับถุงระบายปัสสาวะแบบปิด แผนการรักษา: คาสายสวนปัสสาวะไว้ บันทึกปริมาณปัสสาวะทุก 8 ชั่วโมง
+
+คำถามที่ 1: จากวิดีโอ จงระบุสิ่งที่ไม่ถูกต้องของการจัดวางระบบระบายปัสสาวะในขณะนี้ พร้อมอธิบายวิธีแก้ไขและเหตุผลประกอบ
+
+เฉลยคำถามที่ 1:
+1. ถุงรองรับปัสสาวะวางอยู่ระดับเดียวกับกระเพาะปัสสาวะ (บนเตียง) วิธีแก้ไข: ต้องแขวนถุงให้ต่ำกว่าระดับกระเพาะปัสสาวะเสมอ โดยแขวนกับโครงเตียง ห้ามวางบนเตียง (15 คะแนน)
+2. เหตุผล: การไหลย้อนกลับของปัสสาวะ (backflow/reflux) ทำให้เชื้อจุลชีพเคลื่อนขึ้นตามระบบระบายเข้าสู่กระเพาะปัสสาวะ เพิ่มความเสี่ยงต่อการเกิด CAUTI (10 คะแนน)
+3. สายระบายปัสสาวะหักพับงอ วิธีแก้ไข: จัดสายให้ตรง ไม่หักพับ เพื่อให้ปัสสาวะไหลสะดวกต่อเนื่อง ป้องกันการคั่งค้างของปัสสาวะ (urinary stasis) และกระเพาะปัสสาวะโป่งตึง (10 คะแนน)
+4. ถุงรองรับปัสสาวะต้องไม่สัมผัสพื้น และรักษาระบบระบายแบบปิด (closed system) ให้สมบูรณ์ตลอดเวลา (5 คะแนน)
+
+คำถามที่ 2: จงอธิบายการพยาบาลที่จำเป็นในเวรของท่าน เพื่อป้องกัน CAUTI และดูแลสายสวนปัสสาวะของผู้ป่วยรายนี้อย่างปลอดภัย
+
+เฉลยคำถามที่ 2:
+1. ล้างมือ (hand hygiene) ก่อนและหลังสัมผัสสายสวนหรือระบบระบายทุกครั้ง ตามหลัก standard precautions (10 คะแนน)
+2. ทำความสะอาดอวัยวะสืบพันธุ์และสายสวน (perineal care/catheter care) ด้วยสบู่และน้ำ อย่างน้อยวันละ 1 ครั้ง และหลังการขับถ่ายอุจจาระทุกครั้ง โดยเช็ดออกจากรูเปิดท่อปัสสาวะ (urethral meatus) เสมอ (15 คะแนน)
+3. รักษาระบบระบายแบบปิด ไม่ปลดข้อต่อระหว่างสายสวนกับสายระบายโดยไม่จำเป็น (15 คะแนน)
+4. เทปัสสาวะออกจากถุงเมื่อปัสสาวะเต็ม 2 ใน 3 ของถุง หรืออย่างน้อยทุก 8 ชั่วโมง ใช้ภาชนะรองรับที่สะอาดเฉพาะราย และระวังไม่ให้ปลายท่อเท (outlet spout) สัมผัสภาชนะ (10 คะแนน)
+5. ตรึงสายสวนกับต้นขาด้านใน (secure/anchor) เพื่อป้องกันการดึงรั้งและการบาดเจ็บของท่อปัสสาวะ (10 คะแนน)
+6. สังเกตและบันทึกจำนวน สี และลักษณะของปัสสาวะทุก 8 ชั่วโมงตามแผนการรักษา (record urine output) (10 คะแนน)
+7. กระตุ้นให้ผู้ป่วยดื่มน้ำประมาณ 2,000-2,500 มิลลิลิตรต่อวัน หากไม่มีข้อห้าม เพื่อส่งเสริมการไหลของปัสสาวะ (5 คะแนน)
+8. เฝ้าระวังและรายงานอาการแสดงของ CAUTI ได้แก่ ไข้ ปวดบริเวณหัวหน่าว ปัสสาวะขุ่นหรือมีกลิ่นเหม็น และประเมินความจำเป็นของการคาสายสวนทุกวัน (5 คะแนน)
+
+คำตอบ คะแนนเต็ม 100 คะแนน
+`;
+
+    const enAnswerKey = `
+Scenario: Mrs Pranee, a 68-year-old female, is on post-operative day 2 following abdominal surgery. She has a retained Foley catheter (No. 14 Fr) connected to a closed urine drainage bag. Physician's orders: retain Foley catheter; record urine output every 8 hours.
+
+Question 1: From the video, identify what is incorrect in the current set-up of the urinary drainage system, and explain how you would correct each problem, giving your reasons.
+
+Key Answer Q1:
+1. The drainage bag is placed at bladder level (on the bed). Correction: the bag must be hung below bladder level at all times, attached to the bed frame and never placed on the bed. (15 points)
+2. Rationale: urine backflow (reflux) allows micro-organisms to ascend the drainage system into the bladder, increasing the risk of CAUTI. (10 points)
+3. The drainage tubing is kinked. Correction: straighten and secure the tubing so urine flows freely and continuously, preventing urinary stasis and bladder distension. (10 points)
+4. The bag must not touch the floor, and the closed drainage system must remain intact at all times. (5 points)
+
+Question 2: Describe the essential nursing care you would provide during your shift to prevent CAUTI and to maintain this patient's urinary catheter safely.
+
+Key Answer Q2:
+1. Perform hand hygiene before and after every contact with the catheter or the drainage system (standard precautions). (10 points)
+2. Provide perineal and catheter care with soap and water at least once daily and after every bowel movement, always cleansing away from the urethral meatus. (15 points)
+3. Maintain the closed drainage system; do not disconnect the catheter-tubing junction unless absolutely necessary. (15 points)
+4. Empty the drainage bag when it is two-thirds full, or at least every 8 hours, using a clean container for each patient; do not allow the outlet spout to touch the container. (10 points)
+5. Secure (anchor) the catheter to the patient's inner thigh to prevent traction and urethral trauma. (10 points)
+6. Monitor and record the amount, colour, and characteristics of urine every 8 hours as ordered (urine output record). (10 points)
+7. Encourage fluid intake of approximately 2,000-2,500 mL/day unless contraindicated, to promote urine flow. (5 points)
+8. Observe for and report signs of CAUTI (fever, suprapubic pain, cloudy or foul-smelling urine), and reassess the ongoing need for the catheter every day. (5 points)
+
+Answer total 100 points
+`;
+
+    const answerKey = language === 'en' ? enAnswerKey : thaiAnswerKey;
+
+    const checkContentTH = `
+คุณคือผู้ตรวจประเมินผลการปฏิบัติงานของนักศึกษาพยาบาลที่มีประสบการณ์ โปรดประเมินคำตอบของนักศึกษาจาก 'คำตอบของท่านผู้ทดสอบ' เทียบกับ 'เฉลยและเกณฑ์การให้คะแนน' อย่างละเอียด
+
+**หลักการประเมิน:**
+1.  **การเปรียบเทียบ:** ให้เปรียบเทียบคำตอบของนักศึกษาโดยเน้นความหมายและเนื้อหาที่ถูกต้องและครบถ้วนตาม 'เฉลยและเกณฑ์การให้คะแนน' ไม่ใช่เพียงแค่คำศัพท์ที่ตรงกันทุกคำ
+2.  **การให้คะแนน:** 'เฉลยและเกณฑ์การให้คะแนน' มีประเด็นย่อยพร้อมคะแนนกำกับในวงเล็บ (เช่น (10), (5)) ให้คุณระบุว่าแต่ละประเด็นในเฉลยนั้นมีอยู่ในคำตอบของนักศึกษาหรือไม่
+    *   ถ้าประเด็นนั้นปรากฏและถูกต้องสมบูรณ์: ให้คะแนนเต็มสำหรับประเด็นนั้น
+    *   ถ้าประเด็นนั้นปรากฏแต่ไม่สมบูรณ์หรือไม่ถูกต้องทั้งหมด: ให้พิจารณาให้คะแนนบางส่วนตามความเหมาะสม (เช่น อาจได้ครึ่งหนึ่งของคะแนนเต็มสำหรับประเด็นนั้น)
+    *   ถ้าประเด็นนั้นไม่ปรากฏเลย: ไม่ให้คะแนนสำหรับประเด็นนั้น
+3.  **การคำนวณคะแนนรวม:** คำนวณ 'totalScore' จากผลรวมของคะแนนที่ได้รับจากแต่ละประเด็นย่อยในเฉลย
+4.  **ข้อดี (pros):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาสามารถตอบได้ถูกต้อง ชัดเจน และครบถ้วน โดยอธิบายรายละเอียดว่าทำไมจึงถือว่าทำได้ดี พร้อมระบุคะแนนของแต่ละประเด็นในวงเล็บ เช่น (15 คะแนน)
+5.  **ข้อเสนอแนะ (recommendations):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาตอบได้ไม่สมบูรณ์ คลาดเคลื่อน หรือขาดหายไป พร้อมให้คำแนะนำที่เฉพาะเจาะจงเพื่อปรับปรุงในครั้งต่อไป พร้อมระบุคะแนนของแต่ละประเด็นในวงเล็บ เช่น (15 คะแนน)
+6.  **ข้อควรทราบ:** ไม่ต้องวิจารณ์เรื่องไวยากรณ์ การสะกดคำ หรือประเด็นอื่นที่ไม่เกี่ยวข้องกับเนื้อหาทางการพยาบาล
+
+นี่คือคำตอบของท่านผู้ทดสอบ: "${transcription}".
+นี่คือเฉลย: "${answerKey}".
+
+**รูปแบบผลลัพธ์:**
+โปรดสร้างผลการประเมินในรูปแบบ JSON ดังนี้เท่านั้น:
+    {
+      "totalScore": <คะแนนท่านผู้ทดสอบ>,
+      "pros": "<จุดที่ท่านผู้ทดสอบทำได้ดี",
+      "recommendations": "<ข้อเสนอแนะ>"
+    }
+`;
+
+    const checkContentEN = `
+You are an experienced nursing instructor evaluating a nursing student's clinical performance. Please assess the student's answer from 'Student Response' against the 'Key Answer and Scoring Rubric' in detail.
+
+**Evaluation Principles:**
+1.  **Comparison:** Compare the student's answer focusing on the meaning and correctness of content against the 'Key Answer and Scoring Rubric', not just exact vocabulary matching.
+2.  **Scoring:** The 'Key Answer and Scoring Rubric' has sub-items with points in parentheses (e.g., (10), (5)). Determine whether each item in the key answer is present in the student's response.
+    *   If the item is present and completely correct: award full points for that item.
+    *   If the item is present but incomplete or partially incorrect: award partial points as appropriate (e.g., half the points for that item).
+    *   If the item is absent: award zero points for that item.
+3.  **Total Score Calculation:** Calculate 'totalScore' from the sum of points awarded for each sub-item in the key answer.
+4.  **Pros:** Identify key items from the 'Key Answer and Scoring Rubric' that the student answered correctly, clearly, and completely, explaining why they did well. Include the point value of each item in parentheses, e.g., (15 points).
+5.  **Recommendations:** Identify key items from the 'Key Answer and Scoring Rubric' that the student answered incompletely, inaccurately, or missed entirely, providing specific suggestions for improvement. Include the point value of each item in parentheses, e.g., (15 points).
+6.  **Note:** Do not comment on grammar, spelling, or other issues unrelated to nursing content.
+
+Student Response: "${transcription}".
+Key Answer: "${answerKey}".
+
+**Output Format:**
+Please generate the evaluation result in JSON format only:
+    {
+      "totalScore": <student's score>,
+      "pros": "<what the student did well>",
+      "recommendations": "<recommendations for improvement>"
+    }
+`;
+
+    const checkContent = language === 'en' ? checkContentEN : checkContentTH;
+
+    const response = await openai.chat.completions.create({
+        messages: [{ role: "system", content: checkContent }],
+        model: "gpt-4o",
+        response_format: { "type": "json_object" }
+    });
+
+    const feedbackJson = JSON.parse(response.choices[0].message.content.trim());
+    console.log(feedbackJson);
+    return feedbackJson;
+};
+
+async function processTranscriptionFundamentalLab2(transcription, language = 'th') {
+    const thaiAnswerKey = `
+สถานการณ์: นายสมชาย อายุ 45 ปี เข้ารับการรักษาด้วยภาวะกระเพาะอาหารและลำไส้อักเสบเฉียบพลัน (acute gastroenteritis) ร่วมกับภาวะขาดน้ำระดับปานกลาง แผนการรักษา: 0.9% NSS 1,000 mL IV drip 80 mL/hr และ record intake/output ทุก 8 ชั่วโมง ผู้ป่วยมี IV cannula เบอร์ 22 ที่แขนซ้ายท่อนล่าง ใส่มาแล้ว 2 วัน ต่อกับชุดให้สารน้ำมาตรฐาน (drop factor 20 drops/mL)
+
+คำถามที่ 1: จงคำนวณอัตราหยดของสารน้ำเป็นหยดต่อนาที (แสดงวิธีคำนวณ) และบอกสิ่งที่ต้องตรวจสอบก่อนปรับอัตราหยด
+
+เฉลยคำถามที่ 1:
+1. สูตรถูกต้อง: อัตราหยด = (ปริมาตรต่อชั่วโมง × drop factor) ÷ 60 นาที = (80 × 20) ÷ 60 (10 คะแนน)
+2. คำตอบถูกต้อง: 26.7 ≈ 27 หยดต่อนาที (ยอมรับคำตอบ 26-27 หยดต่อนาที) (15 คะแนน)
+3. ตรวจสอบแผนการรักษาและใช้หลักความถูกต้อง (rights): ถูกคน ถูกชนิดสารน้ำ ถูกขนาด/อัตรา ถูกทาง ถูกเวลา และบันทึกถูกต้อง (10 คะแนน)
+4. ตรวจสอบสารน้ำก่อนใช้: วันหมดอายุ ความใส ไม่มีตะกอนหรือความขุ่น และภาชนะบรรจุไม่รั่วซึม (5 คะแนน)
+
+คำถามที่ 2: จงอธิบายการพยาบาลที่จำเป็นสำหรับผู้ป่วยรายนี้ขณะได้รับสารน้ำทางหลอดเลือดดำ รวมทั้งการบันทึกสารน้ำเข้า-ออก
+
+เฉลยคำถามที่ 2:
+1. ประเมินตำแหน่ง IV site อย่างน้อยทุกเวร เพื่อเฝ้าระวังหลอดเลือดดำอักเสบ (phlebitis) ได้แก่ ปวด บวม แดง ร้อน ตามแนวหลอดเลือดดำ (15 คะแนน)
+2. เฝ้าระวังภาวะสารน้ำรั่วออกนอกหลอดเลือด (infiltration/extravasation) ได้แก่ บวม เย็น ซีด มีสารน้ำรั่วซึม หรือสารน้ำไหลช้าลง หากพบให้หยุดการให้สารน้ำและเปลี่ยนตำแหน่งใหม่ (15 คะแนน)
+3. ตรวจสอบและปรับอัตราหยดให้ตรงตามแผนการรักษาทุก 1 ชั่วโมง ดูแลสายให้สารน้ำไม่ให้หักพับ และห้ามเร่งอัตราหยดเพื่อชดเชยปริมาณที่ขาดโดยไม่มีคำสั่งการรักษา (10 คะแนน)
+4. ล้างมือและใช้หลักปลอดเชื้อ (aseptic technique) เมื่อสัมผัสระบบให้สารน้ำ ดูแล dressing ให้แห้งและติดสนิท ติดป้ายวัน-เวลา และเปลี่ยนชุดให้สารน้ำ/cannula ตามนโยบายของโรงพยาบาล (เช่น ทุก 72-96 ชั่วโมง) (10 คะแนน)
+5. บันทึกสารน้ำเข้า (intake) ทั้งหมด ได้แก่ ปริมาณสารน้ำทางหลอดเลือดดำที่ได้รับ และน้ำดื่ม/อาหารเหลวทางปาก (10 คะแนน)
+6. บันทึกสารน้ำออก (output) ทั้งหมด ได้แก่ ปัสสาวะ อาเจียน และอุจจาระเหลว พร้อมประเมินดุลสารน้ำ (fluid balance) ทุก 8 ชั่วโมง และรายงานเมื่อพบความไม่สมดุลอย่างมีนัยสำคัญ (10 คะแนน)
+7. เฝ้าระวังภาวะน้ำเกิน (circulatory/fluid overload) ได้แก่ หายใจลำบาก แน่นหน้าอก บวม และฟังปอดได้เสียง crackles หากพบให้ชะลออัตราหยดและรายงานทันที (10 คะแนน)
+
+คำตอบ คะแนนเต็ม 120 คะแนน
+`;
+
+    const enAnswerKey = `
+Scenario: Mr Somchai, a 45-year-old male, was admitted with acute gastroenteritis and moderate dehydration. Physician's orders: 0.9% NSS 1,000 mL intravenously at 80 mL/hour; record intake and output every 8 hours. He has an IV cannula (No. 22) at his left forearm, inserted 2 days ago, connected to a standard administration set (drop factor 20 drops/mL).
+
+Question 1: Calculate the drip rate in drops per minute for this order, showing your method, and state what you must verify before regulating the infusion.
+
+Key Answer Q1:
+1. Correct formula: drip rate = (volume per hour × drop factor) ÷ 60 minutes = (80 × 20) ÷ 60. (10 points)
+2. Correct answer: 26.7 ≈ 27 drops/minute (accept 26-27 drops/minute). (15 points)
+3. Verify the physician's order and apply the "rights": right patient, right solution, right dose/rate, right route, right time, and right documentation. (10 points)
+4. Inspect the fluid before use: expiry date, clarity (no particles or turbidity), and an intact container. (5 points)
+
+Question 2: Describe the essential nursing care for this patient while he is receiving IV fluid therapy, including intake-output recording.
+
+Key Answer Q2:
+1. Assess the IV site at least every shift for phlebitis: pain, redness, warmth, and swelling along the vein. (15 points)
+2. Observe for infiltration/extravasation: swelling, coolness, pallor, fluid leakage, or sluggish flow - if found, stop the infusion and re-site the cannula. (15 points)
+3. Check and regulate the flow rate against the order every hour; keep the tubing free of kinks; never increase the rate to "catch up" without a physician's order. (10 points)
+4. Use hand hygiene and aseptic technique whenever handling the infusion system; keep the dressing dry and intact; label the set with the date and time and change the set/cannula according to hospital policy (e.g., every 72-96 hours). (10 points)
+5. Record all intake: the IV fluid infused and all oral intake. (10 points)
+6. Record all output: urine, vomitus, and liquid stool; evaluate the fluid balance every 8 hours and report a significant imbalance. (10 points)
+7. Observe for circulatory (fluid) overload: dyspnoea, chest tightness, oedema, and crackles on lung auscultation - if found, slow the infusion and report immediately. (10 points)
+
+Answer total 120 points
+`;
+
+    const answerKey = language === 'en' ? enAnswerKey : thaiAnswerKey;
+
+    const checkContentTH = `
+คุณคือผู้ตรวจประเมินผลการปฏิบัติงานของนักศึกษาพยาบาลที่มีประสบการณ์ โปรดประเมินคำตอบของนักศึกษาจาก 'คำตอบของท่านผู้ทดสอบ' เทียบกับ 'เฉลยและเกณฑ์การให้คะแนน' อย่างละเอียด
+
+**หลักการประเมิน:**
+1.  **การเปรียบเทียบ:** ให้เปรียบเทียบคำตอบของนักศึกษาโดยเน้นความหมายและเนื้อหาที่ถูกต้องและครบถ้วนตาม 'เฉลยและเกณฑ์การให้คะแนน' ไม่ใช่เพียงแค่คำศัพท์ที่ตรงกันทุกคำ
+2.  **การให้คะแนน:** 'เฉลยและเกณฑ์การให้คะแนน' มีประเด็นย่อยพร้อมคะแนนกำกับในวงเล็บ (เช่น (10), (5)) ให้คุณระบุว่าแต่ละประเด็นในเฉลยนั้นมีอยู่ในคำตอบของนักศึกษาหรือไม่
+    *   ถ้าประเด็นนั้นปรากฏและถูกต้องสมบูรณ์: ให้คะแนนเต็มสำหรับประเด็นนั้น
+    *   ถ้าประเด็นนั้นปรากฏแต่ไม่สมบูรณ์หรือไม่ถูกต้องทั้งหมด: ให้พิจารณาให้คะแนนบางส่วนตามความเหมาะสม (เช่น อาจได้ครึ่งหนึ่งของคะแนนเต็มสำหรับประเด็นนั้น)
+    *   ถ้าประเด็นนั้นไม่ปรากฏเลย: ไม่ให้คะแนนสำหรับประเด็นนั้น
+3.  **การคำนวณคะแนนรวม:** คำนวณ 'totalScore' จากผลรวมของคะแนนที่ได้รับจากแต่ละประเด็นย่อยในเฉลย
+4.  **ข้อดี (pros):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาสามารถตอบได้ถูกต้อง ชัดเจน และครบถ้วน โดยอธิบายรายละเอียดว่าทำไมจึงถือว่าทำได้ดี พร้อมระบุคะแนนของแต่ละประเด็นในวงเล็บ เช่น (15 คะแนน)
+5.  **ข้อเสนอแนะ (recommendations):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาตอบได้ไม่สมบูรณ์ คลาดเคลื่อน หรือขาดหายไป พร้อมให้คำแนะนำที่เฉพาะเจาะจงเพื่อปรับปรุงในครั้งต่อไป พร้อมระบุคะแนนของแต่ละประเด็นในวงเล็บ เช่น (15 คะแนน)
+6.  **ข้อควรทราบ:** ไม่ต้องวิจารณ์เรื่องไวยากรณ์ การสะกดคำ หรือประเด็นอื่นที่ไม่เกี่ยวข้องกับเนื้อหาทางการพยาบาล
+
+นี่คือคำตอบของท่านผู้ทดสอบ: "${transcription}".
+นี่คือเฉลย: "${answerKey}".
+
+**รูปแบบผลลัพธ์:**
+โปรดสร้างผลการประเมินในรูปแบบ JSON ดังนี้เท่านั้น:
+    {
+      "totalScore": <คะแนนท่านผู้ทดสอบ>,
+      "pros": "<จุดที่ท่านผู้ทดสอบทำได้ดี",
+      "recommendations": "<ข้อเสนอแนะ>"
+    }
+`;
+
+    const checkContentEN = `
+You are an experienced nursing instructor evaluating a nursing student's clinical performance. Please assess the student's answer from 'Student Response' against the 'Key Answer and Scoring Rubric' in detail.
+
+**Evaluation Principles:**
+1.  **Comparison:** Compare the student's answer focusing on the meaning and correctness of content against the 'Key Answer and Scoring Rubric', not just exact vocabulary matching.
+2.  **Scoring:** The 'Key Answer and Scoring Rubric' has sub-items with points in parentheses (e.g., (10), (5)). Determine whether each item in the key answer is present in the student's response.
+    *   If the item is present and completely correct: award full points for that item.
+    *   If the item is present but incomplete or partially incorrect: award partial points as appropriate (e.g., half the points for that item).
+    *   If the item is absent: award zero points for that item.
+3.  **Total Score Calculation:** Calculate 'totalScore' from the sum of points awarded for each sub-item in the key answer.
+4.  **Pros:** Identify key items from the 'Key Answer and Scoring Rubric' that the student answered correctly, clearly, and completely, explaining why they did well. Include the point value of each item in parentheses, e.g., (15 points).
+5.  **Recommendations:** Identify key items from the 'Key Answer and Scoring Rubric' that the student answered incompletely, inaccurately, or missed entirely, providing specific suggestions for improvement. Include the point value of each item in parentheses, e.g., (15 points).
+6.  **Note:** Do not comment on grammar, spelling, or other issues unrelated to nursing content.
+
+Student Response: "${transcription}".
+Key Answer: "${answerKey}".
+
+**Output Format:**
+Please generate the evaluation result in JSON format only:
+    {
+      "totalScore": <student's score>,
+      "pros": "<what the student did well>",
+      "recommendations": "<recommendations for improvement>"
+    }
+`;
+
+    const checkContent = language === 'en' ? checkContentEN : checkContentTH;
+
+    const response = await openai.chat.completions.create({
+        messages: [{ role: "system", content: checkContent }],
+        model: "gpt-4o",
+        response_format: { "type": "json_object" }
+    });
+
+    const feedbackJson = JSON.parse(response.choices[0].message.content.trim());
+    console.log(feedbackJson);
+    return feedbackJson;
+};
+
+async function processTranscriptionFundamentalLab3(transcription, language = 'th') {
+    const thaiAnswerKey = `
+สถานการณ์: นางแก้ว อายุ 72 ปี มีภาวะกลืนลำบาก (dysphagia) หลังเป็นโรคหลอดเลือดสมองตีบ (ischaemic stroke) ได้รับอาหารทางสายยาง แผนการรักษา: blenderised diet (BD) 300 mL × 4 มื้อต่อวัน ทาง NG tube และจัดศีรษะสูง 30-45 องศา ขณะให้และหลังให้อาหาร ขณะนี้เวลา 10.00 น. สายยางให้อาหาร NG tube เบอร์ 16 Fr คาอยู่ที่รูจมูกขวา ตำแหน่งขีดวัดภายนอกอยู่ที่ 55 เซนติเมตร มื้อก่อนหน้าให้เมื่อ 4 ชั่วโมงที่แล้ว
+
+คำถามที่ 1: ก่อนให้อาหาร จงอธิบายวิธีตรวจสอบข้างเตียง 2 วิธี เพื่อยืนยันว่าปลายสายยางให้อาหารยังคงอยู่ในกระเพาะอาหาร
+
+เฉลยคำถามที่ 1:
+1. วิธีที่ 1 - การดูดของเหลวจากกระเพาะอาหาร (aspiration of gastric contents): ต่อ syringe แล้วค่อย ๆ ดูด หากได้ของเหลวลักษณะน้ำย่อยในกระเพาะอาหาร (สีเขียว/เหลือง ขุ่น) แสดงว่าปลายสายอยู่ในกระเพาะอาหาร (10 คะแนน)
+2. การแปลผลเพิ่มเติม: ทดสอบความเป็นกรด-ด่าง (pH) ของของเหลวที่ดูดได้ หาก pH ≤ 5.5 บ่งชี้ว่าปลายสายอยู่ในกระเพาะอาหาร (เป็นวิธีตรวจข้างเตียงที่เชื่อถือได้ที่สุด) (10 คะแนน)
+3. วิธีที่ 2 - การดันลมพร้อมฟังเสียง (air insufflation with auscultation หรือ "whoosh test"): ดันลม 10-20 mL ผ่านสายพร้อมฟังเสียงด้วย stethoscope บริเวณลิ้นปี่ (epigastrium) หากได้ยินเสียงลมผ่าน (gurgling sound) แสดงว่าปลายสายอยู่ในกระเพาะอาหาร (10 คะแนน)
+4. การตรวจสอบเพิ่มเติม: ตรวจดูตำแหน่งขีดวัดภายนอกที่รูจมูกว่าไม่เปลี่ยนแปลง (55 cm) และสายยึดตรึงแน่น หากไม่แน่ใจ การถ่ายภาพรังสี (X-ray) คือวิธีมาตรฐาน (gold standard) (10 คะแนน)
+
+คำถามที่ 2: จงอธิบายการพยาบาลก่อน ขณะ และหลังการให้อาหารทางสายยางมื้อนี้
+
+เฉลยคำถามที่ 2:
+1. ล้างมือ และตรวจสอบความถูกต้อง (rights): ถูกคน ถูกชนิดอาหาร ถูกปริมาณ (300 mL) ถูกเวลา และอาหารอยู่ในอุณหภูมิห้อง (10 คะแนน)
+2. จัดท่าผู้ป่วยศีรษะสูง 30-45 องศา (semi-Fowler's/Fowler's position) ก่อนเริ่มให้อาหาร (15 คะแนน)
+3. ตรวจสอบปริมาณอาหารเหลือค้างในกระเพาะอาหาร (gastric residual volume) ก่อนให้อาหาร หากเกินเกณฑ์ (เช่น มากกว่า 100 mL หรือมากกว่าครึ่งหนึ่งของมื้อก่อน) ให้งดอาหารมื้อนั้นและรายงาน (15 คะแนน)
+4. คืนของเหลวที่ดูดได้กลับสู่กระเพาะอาหารอย่างนุ่มนวล (ตามนโยบายของหน่วยงาน) เพื่อป้องกันการสูญเสียน้ำและอิเล็กโทรไลต์ (5 คะแนน)
+5. ให้อาหารช้า ๆ โดยอาศัยแรงโน้มถ่วง (gravity) ยกกระบอกให้สูงจากกระเพาะอาหารประมาณ 30 เซนติเมตร (12 นิ้ว) ห้ามดันอาหารแรง ๆ และระวังไม่ให้อากาศเข้าสาย (10 คะแนน)
+6. หลังให้อาหาร ล้างสายด้วยน้ำสะอาด 30-50 mL และพับหรือปิดสาย (clamp) ก่อนอาหารหมดกระบอก เพื่อป้องกันอากาศเข้าสู่กระเพาะอาหาร (10 คะแนน)
+7. จัดให้ศีรษะสูงต่อเนื่องอย่างน้อย 30-60 นาทีหลังให้อาหาร เพื่อป้องกันการไหลย้อนและการสำลัก (regurgitation/aspiration) (10 คะแนน)
+8. บันทึกปริมาณอาหารและน้ำล้างสายเป็น intake สังเกตภาวะแทรกซ้อน (ไอ เขียว ท้องอืด อาเจียน ท้องเสีย) และรายงาน พร้อมดูแลความสะอาดช่องปากและจมูก และตรวจสอบการยึดตรึงสาย (5 คะแนน)
+
+คำตอบ คะแนนเต็ม 120 คะแนน
+`;
+
+    const enAnswerKey = `
+Scenario: Mrs Kaew, a 72-year-old female with dysphagia following an ischaemic stroke, is receiving enteral nutrition. Physician's orders: blenderised diet (BD) 300 mL × 4 feeds/day via NG tube; elevate the head of the bed 30-45 degrees during and after feeding. It is now 10:00. The NG tube (No. 16 Fr) is in place at the right nostril with the external marking at 55 cm, and the previous feed was given 4 hours ago.
+
+Question 1: Before administering the feed, describe TWO bedside methods to verify that the tip of the NG tube remains correctly positioned in the stomach.
+
+Key Answer Q1:
+1. Method 1 - Aspiration of gastric contents: attach a syringe and aspirate gently; obtaining typical gastric content (greenish/yellowish, cloudy fluid) suggests that the tip is in the stomach. (10 points)
+2. Interpretation: test the pH of the aspirate - pH ≤ 5.5 indicates gastric placement (the most reliable bedside check). (10 points)
+3. Method 2 - Air insufflation with auscultation ("whoosh test"): inject 10-20 mL of air through the tube while auscultating over the epigastrium; a gurgling sound suggests gastric placement. (10 points)
+4. Additional check: confirm that the external tube marking at the nostril is unchanged (55 cm) and the tube is securely fixed; if in doubt, chest/abdominal X-ray is the gold standard. (10 points)
+
+Question 2: Describe the nursing care before, during, and after administering this enteral feed.
+
+Key Answer Q2:
+1. Perform hand hygiene and verify the "rights": right patient, right formula, right amount (300 mL), right time; ensure the feed is at room temperature. (10 points)
+2. Position the patient with the head of the bed elevated 30-45 degrees (semi-Fowler's/Fowler's position) before starting the feed. (15 points)
+3. Check the gastric residual volume before feeding; if it exceeds the threshold (e.g., more than 100 mL, or more than half of the previous feed), withhold the feed and report. (15 points)
+4. Gently return the aspirate to the stomach (according to unit policy) to prevent fluid and electrolyte loss. (5 points)
+5. Administer the feed slowly by gravity, holding the syringe approximately 30 cm (12 inches) above the stomach; never push the feed forcefully, and prevent air from entering the tube. (10 points)
+6. After the feed, flush the tube with 30-50 mL of clean water and clamp the tube before the syringe empties completely, to prevent air entering the stomach. (10 points)
+7. Keep the head of the bed elevated for at least 30-60 minutes after the feed to prevent regurgitation and aspiration. (10 points)
+8. Record the feed and the flush water as intake; observe for complications (coughing, cyanosis, abdominal distension, vomiting, diarrhoea) and report; provide oral and nasal hygiene and check that the tube is securely fixed. (5 points)
+
+Answer total 120 points
+`;
+
+    const answerKey = language === 'en' ? enAnswerKey : thaiAnswerKey;
+
+    const checkContentTH = `
+คุณคือผู้ตรวจประเมินผลการปฏิบัติงานของนักศึกษาพยาบาลที่มีประสบการณ์ โปรดประเมินคำตอบของนักศึกษาจาก 'คำตอบของท่านผู้ทดสอบ' เทียบกับ 'เฉลยและเกณฑ์การให้คะแนน' อย่างละเอียด
+
+**หลักการประเมิน:**
+1.  **การเปรียบเทียบ:** ให้เปรียบเทียบคำตอบของนักศึกษาโดยเน้นความหมายและเนื้อหาที่ถูกต้องและครบถ้วนตาม 'เฉลยและเกณฑ์การให้คะแนน' ไม่ใช่เพียงแค่คำศัพท์ที่ตรงกันทุกคำ
+2.  **การให้คะแนน:** 'เฉลยและเกณฑ์การให้คะแนน' มีประเด็นย่อยพร้อมคะแนนกำกับในวงเล็บ (เช่น (10), (5)) ให้คุณระบุว่าแต่ละประเด็นในเฉลยนั้นมีอยู่ในคำตอบของนักศึกษาหรือไม่
+    *   ถ้าประเด็นนั้นปรากฏและถูกต้องสมบูรณ์: ให้คะแนนเต็มสำหรับประเด็นนั้น
+    *   ถ้าประเด็นนั้นปรากฏแต่ไม่สมบูรณ์หรือไม่ถูกต้องทั้งหมด: ให้พิจารณาให้คะแนนบางส่วนตามความเหมาะสม (เช่น อาจได้ครึ่งหนึ่งของคะแนนเต็มสำหรับประเด็นนั้น)
+    *   ถ้าประเด็นนั้นไม่ปรากฏเลย: ไม่ให้คะแนนสำหรับประเด็นนั้น
+3.  **การคำนวณคะแนนรวม:** คำนวณ 'totalScore' จากผลรวมของคะแนนที่ได้รับจากแต่ละประเด็นย่อยในเฉลย
+4.  **ข้อดี (pros):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาสามารถตอบได้ถูกต้อง ชัดเจน และครบถ้วน โดยอธิบายรายละเอียดว่าทำไมจึงถือว่าทำได้ดี พร้อมระบุคะแนนของแต่ละประเด็นในวงเล็บ เช่น (15 คะแนน)
+5.  **ข้อเสนอแนะ (recommendations):** ระบุประเด็นสำคัญใน 'เฉลยและเกณฑ์การให้คะแนน' ที่นักศึกษาตอบได้ไม่สมบูรณ์ คลาดเคลื่อน หรือขาดหายไป พร้อมให้คำแนะนำที่เฉพาะเจาะจงเพื่อปรับปรุงในครั้งต่อไป พร้อมระบุคะแนนของแต่ละประเด็นในวงเล็บ เช่น (15 คะแนน)
+6.  **ข้อควรทราบ:** ไม่ต้องวิจารณ์เรื่องไวยากรณ์ การสะกดคำ หรือประเด็นอื่นที่ไม่เกี่ยวข้องกับเนื้อหาทางการพยาบาล
+
+นี่คือคำตอบของท่านผู้ทดสอบ: "${transcription}".
+นี่คือเฉลย: "${answerKey}".
+
+**รูปแบบผลลัพธ์:**
+โปรดสร้างผลการประเมินในรูปแบบ JSON ดังนี้เท่านั้น:
+    {
+      "totalScore": <คะแนนท่านผู้ทดสอบ>,
+      "pros": "<จุดที่ท่านผู้ทดสอบทำได้ดี",
+      "recommendations": "<ข้อเสนอแนะ>"
+    }
+`;
+
+    const checkContentEN = `
+You are an experienced nursing instructor evaluating a nursing student's clinical performance. Please assess the student's answer from 'Student Response' against the 'Key Answer and Scoring Rubric' in detail.
+
+**Evaluation Principles:**
+1.  **Comparison:** Compare the student's answer focusing on the meaning and correctness of content against the 'Key Answer and Scoring Rubric', not just exact vocabulary matching.
+2.  **Scoring:** The 'Key Answer and Scoring Rubric' has sub-items with points in parentheses (e.g., (10), (5)). Determine whether each item in the key answer is present in the student's response.
+    *   If the item is present and completely correct: award full points for that item.
+    *   If the item is present but incomplete or partially incorrect: award partial points as appropriate (e.g., half the points for that item).
+    *   If the item is absent: award zero points for that item.
+3.  **Total Score Calculation:** Calculate 'totalScore' from the sum of points awarded for each sub-item in the key answer.
+4.  **Pros:** Identify key items from the 'Key Answer and Scoring Rubric' that the student answered correctly, clearly, and completely, explaining why they did well. Include the point value of each item in parentheses, e.g., (15 points).
+5.  **Recommendations:** Identify key items from the 'Key Answer and Scoring Rubric' that the student answered incompletely, inaccurately, or missed entirely, providing specific suggestions for improvement. Include the point value of each item in parentheses, e.g., (15 points).
+6.  **Note:** Do not comment on grammar, spelling, or other issues unrelated to nursing content.
+
+Student Response: "${transcription}".
+Key Answer: "${answerKey}".
+
+**Output Format:**
+Please generate the evaluation result in JSON format only:
+    {
+      "totalScore": <student's score>,
+      "pros": "<what the student did well>",
+      "recommendations": "<recommendations for improvement>"
+    }
+`;
+
+    const checkContent = language === 'en' ? checkContentEN : checkContentTH;
 
     const response = await openai.chat.completions.create({
         messages: [{ role: "system", content: checkContent }],

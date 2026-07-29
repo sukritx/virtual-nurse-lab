@@ -38,6 +38,10 @@ const redirectUser = (navigate, user, registerCode) => {
         navigate("/professor/ob/dashboard"); // Professor OB Dashboard
         return;
       }
+      if (upperRegisterCode.startsWith("FUN")) {
+        navigate("/professor/fundamental/dashboard"); // Professor Fundamental Dashboard
+        return;
+      }
       // Fallback for professors without a specific registerCode prefix (e.g., Subject315)
       if (user.university === "Subject315") {
         navigate("/professor/315/dashboard");
@@ -61,6 +65,10 @@ const redirectUser = (navigate, user, registerCode) => {
       }
       if (upperRegisterCode.startsWith("OB")) {
         navigate("/ob/dashboard"); // Student OB Dashboard
+        return;
+      }
+      if (upperRegisterCode.startsWith("FUN")) {
+        navigate("/fundamental/dashboard"); // Student Fundamental Dashboard
         return;
       }
     }
