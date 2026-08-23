@@ -48,7 +48,7 @@ const Fundamental2En = () => {
                 "Calculate the drip rate in drops per minute for this order, showing your method, and state what you must verify before regulating the infusion.",
                 "Describe the essential nursing care for this patient while he is receiving IV fluid therapy, including intake-output recording."
             ]}
-            videoSrc=""
+            videoSrc="/fundamental/2.%20Fundamental%20Nursing%20IV%20therapy.mp4"
             attemptsLeft={attemptsLeft}
             setAttemptsLeft={setAttemptsLeft}
             language={language}

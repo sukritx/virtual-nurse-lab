@@ -48,7 +48,7 @@ const Fundamental1En = () => {
                 "From the video, identify what is incorrect in the current set-up of the urinary drainage system, and explain how you would correct each problem, giving your reasons.",
                 "Describe the essential nursing care you would provide during your shift to prevent CAUTI and to maintain this patient's urinary catheter safely."
             ]}
-            videoSrc=""
+            videoSrc="/fundamental/1.%20Fundamental%20Nursing%20—%20Retained%20Urinary%20Catheter.mp4"
             attemptsLeft={attemptsLeft}
             setAttemptsLeft={setAttemptsLeft}
             language={language}

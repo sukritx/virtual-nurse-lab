@@ -48,7 +48,7 @@ const Fundamental3 = () => {
                 "ก่อนให้อาหาร จงอธิบายวิธีตรวจสอบข้างเตียง 2 วิธี เพื่อยืนยันว่าปลายสายยางให้อาหารยังคงอยู่ในกระเพาะอาหาร",
                 "จงอธิบายการพยาบาลก่อน ขณะ และหลังการให้อาหารทางสายยางมื้อนี้"
             ]}
-            videoSrc=""
+            videoSrc="/fundamental/3.%20TH%20Fundamental%20Nursing%20—%20NG%20Tube%20Feeding.mp4"
             attemptsLeft={attemptsLeft}
             setAttemptsLeft={setAttemptsLeft}
             language={language}

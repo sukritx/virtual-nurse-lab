@@ -48,7 +48,7 @@ const Fundamental2 = () => {
                 "จงคำนวณอัตราหยดของสารน้ำเป็นหยดต่อนาที (แสดงวิธีคำนวณ) และบอกสิ่งที่ต้องตรวจสอบก่อนปรับอัตราหยด",
                 "จงอธิบายการพยาบาลที่จำเป็นสำหรับผู้ป่วยรายนี้ขณะได้รับสารน้ำทางหลอดเลือดดำ รวมทั้งการบันทึกสารน้ำเข้า-ออก"
             ]}
-            videoSrc=""
+            videoSrc="/fundamental/2.%20TH%20Fundamental%20Nursing%20—%20IV%20Fluid%20Therapy.mp4"
             attemptsLeft={attemptsLeft}
             setAttemptsLeft={setAttemptsLeft}
             language={language}

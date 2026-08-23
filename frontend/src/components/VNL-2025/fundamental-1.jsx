@@ -48,7 +48,7 @@ const Fundamental1 = () => {
                 "จากวิดีโอ จงระบุสิ่งที่ไม่ถูกต้องของการจัดวางระบบระบายปัสสาวะในขณะนี้ พร้อมอธิบายวิธีแก้ไขและเหตุผลประกอบ",
                 "จงอธิบายการพยาบาลที่จำเป็นในเวรของท่าน เพื่อป้องกัน CAUTI และดูแลสายสวนปัสสาวะของผู้ป่วยรายนี้อย่างปลอดภัย"
             ]}
-            videoSrc=""
+            videoSrc="/fundamental/1.%20TH%20Retained%20Urinary%20Catheter.mp4"
             attemptsLeft={attemptsLeft}
             setAttemptsLeft={setAttemptsLeft}
             language={language}

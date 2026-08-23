@@ -48,7 +48,7 @@ const Fundamental3En = () => {
                 "Before administering the feed, describe TWO bedside methods to verify that the tip of the NG tube remains correctly positioned in the stomach.",
                 "Describe the nursing care before, during, and after administering this enteral feed."
             ]}
-            videoSrc=""
+            videoSrc="/fundamental/3.%20Fundamental%20Nursing%20—%20NG%20Tube%20Feeding.mp4"
             attemptsLeft={attemptsLeft}
             setAttemptsLeft={setAttemptsLeft}
             language={language}
