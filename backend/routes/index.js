@@ -10,6 +10,7 @@ const labDeployedRouter = require('./lab-deployed');
 const testChunkRouter = require('./test-chunk');
 const trialLabRouter = require('./trial-lab-backend');
 const vnl2025Router = require('./vnl-2025-lab-backend');
+const otamaeRouter = require('./otamae-lab-backend');
 
 const router = express.Router();
 
@@ -21,6 +22,7 @@ router.use("/lab", labRouter);
 router.use("/lab-deployed", labDeployedRouter);
 router.use("/trial-cssd", trialLabRouter);
 router.use("/vnl2025", vnl2025Router);
+router.use("/vnl2025", otamaeRouter);
 router.use("/test", testRouter);
 router.use("/test-chunk", testChunkRouter);
 

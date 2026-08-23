@@ -60,6 +60,10 @@ export const Signin = () => {
             navigate("/professor/fundamental/dashboard");
             return;
           }
+          if (upperRegisterCode.startsWith("OTA")) {
+            navigate("/professor/otamae/dashboard");
+            return;
+          }
         }
 
         // Fallback for professors with 'Subject315' university, if no registerCode prefix matched
@@ -91,6 +95,10 @@ export const Signin = () => {
         }
         if (upperRegisterCode.startsWith("FUN")) {
           navigate("/fundamental/dashboard");
+          return;
+        }
+        if (upperRegisterCode.startsWith("OTA")) {
+          navigate("/otamae/dashboard");
           return;
         }
       }

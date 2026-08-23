@@ -42,6 +42,10 @@ const redirectUser = (navigate, user, registerCode) => {
         navigate("/professor/fundamental/dashboard"); // Professor Fundamental Dashboard
         return;
       }
+      if (upperRegisterCode.startsWith("OTA")) {
+        navigate("/professor/otamae/dashboard"); // Professor Otamae Dashboard
+        return;
+      }
       // Fallback for professors without a specific registerCode prefix (e.g., Subject315)
       if (user.university === "Subject315") {
         navigate("/professor/315/dashboard");
@@ -69,6 +73,10 @@ const redirectUser = (navigate, user, registerCode) => {
       }
       if (upperRegisterCode.startsWith("FUN")) {
         navigate("/fundamental/dashboard"); // Student Fundamental Dashboard
+        return;
+      }
+      if (upperRegisterCode.startsWith("OTA")) {
+        navigate("/otamae/dashboard"); // Student Otamae Dashboard
         return;
       }
     }

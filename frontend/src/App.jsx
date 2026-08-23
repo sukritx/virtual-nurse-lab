@@ -103,6 +103,21 @@ import FundamentalProfessorDashboard from './pages/VNL2025/FundamentalProfessorD
 import FundamentalStudentLabs from './pages/VNL2025/FundamentalStudentLabs.jsx';
 import FundamentalLabDetails from './pages/VNL2025/FundamentalLabDetails.jsx';
 import FundamentalLabHistory from './pages/VNL2025/FundamentalLabHistory.jsx';
+import Otamae1 from './components/VNL-2025/otamae-1.jsx';
+import Otamae2 from './components/VNL-2025/otamae-2.jsx';
+import Otamae3 from './components/VNL-2025/otamae-3.jsx';
+import Otamae4 from './components/VNL-2025/otamae-4.jsx';
+import Otamae5 from './components/VNL-2025/otamae-5.jsx';
+import Otamae6 from './components/VNL-2025/otamae-6.jsx';
+import Otamae7 from './components/VNL-2025/otamae-7.jsx';
+import Otamae8 from './components/VNL-2025/otamae-8.jsx';
+import Otamae9 from './components/VNL-2025/otamae-9.jsx';
+import Otamae10 from './components/VNL-2025/otamae-10.jsx';
+import OtamaeStudentDashboard from './pages/VNL2025/OtamaeStudentDashboard.jsx';
+import OtamaeProfessorDashboard from './pages/VNL2025/OtamaeProfessorDashboard.jsx';
+import OtamaeStudentLabs from './pages/VNL2025/OtamaeStudentLabs.jsx';
+import OtamaeLabDetails from './pages/VNL2025/OtamaeLabDetails.jsx';
+import OtamaeLabHistory from './pages/VNL2025/OtamaeLabHistory.jsx';
 
 // Layouts
 import MainLayout from './layouts/MainLayout';
@@ -215,6 +230,18 @@ function AppContent() {
           <Route path="/student/fundamental/3en" element={<Fundamental3En />} />
           <Route path="/fundamental/dashboard" element={<FundamentalStudentDashboard />} />
           <Route path="/fundamental/:labNumber/history" element={<FundamentalLabHistory />} />
+          <Route path="/student/otamae/1" element={<Otamae1 />} />
+          <Route path="/student/otamae/2" element={<Otamae2 />} />
+          <Route path="/student/otamae/3" element={<Otamae3 />} />
+          <Route path="/student/otamae/4" element={<Otamae4 />} />
+          <Route path="/student/otamae/5" element={<Otamae5 />} />
+          <Route path="/student/otamae/6" element={<Otamae6 />} />
+          <Route path="/student/otamae/7" element={<Otamae7 />} />
+          <Route path="/student/otamae/8" element={<Otamae8 />} />
+          <Route path="/student/otamae/9" element={<Otamae9 />} />
+          <Route path="/student/otamae/10" element={<Otamae10 />} />
+          <Route path="/otamae/dashboard" element={<OtamaeStudentDashboard />} />
+          <Route path="/otamae/:labNumber/history" element={<OtamaeLabHistory />} />
         </Route>
       </Route>
 
@@ -243,6 +270,9 @@ function AppContent() {
           <Route path="/professor/fundamental/dashboard" element={<FundamentalProfessorDashboard />} />
           <Route path="/professor/fundamental/view-labs/:userId" element={<FundamentalStudentLabs />} />
           <Route path="/professor/fundamental/view-lab/:userId/:labNumber" element={<FundamentalLabDetails />} />
+          <Route path="/professor/otamae/dashboard" element={<OtamaeProfessorDashboard />} />
+          <Route path="/professor/otamae/view-labs/:userId" element={<OtamaeStudentLabs />} />
+          <Route path="/professor/otamae/view-lab/:userId/:labNumber" element={<OtamaeLabDetails />} />
         </Route>
       </Route>
 
